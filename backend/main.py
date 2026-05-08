@@ -35,10 +35,10 @@ def root():
 def get_rules(rules: GetRules):
     source = rules.source
     # pass them to the json compiler
-    json_rules = backend.compiler.compile(source)
+    compiled_rules = backend.compiler.compile(source)
     # store in dict to reference when game starts
     rule_id = str(uuid4())
-    rules_store[rule_id] = json_rules
+    rules_store[rule_id] = compiled_rules
 
     return {
         "ok": True,
@@ -83,17 +83,6 @@ def join_lobby(game_id: str, request: JoinLobby):
         "playerId": player_id
     }
 
-# IGNORE FOR NOW, MAY BE USELESS IF CALLING WEBSOCKET FROM CLIENT FOR STARTING
-# # start the game
-# @app.post("/api/lobbies")
-# def start_game(game_id: str, ):
-    
-#     return {
-#         "ok": True,
-#         "gameId": game_id
-#         # anything else the client needs to build the frontend, ie buttons  
-#     }
-
 # socket for game
 @app.websocket("/ws/{game_id}/{player_id}")
 async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str):
@@ -117,9 +106,8 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                         "players": games[game_id]["players"],
                         "state": games[game_id]["state"]
                     })
-
             # if a new player joins, send the playerlist to the client if not started
-            if (action["type"] == "JOIN_GAME"):
+            elif (action["type"] == "JOIN_GAME"):
                 for player_socket in games[game_id]["connections"].values():
                     await player_socket.send_json({
                         "type": "UPDATE_PLAYERS",
@@ -127,10 +115,10 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                     })
         else:
             pass
-            # game loop
+            # ======= game loop =======
+            # run the action through engine, should take the rules and the players action
+            backend.engine.run_command(games[game_id]["rules"], action["type"])
 
-            # run the action through engine
-
-            # get state to send to each player
+            # get state and build player specific state to send to each player
 
             # send state to each player
