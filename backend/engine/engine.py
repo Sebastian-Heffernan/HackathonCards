@@ -1,8 +1,8 @@
 import os
 import importlib
-from commands import *
+from backend.engine.commands import *
 import inspect
-from instruction import Instruction
+from backend.engine.instruction import Instruction
 
 class BaseCommand:
     def execute(self, engine, args):
