@@ -1,4 +1,6 @@
-def execute(engine, args):
+from instruction import Instruction
+
+def execute(instruction : Instruction, engine):
     print("setting var")
     # var_name = args[0]
     # value = args[1]
