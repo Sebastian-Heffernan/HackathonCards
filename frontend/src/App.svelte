@@ -7,8 +7,15 @@
   let ruleId = "";
   let gameId = "";
   let playerId = "";
+  /**
+     * @type {any[] | null | undefined}
+     */
+  let players = [];
 
   let output = "";
+
+
+  let socket = null;
 
   async function sendRules() {
     const response = await fetch("/api/rules", {
@@ -44,6 +51,29 @@
     gameId = data.gameId;
     playerId = data.playerId;
     output = JSON.stringify(data, null, 2);
+
+    // connect web socket, same call as if joining lobby
+    joinLobby()
+  }
+
+  function joinLobby() {
+    const socket = new WebSocket(`ws://localhost:8000/ws/${gameId}/${playerId}`)
+    socket.onopen = (ev) => {
+      socket.send(JSON.stringify({
+        "type": "JOIN_GAME"
+      }));
+    } 
+
+    // player leave lobby onclose?
+
+    socket.onmessage = (ev) => {
+      const messageData = ev.data;
+      const message = JSON.parse(messageData);
+      if (message.type == "UPDATE_PLAYERS") {
+        // update list of players on page
+        players = message.players;
+      }
+    }
   }
 </script>
 
@@ -80,6 +110,10 @@
     <p><strong>Rule ID:</strong> {ruleId || "none"}</p>
     <p><strong>Game ID:</strong> {gameId || "none"}</p>
     <p><strong>Player ID:</strong> {playerId || "none"}</p>
+    {#each players as player}
+      {player.name}
+    {/each}
+
   </section>
 
   <section>

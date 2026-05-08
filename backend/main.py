@@ -3,7 +3,7 @@ from uuid import uuid4
 from fastapi import FastAPI, WebSocket
 from pydantic import BaseModel
 
-import backend.engine
+import backend.engine.engine
 import backend.compiler
 
 app = FastAPI()
@@ -35,10 +35,10 @@ def root():
 def get_rules(rules: GetRules):
     source = rules.source
     # pass them to the json compiler
-    compiled_rules = backend.compiler.compile(source)
+    #compiled_rules = backend.compiler.compile(source)
     # store in dict to reference when game starts
     rule_id = str(uuid4())
-    rules_store[rule_id] = compiled_rules
+    #rules_store[rule_id] = compiled_rules
 
     return {
         "ok": True,
@@ -117,7 +117,7 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
             pass
             # ======= game loop =======
             # run the action through engine, should take the rules and the players action
-            backend.engine.run_command(games[game_id]["rules"], action["type"])
+            #backend.engine.engine.run_command(games[game_id]["rules"], action["type"])
 
             # get state and build player specific state to send to each player
 
