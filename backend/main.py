@@ -13,16 +13,14 @@ games = {}
 rules_store = {}
 
 
-class Message(BaseModel):
-    text: str
-
-
 class CreateLobby(BaseModel):
     rule_id: str
     host_name: str
 
+
 class JoinLobby(BaseModel):
     name: str
+
 
 class GetRules(BaseModel):
     source: str
@@ -116,7 +114,8 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                     await player_socket.send_json({
                         # what to send to every client to start game?
                         "type": "START_GAME",
-                        "players": games[game_id]["players"]
+                        "players": games[game_id]["players"],
+                        "state": games[game_id]["state"]
                     })
 
             # if a new player joins, send the playerlist to the client if not started
@@ -126,9 +125,12 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                         "type": "UPDATE_PLAYERS",
                         "players": games[game_id]["players"]
                     })
-        
-        # run the action through engine
+        else:
+            pass
+            # game loop
 
-        # get state to send to each player
+            # run the action through engine
 
-        # send state to each player
+            # get state to send to each player
+
+            # send state to each player
