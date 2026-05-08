@@ -59,7 +59,7 @@ def start_game(request: CreateLobby):
             host_id : {"name": request.host_name}
         },
         "state": {
-
+            # figure out game state somehow maybe?
         }
     }
 
