@@ -106,7 +106,7 @@
 </script>
 
 <main>
-  <h1>Hackathon Cards Test</h1>
+  <h1>Cardssembly Cards Test</h1>
 
   <section>
     <h2>Rules</h2>
