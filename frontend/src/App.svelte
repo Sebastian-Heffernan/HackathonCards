@@ -1,89 +1,90 @@
 <script>
-  import svelteLogo from './assets/svelte.svg'
-  import viteLogo from './assets/vite.svg'
-  import heroImg from './assets/hero.png'
-  import Counter from './lib/Counter.svelte'
+  let rulesText = `ACTION START BUTTON "Start Game":
+    EXIT`;
+
+  let hostName = "Host";
+
+  let ruleId = "";
+  let gameId = "";
+  let playerId = "";
+
+  let output = "";
+
+  async function sendRules() {
+    const response = await fetch("/api/rules", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        source: rulesText
+      })
+    });
+
+    const data = await response.json();
+
+    ruleId = data.ruleId;
+    output = JSON.stringify(data, null, 2);
+  }
+
+  async function createLobby() {
+    const response = await fetch("/api/lobbies", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        rule_id: ruleId,
+        host_name: hostName
+      })
+    });
+
+    const data = await response.json();
+
+    gameId = data.gameId;
+    playerId = data.playerId;
+    output = JSON.stringify(data, null, 2);
+  }
 </script>
 
-<section id="center">
-  <div class="hero">
-    <img src={heroImg} class="base" width="170" height="179" alt="" />
-    <img src={svelteLogo} class="framework" alt="Svelte logo" />
-    <img src={viteLogo} class="vite" alt="Vite logo" />
-  </div>
-  <div>
-    <h1>Get started</h1>
-    <p>Edit <code>src/App.svelte</code> and save to test <code>HMR</code></p>
-  </div>
-  <Counter />
-</section>
+<main>
+  <h1>Hackathon Cards Test</h1>
 
-<div class="ticks"></div>
+  <section>
+    <h2>Rules</h2>
 
-<section id="next-steps">
-  <div id="docs">
-    <svg class="icon" role="presentation" aria-hidden="true">
-      <use href="/icons.svg#documentation-icon"></use>
-    </svg>
-    <h2>Documentation</h2>
-    <p>Your questions, answered</p>
-    <ul>
-      <li>
-        <a href="https://vite.dev/" target="_blank" rel="noreferrer">
-          <img class="logo" src={viteLogo} alt="" />
-          Explore Vite
-        </a>
-      </li>
-      <li>
-        <a href="https://svelte.dev/" target="_blank" rel="noreferrer">
-          <img class="button-icon" src={svelteLogo} alt="" />
-          Learn more
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div id="social">
-    <svg class="icon" role="presentation" aria-hidden="true">
-      <use href="/icons.svg#social-icon"></use>
-    </svg>
-    <h2>Connect with us</h2>
-    <p>Join the Vite community</p>
-    <ul>
-      <li>
-        <a href="https://github.com/vitejs/vite" target="_blank" rel="noreferrer">
-          <svg class="button-icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#github-icon"></use>
-          </svg>
-          GitHub
-        </a>
-      </li>
-      <li>
-        <a href="https://chat.vite.dev/" target="_blank" rel="noreferrer">
-          <svg class="button-icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#discord-icon"></use>
-          </svg>
-          Discord
-        </a>
-      </li>
-      <li>
-        <a href="https://x.com/vite_js" target="_blank" rel="noreferrer">
-          <svg class="button-icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#x-icon"></use>
-          </svg>
-          X.com
-        </a>
-      </li>
-      <li>
-        <a href="https://bsky.app/profile/vite.dev" target="_blank" rel="noreferrer">
-          <svg class="button-icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#bluesky-icon"></use>
-          </svg>
-          Bluesky
-        </a>
-      </li>
-    </ul>
-  </div>
-</section>
+    <textarea bind:value={rulesText}></textarea>
 
-<div class="ticks"></div>
-<section id="spacer"></section>
+    <br />
+
+    <button on:click={sendRules}>
+      Send Rules
+    </button>
+  </section>
+
+  <section>
+    <h2>Create Lobby</h2>
+
+    <input bind:value={hostName} placeholder="Host name" />
+
+    <br />
+
+    <button on:click={createLobby} disabled={!ruleId}>
+      Create Lobby
+    </button>
+  </section>
+
+  <section>
+    <h2>Current IDs</h2>
+
+    <p><strong>Rule ID:</strong> {ruleId || "none"}</p>
+    <p><strong>Game ID:</strong> {gameId || "none"}</p>
+    <p><strong>Player ID:</strong> {playerId || "none"}</p>
+  </section>
+
+  <section>
+    <h2>Response</h2>
+    <pre>{output}</pre>
+  </section>
+</main>
+
