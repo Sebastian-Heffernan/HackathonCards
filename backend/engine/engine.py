@@ -2,7 +2,7 @@ import os
 import importlib
 from commands import *
 import inspect
-from instruction import Instruction, InstructionEnd
+from instruction import Instruction
 
 class BaseCommand:
     def execute(self, engine, args):
@@ -11,6 +11,8 @@ class BaseCommand:
 class GameEngine:
     def __init__(self, game_data):
         self.rules = game_data
+        self.pointer = 0
+        self.label = "START"
         self.state = {
 
         }
@@ -18,21 +20,13 @@ class GameEngine:
         self._load_commands()
 
     def run_script(self):
-        pointer = 0
-        label = "START"
         while 1:
-            instruction : Instruction = self.rules["labels"][label][pointer]
+            instruction : Instruction = self.rules["labels"][self.label][self.pointer]
             if instruction.name == "EXIT":
                 print("exiting")
                 break
-            elif instruction.name == "GOTO":
-                print(f"going to {instruction.args}")
-                pointer = get_label_index(instruction)
-                instruction = self.rules["labels"][instruction.args]
-                continue
-            elif instruction.name in self.commandList:
-                self.commandList[instruction.name](self, instruction)
-            instruction = instruction.next
+            instruction.run(self)
+            self.pointer += 1
 
     def _load_commands(self):
         path = os.path.join(os.path.dirname(__file__), "commands")
@@ -61,7 +55,7 @@ if __name__ == "__main__":
                 Instruction("GOTO", ["TEST"]),
             ],
             "TEST": [
-                Instrution("PRINT", ["test"])
+                Instruction("PRINT", ["test"]),
                 Instruction("EXIT", None)
             ]
         }
