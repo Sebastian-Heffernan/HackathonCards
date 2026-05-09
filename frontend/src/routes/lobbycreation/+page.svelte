@@ -6,8 +6,46 @@ import { goto } from '$app/navigation'; // Add this import
     connected?: boolean;
   };
 
-  let rulesText = $state(`ACTION START BUTTON "Start Game":
-    EXIT`);
+  let rulesText = $state(`
+ACTION START BUTTON "Start Game":
+    DECK MAKE deck
+    DECK SHUFFLE deck
+    MOVE_CARD deck active
+    GET_ATTR last_moved_card value current_val
+    SET_VAR score 0
+    SET_VAR status "Guess higher or lower"
+    END_TURN
+
+ACTION HIGHER BUTTON "Higher":
+    CALL SWAP_CARD
+    GET_ATTR last_moved_card value next_val
+    COMPARE next_val > current_val
+    GOTO WIN
+    GOTO LOSE
+
+ACTION LOWER BUTTON "Lower":
+    CALL SWAP_CARD
+    GET_ATTR last_moved_card value next_val
+    COMPARE next_val < current_val
+    GOTO WIN
+    GOTO LOSE
+
+LABEL SWAP_CARD:
+    MOVE_CARD active discard
+    MOVE_CARD deck active
+    RETURN
+
+LABEL WIN:
+    MATH score + 1
+    SET_VAR current_val next_val
+    SET_VAR status "Correct"
+    END_TURN
+
+LABEL LOSE:
+    SET_VAR score 0
+    SET_VAR status "Wrong"
+    END_TURN
+  `);
 
   let userName = $state("username");
 
