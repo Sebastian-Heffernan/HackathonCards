@@ -14,7 +14,7 @@ def execute(instruction: Instruction, engine: GameEngine):
     player_id = instruction.args[1]
     card_id = instruction.args[2]
 
-    if player_id >= len(engine.playerStates):
+    if player_id >= len(engine.playerStates) or card_id >= len(engine.playerStates[player_id].hand):
         raise BuildError()
     
     suit_value = engine.playerStates[player_id].hand[card_id].suit
