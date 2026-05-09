@@ -1,25 +1,129 @@
 <script lang="ts">
-   import { tick } from "svelte";
-   let textarea: HTMLTextAreaElement;
-async function openModal() {
-	showCreateLobbyModal = true;
-	await tick();
-	textarea?.focus();
-}
-   let rules: string = $state("");
-   type Lobby = {
-      id: string;
-      name: string;
-      playerCount: number;
-   };
+  import { goto } from "$app/navigation";
+  import { tick } from "svelte";
 
-   let lobbies: Lobby[] = [
-      { id: "1", name: "ABC123", playerCount: 2 },
-      { id: "2", name: "XYZ789", playerCount: 3 },
-      { id: "3", name: "LMN456", playerCount: 1 },
-   ];
+  let textarea: HTMLTextAreaElement;
 
-   let showCreateLobbyModal: boolean = $state(false);
+  let rules = $state(`
+ACTION START BUTTON "Start Game":
+    DECK MAKE deck
+    DECK SHUFFLE deck
+    MOVE_CARD deck active
+    GET_ATTR last_moved_card value current_val
+    SET_VAR score 0
+    SET_VAR status "Guess higher or lower"
+    END_TURN
+
+ACTION HIGHER BUTTON "Higher":
+    CALL SWAP_CARD
+    GET_ATTR last_moved_card value next_val
+    COMPARE next_val > current_val
+    GOTO WIN
+    GOTO LOSE
+
+ACTION LOWER BUTTON "Lower":
+    CALL SWAP_CARD
+    GET_ATTR last_moved_card value next_val
+    COMPARE next_val < current_val
+    GOTO WIN
+    GOTO LOSE
+
+LABEL SWAP_CARD:
+    MOVE_CARD active discard
+    MOVE_CARD deck active
+    RETURN
+
+LABEL WIN:
+    MATH score + 1
+    SET_VAR current_val next_val
+    SET_VAR status "Correct"
+    END_TURN
+
+LABEL LOSE:
+    SET_VAR score 0
+    SET_VAR status "Wrong"
+    END_TURN
+  `);
+
+  let userName = $state("username");
+   let joinLobbyCode = $state("");
+  let showCreateLobbyModal = $state(false);
+
+  type Lobby = {
+    id: string;
+    name: string;
+    playerCount: number;
+  };
+
+  let lobbies: Lobby[] = [
+    { id: "1", name: "ABC123", playerCount: 2 },
+    { id: "2", name: "XYZ789", playerCount: 3 },
+    { id: "3", name: "LMN456", playerCount: 1 },
+  ];
+
+  async function openModal() {
+    showCreateLobbyModal = true;
+    await tick();
+    textarea?.focus();
+  }
+
+  async function sendRules() {
+    const response = await fetch("/api/rules", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        source: rules
+      })
+    });
+
+    const data = await response.json();
+    return data.ruleId;
+  }
+
+  async function createLobby() {
+    const ruleId = await sendRules();
+
+    const response = await fetch("/api/lobbies", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        rule_id: ruleId,
+        host_name: userName
+      })
+    });
+
+    const data = await response.json();
+
+    sessionStorage.setItem("gameId", data.gameId);
+    sessionStorage.setItem("playerId", data.playerId);
+    sessionStorage.setItem("lobbyCode", data.lobbyCode);
+
+    goto(`/lobby/${data.lobbyCode}`);
+  }
+
+  async function joinLobby(lobbyCode: string) {
+    const response = await fetch(`/api/lobbies/${lobbyCode}/join`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name: userName
+      })
+    });
+
+    const data = await response.json();
+
+    sessionStorage.setItem("gameId", data.gameId);
+    sessionStorage.setItem("playerId", data.playerId);
+    sessionStorage.setItem("lobbyCode", data.lobbyCode);
+
+    goto(`/lobby/${data.lobbyCode}`);
+  }
 </script>
 
 <!-- Page Wrapped -->
@@ -65,12 +169,13 @@ async function openModal() {
                <!-- ROWS -->
                <div class="flex-1">
                   {#each lobbies as lobby, i}
-                     <div
+                        <!-- svelte-ignore a11y_click_events_have_key_events -->
+                        <!-- svelte-ignore a11y_no_static_element_interactions -->
+                        <div
                         class="grid grid-cols-[3fr_1fr] divide-x divide-black items-stretch border-t p-3 hover:bg-gray-50 cursor-pointer
-                     {i === lobbies.length - 1
-                           ? 'border-b-2 border-black'
-                           : ''}"
-                     >
+                        {i === lobbies.length - 1 ? 'border-b-2 border-black' : ''}"
+                        onclick={() => joinLobby(lobby.name)}
+                        >
                         <div
                            class="pr-4 font-bold text-gray-900 text-center text-sm"
                         >
@@ -86,6 +191,32 @@ async function openModal() {
                   {/each}
                </div>
             </div>
+         </div>
+      </div>
+
+      <div class="mt-6 w-full max-w-3xl bg-white shadow rounded p-4">
+         <h2 class="text-lg font-bold mb-3 text-center">Join Lobby by Code</h2>
+
+         <div class="flex flex-col md:flex-row gap-3">
+            <input
+               bind:value={userName}
+               placeholder="Username"
+               class="border border-gray-300 rounded px-3 py-2 flex-1"
+            />
+
+            <input
+               bind:value={joinLobbyCode}
+               placeholder="Lobby Code"
+               class="border border-gray-300 rounded px-3 py-2 flex-1 uppercase"
+            />
+
+            <button
+               class="px-4 py-2 bg-blue-500 text-white rounded"
+               onclick={() => joinLobby(joinLobbyCode)}
+               disabled={!joinLobbyCode || !userName}
+            >
+               Join Lobby
+            </button>
          </div>
       </div>
    </main>
@@ -117,7 +248,8 @@ async function openModal() {
                   Cancel
                </button>
 
-               <button class="px-4 py-2 bg-blue-500 text-white rounded">
+               <button class="px-4 py-2 bg-blue-500 text-white rounded"
+               onclick={createLobby}>
                   Create
                </button>
             </div>
