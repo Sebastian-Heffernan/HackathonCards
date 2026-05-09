@@ -2,7 +2,7 @@
   let { deckSize = 5 } = $props(); // Number of visible layers to show thickness
 </script>
 
-<div class="relative w-48">
+<div class="relative w-48 translate-x-[-16px]">
   {#each Array(deckSize) as _, i}
     <img 
       src="/cards/card_back.png" 

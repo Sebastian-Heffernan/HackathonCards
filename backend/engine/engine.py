@@ -17,6 +17,7 @@ class GameEngine:
     def __init__(self, rules : Rules):
         self.rules = rules
         self.decks = []
+        self.stack = [] # for CALl pointer
         self.pointer = 0
 
         self.label = "SETUP"
@@ -26,13 +27,17 @@ class GameEngine:
         self.commandList = {}
         self._load_commands()
 
-    def run_script(self):
-        while 1:
-            instruction : Instruction = self.rules.labels[self.label][self.pointer]
-            # print(f"{self.pointer}: {instruction.name}")
-            if instruction.run(self) == False:
-                print("Exiting game")
+    def run_script(self, label="SETUP"):
+        self.label = label
+        self.pointer = 0
+
+        while True:
+            instruction = self.rules.labels[self.label][self.pointer]
+            result = instruction.run(self)
+
+            if result == "Break":
                 break
+
             self.pointer += 1
 
     # Loads availabe commands into array
@@ -83,57 +88,16 @@ class GameEngine:
 
 
 if __name__ == "__main__":
-    rules = Rules()
-    rules.add_new_rule(0, "SETUP", [
-        Instruction("DECK", ["MAKE", "deck"]),
-        Instruction("GOTO", ["START"])
-    ])
-    rules.add_new_rule(0, "START", [
-        Instruction("DECK", ["SHUFFLE", "deck"]),
-        Instruction("MOVE_CARD", ["deck", "active"]),
-        Instruction("SET_VAR", ["score", "0"]),
-        Instruction("SET_VAR", ["status", "\"Game start\""]),
-        Instruction("END_TURN", None)
-    ])
-    rules.add_new_rule(0, "SWAP_CARD", [
-        Instruction("MOVE_CARD", ["active", "discard"]),
-        Instruction("MOVE_CARD", ["deck", "active"]),
-        Instruction("RETURN", None)
-    ])
-    rules.add_new_rule(0, "HIGHER", [
-        Instruction("CALL", ["SWAP_CARD"]),
-        Instruction("GET_ATTR", ["last_moved_card", "value", "next_val"]),
-        Instruction("COMPARE", ["next_val", ">", "current_val"]),
-        Instruction("GOTO", ["WIN"]),
-        Instruction("GOTO", ["LOSE"])
-    ])
-    rules.add_new_rule(0, "LOWER", [
-        Instruction("CALL", ["SWAP_CARD"]),
-        Instruction("GET_ATTR", ["last_moved_card", "value", "next_val"]),
-        Instruction("COMPARE", ["next_val", "<", "current_val"]),
-        Instruction("GOTO", ["WIN"]),
-        Instruction("GOTO", ["LOSE"])
-    ])
-    rules.add_new_rule(0, "WIN", [
-        Instruction("MATH", ["score", "+", "1"]),
-        Instruction("SET_VAR", ["current_val", "next_val"]),
-        Instruction("SET_VAR", ["status", "\"Correct\""]),
-        Instruction("GOTO", ["START"])
-    ])
-    rules.add_new_rule(0, "LOSE", [
-        Instruction("SET_VAR", ["score", "0"]),
-        Instruction("SET_VAR", ["status", "\"Wrong\""]),
-        Instruction("GOTO", ["START"])
-    ])
     rules2 = Rules()
     rules2.add_new_rule(0, "SETUP", [
         Instruction("DECK", ["MAKE", "deck"]),
         Instruction("DECK", ["SHUFFLE", "deck"]),
         Instruction("PRINT", ["decks[0].name"]),
-        Instruction("GOTO", ["TEST"])
+        Instruction("CALL", ["TEST"]),
+        Instruction("END_TURN", [0])
     ])
     rules2.add_new_rule(0, "TEST", [
-        Instruction("END_TURN", [0])
+        Instruction("RETURN", [0])
     ])
     engine = GameEngine(rules2)
     engine.run_script()

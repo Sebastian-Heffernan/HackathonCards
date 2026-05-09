@@ -1,112 +1,94 @@
 <script lang="ts">
-import { onMount } from 'svelte';
-  import { page } from '$app/state';
+  import { onMount } from "svelte";
+  import { page } from "$app/state";
+  import { goto } from "$app/navigation"
+
   type Player = {
     id: string;
     name: string;
     connected?: boolean;
-    };
+  };
 
-    let lobbyCode = $state(page.params.lobbyId || "");
-    let players = $state<Player[]>([]);
-    
-  let rulesText = $state(`ACTION START BUTTON "Start Game":
-    EXIT`); // hidden for now, do not show in a textbox
-
-  
-
+  let lobbyCode = $state(page.params.lobbyId || "");
   let userName = $state("username");
 
-  let ruleId = $state("");
   let gameId = $state("");
   let playerId = $state("");
+  let players = $state<Player[]>([]);
   let output = $state("");
   let socket = $state<WebSocket | null>(null);
 
-  async function sendRules() {
-    const response = await fetch("/api/rules", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        source: rulesText
-      })
-    });
+  onMount(() => {
+    gameId = sessionStorage.getItem("gameId") || "";
+    playerId = sessionStorage.getItem("playerId") || "";
 
-    const data = await response.json();
+    if (gameId && playerId) {
+      createWebsocket();
+    }
+  });
 
-    ruleId = data.ruleId;
-    output = JSON.stringify(data, null, 2);
-  }
+  // async function joinFromLobbyPage() {
+  //   const response = await fetch(`/api/lobbies/${lobbyCode}/join`, {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json"
+  //     },
+  //     body: JSON.stringify({
+  //       name: userName
+  //     })
+  //   });
 
-  async function createLobby() {
-    const response = await fetch("/api/lobbies", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        rule_id: ruleId,
-        host_name: userName
-      })
-    });
+  //   const data = await response.json();
 
-    const data = await response.json();
+  //   gameId = data.gameId;
+  //   playerId = data.playerId;
 
-    gameId = data.gameId;
-    playerId = data.playerId;
-    lobbyCode = data.lobbyCode;
-    output = JSON.stringify(data, null, 2);
-    console.log(output);
+  //   sessionStorage.setItem("gameId", gameId);
+  //   sessionStorage.setItem("playerId", playerId);
+  //   sessionStorage.setItem("lobbyCode", lobbyCode);
 
-    // connect web socket, same call as if joining lobby
-    createWebsocket()
-  }
+  //   createWebsocket();
+  // }
 
-  // host doesn't join own lobby since already joined when created
-  async function joinLobby() {
-    const response = await fetch(`/api/lobbies/${lobbyCode}/join`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        name: userName,
-      })
-    });
+  function createWebsocket() {
+    socket = new WebSocket(`ws://localhost:8000/ws/${gameId}/${playerId}`);
 
-    const data = await response.json();
-
-    gameId = data.gameId;
-    playerId = data.playerId;
-    lobbyCode = data.lobbyCode;
-    output = JSON.stringify(data, null, 2);
-
-    // connect web socket, same call as if joining lobby
-    createWebsocket()
-  }
-
-function createWebsocket() {
-    // Ensure you have gameId and playerId from your join logic/page state
-    const ws = new WebSocket(`/ws/${gameId}/${playerId}`);
-    
-    ws.onopen = () => {
-      ws.send(JSON.stringify({ type: "JOIN_GAME" }));
+    socket.onopen = () => {
+      socket?.send(JSON.stringify({
+        type: "JOIN_GAME"
+      }));
     };
 
-    ws.onmessage = (ev) => {
+    socket.onmessage = (ev) => {
       const message = JSON.parse(ev.data);
+      output = JSON.stringify(message, null, 2);
+
       if (message.type === "UPDATE_PLAYERS") {
-        players = Object.values(message.players);
+        players = Object.entries(message.players).map(([id, playerData]) => {
+          const player = playerData as { name: string; connected?: boolean };
+
+          return {
+            id,
+            name: player.name,
+            connected: player.connected ?? true
+          };
+        });
       }
+
+        if (message.type === "START_GAME") {
+          sessionStorage.setItem("initialPlayerState", JSON.stringify(message.playerState));
+          sessionStorage.setItem("initialGameState", JSON.stringify(message.gameState));
+
+          goto(`/game/${gameId}`);
+        }
     };
-    
-    socket = ws; // Store in state if needed
   }
 
-
-
+  function startGame() {
+    socket?.send(JSON.stringify({
+      type: "START_GAME"
+    }));
+  }
 </script>
 
 
@@ -117,13 +99,18 @@ function createWebsocket() {
         <!-- Details Card: Now dynamic -->
         <div class="p-10 bg-white shadow-xl rounded-lg border border-gray-200">
             <p class="font-extrabold text-lg mb-2 text-center">Details</p>
-            <p>Lobby Code: <span class="font-mono text-blue-600">{output}</span></p>
+            <p>Lobby Code: <span class="font-mono text-blue-600">{lobbyCode}</span></p>
             <p>Player Count: <span class="font-bold">{players.length}</span></p>
         </div>
 
         <div class="py-3">
-            <button type="button" class="nes-btn is-primary" disabled={players.length === 0}>
-                Start Game
+            <button
+              type="button"
+              class="nes-btn is-primary"
+              disabled={players.length === 0}
+              onclick={startGame}
+            >
+              Start Game
             </button>
         </div>
 

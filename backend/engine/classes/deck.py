@@ -15,7 +15,7 @@ class Deck:
         self.populate()
 
     def populate(self):
-        self.cards.clear
+        self.cards.clear()
         for suit in Suit:
             for val in VALUES:
                 self.cards.append({
