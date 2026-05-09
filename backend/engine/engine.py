@@ -134,9 +134,9 @@ LABEL SETUP:
 LABEL LOOP:
     DRAW deck 0 1
     MATH i + 1
-    COMPARE i > 10
-    GOTO YES
+    COMPARE i < 2
     GOTO LOOP
+    GOTO YES
 LABEL YES:
     PRINT gameState.variables
     PRINT playerStates[0].hand
