@@ -28,17 +28,19 @@ class GameEngine:
         self.commandList = {}
         self._load_commands()
 
-    def run_script(self, label="SETUP"):
+    def run_script(self, label):
         self.label = label
         self.pointer = 0
 
         while True:
             instruction = self.rules.labels[self.label][self.pointer]
+            # print(instruction.name)
             result = instruction.run(self)
 
-            if result == "Break":
+            if result == "break":
                 break
-
+            elif result == "jump":
+                continue
             self.pointer += 1
 
     # Loads availabe commands into array
@@ -120,5 +122,19 @@ LABEL LOSE:
     SET_VAR score 0
     GOTO START
 """
-    rules: Rules = Compiler.compile(raw_text)
-    print(rules)
+    test = """
+LABEL SETUP:
+    DECK MAKE deck
+    DECK SHUFFLE deck
+    CALL FUNC
+    GOTO TEST
+LABEL TEST:
+    END_TURN
+LABEL FUNC:
+    PRINT decks[0].name
+    RETURN
+"""
+    rules: Rules = Compiler.compile(test)
+    engine = GameEngine(rules)
+    engine.run_script("SETUP")
+    # print(rules)

@@ -26,3 +26,4 @@ def execute(instruction : Instruction, engine: GameEngine):
         condition_met = (left <= right)
     else:
         raise BuildError()
+    
