@@ -14,8 +14,8 @@ PLAYER_IDX = 1
 
 # VALUE [VAR][p: int][c: int]
 def execute(instruction: Instruction, engine: GameEngine):
-    if len(instruction.args) != 3:
-        raise BuildError("VALUE requires 3 args")
+    if len(instruction.args) != 2:
+        raise BuildError("HANDLEN requires 2 args")
 
     var_name = instruction.args[VAR_NAME]
     player_idx = instruction.args[PLAYER_IDX]

@@ -11,12 +11,14 @@ def execute(instruction: Instruction, engine: GameEngine):
         raise BuildError()
 
     var = instruction.args[0]
-    player_id = instruction.args[1]
-    card_id = instruction.args[2]
+    player_id = engine.gameState.resolve_variable(instruction.args[1])
+    card_id = engine.gameState.resolve_variable(instruction.args[2])
 
-    if player_id >= len(engine.playerStates) or card_id >= len(engine.playerStates[player_id].hand):
+    if player_id >= len(engine.playerStates) or card_id >= len(
+        engine.playerStates[player_id].hand
+    ):
         raise BuildError()
-    
+
     suit_value = engine.playerStates[player_id].hand[card_id].suit
-    engine.gameState.variables[var] = suit_value # set value in ram
-    
+    engine.gameState.variables[var] = suit_value  # set value in ram
+

@@ -241,11 +241,11 @@ LABEL MOVE:
       >
          <!-- MODAL -->
          <div
-            class="bg-white rounded-lg shadow-lg w-[90vw] max-w-5xl h-[85vh] p-6 flex flex-col"
+            class="bg-white rounded-lg shadow-lg w-[90vw] max-w-5xl h-[85vh] p-6 flex flex-col min-h-0"
          >
             <!-- TITLE -->
             <h2 class="text-xl font-bold mb-4 text-center">Create Lobby</h2>
-            <div class="flex-1 flex flex-col">
+            <div class="flex-1 flex flex-col min-h-0">
                <!-- INPUT -->
                <RuleEditor bind:value={rules} bind:this={editorRef} />
             </div>
