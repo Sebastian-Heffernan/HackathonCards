@@ -33,6 +33,7 @@ class GameEngine:
             instruction.run(self)
             self.pointer += 1
 
+    # Loads availabe commands into array
     def _load_commands(self):
         path = os.path.join(os.path.dirname(__file__), "commands")
         for filename in os.listdir(path):
@@ -52,6 +53,7 @@ class GameEngine:
                 return i
         return len(instructions)
     
+    # Getters/setters
     def add_player(self, uuid):
         player = PlayerState(uuid)
         self.playerStates.append(player)
