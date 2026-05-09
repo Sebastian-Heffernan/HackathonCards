@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { page } from "$app/state";
+  import { goto } from "$app/navigation"
 
   type Player = {
     id: string;
@@ -26,28 +27,28 @@
     }
   });
 
-  async function joinFromLobbyPage() {
-    const response = await fetch(`/api/lobbies/${lobbyCode}/join`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        name: userName
-      })
-    });
+  // async function joinFromLobbyPage() {
+  //   const response = await fetch(`/api/lobbies/${lobbyCode}/join`, {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json"
+  //     },
+  //     body: JSON.stringify({
+  //       name: userName
+  //     })
+  //   });
 
-    const data = await response.json();
+  //   const data = await response.json();
 
-    gameId = data.gameId;
-    playerId = data.playerId;
+  //   gameId = data.gameId;
+  //   playerId = data.playerId;
 
-    sessionStorage.setItem("gameId", gameId);
-    sessionStorage.setItem("playerId", playerId);
-    sessionStorage.setItem("lobbyCode", lobbyCode);
+  //   sessionStorage.setItem("gameId", gameId);
+  //   sessionStorage.setItem("playerId", playerId);
+  //   sessionStorage.setItem("lobbyCode", lobbyCode);
 
-    createWebsocket();
-  }
+  //   createWebsocket();
+  // }
 
   function createWebsocket() {
     socket = new WebSocket(`ws://localhost:8000/ws/${gameId}/${playerId}`);
@@ -73,6 +74,13 @@
           };
         });
       }
+
+        if (message.type === "START_GAME") {
+          sessionStorage.setItem("initialPlayerState", JSON.stringify(message.playerState));
+          sessionStorage.setItem("initialGameState", JSON.stringify(message.gameState));
+
+          goto(`/game/${gameId}`);
+        }
     };
   }
 
