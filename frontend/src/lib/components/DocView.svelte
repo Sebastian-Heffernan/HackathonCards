@@ -11,10 +11,4 @@ let { data } = $props();
         <h1 class="mt-2 text-4xl font-bold text-slate-900">{data.title}</h1>
         <p class="mt-4 text-lg text-slate-600 leading-relaxed">{data.content}</p>
     </header>
-
-  {#each data.items as item}
-    <div>
-      {item}
-    </div>  
-  {/each}
 </article>
