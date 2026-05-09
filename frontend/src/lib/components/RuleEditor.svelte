@@ -104,6 +104,16 @@
         });
     });
 
+    $effect(() => {
+    if (!view) return;
+    const current = view.state.doc.toString();
+    if (current !== value) {
+        view.dispatch({
+            changes: { from: 0, to: current.length, insert: value },
+        });
+    }
+    });
+
     export function focus() {
         view?.focus();
     }
