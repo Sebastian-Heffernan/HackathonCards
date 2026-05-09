@@ -12,7 +12,7 @@ from backend.routers import lobby
 
 app = FastAPI()
 
-app.include_router(lobby.router)
+#app.include_router(lobby.router)
 
 
 class CreateLobby(BaseModel):
@@ -69,7 +69,7 @@ def start_game(request: CreateLobby):
         "hostId": host_id,
         "connections": {},
         "players": {host_id: {"name": request.host_name}},
-        "engine": {GameEngine(rules_store[request.rule_id])},
+        "engine": GameEngine(rules_store[request.rule_id]),
     }
 
     code = create_code()
@@ -124,7 +124,7 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                             "playerState": games[game_id]["engine"].get_player_state(
                                 connected_player_id
                             ),
-                            "gameState": games[game_id]["engien"].get_game_state(),
+                            "gameState": games[game_id]["engine"].get_game_state(),
                         }
                     )
             # if a new player joins, send the playerlist to the client if not started
@@ -150,6 +150,6 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                             "playerState": games[game_id]["engine"].get_player_state(
                                 connected_player_id
                             ),
-                            "gameState": games[game_id]["engien"].get_game_state(),
+                            "gameState": games[game_id]["engine"].get_game_state(),
                         }
                     )
