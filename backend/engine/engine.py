@@ -127,7 +127,7 @@ LABEL ADDCARDSTOALL:
     GOTO ADDCARDSTOALL
     GOTO CONTINUE
 LABEL ADDCARDS:
-    DRAW deck 0 1
+    DRAW deck i 1
     MATH j + 1
     COMPARE j < 2
     GOTO ADDCARDS
@@ -148,4 +148,5 @@ LABEL ADDCARDSTOALL:
     engine = GameEngine(rules)
     engine.add_player(0)
     engine.add_player(1)
+    engine.add_player(2)
     engine.run_script("SETUP")
