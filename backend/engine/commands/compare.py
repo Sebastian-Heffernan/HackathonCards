@@ -17,6 +17,8 @@ def execute(instruction: Instruction, engine: GameEngine):
     left = engine.gameState.resolve_variable(instruction.args[0])
     right = engine.gameState.resolve_variable(instruction.args[2])
     operator = instruction.args[1]
+    if(engine.debug):
+        print(f"Comparing {left} {operator} {right}")
     condition_met = False
     if operator == "==":
         condition_met = left == right
