@@ -46,7 +46,7 @@ class Compiler:
                     continue
 
                 # Check if this line is the start of a NEW rule
-                if tokenized_line[0] == "ACTION":
+                if tokenized_line[0] == "LABEL":
                     break  # Stop inner loop, don't increment line_idx yet
 
                 new_node = Instruction(tokenized_line[0], tokenized_line[1:])
@@ -61,35 +61,10 @@ class Compiler:
 
 if __name__ == "__main__":
     raw_text = """
-# SETUP
-ACTION START:
-    SHUFFLE deck
-    MOVE_CARD deck active_zone
-    SET_VAR score 0
-    SET_VAR status "Game start"
-LABEL SWAP_CARD:
-    MOVE_CARD active_zone discard
-    MOVE_CARD deck active_zone
-    RETURN
-ACTION GUESS_HIGHER:
-    CALL SWAP_CARD
-    GET_ATTR last_moved_card value next_val
-    IF next_val > current_val GOTO WIN
-    GOTO LOSE
-ACTION GUESS_LOWER:
-    CALL SWAP_CARD
-    GET_ATTR last_moved_card value next_val
-    IF next_val < current_val GOTO WIN
-    GOTO LOSE
-LABEL WIN:
-    MATH score + 1
-    SET_VAR current_val next_val
-    SET_VAR status "Correct"
-    EXIT
-LABEL LOSE:
-    SET_VAR status "Wrong"
-    SET_VAR score 0
-    GOTO START
+    LABEL SETUP:
+        GOTO TEST
+    LABEL TEST:
+        END_TURN
 """
 
     rules: Rules = Compiler.compile(raw_text)
