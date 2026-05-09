@@ -9,7 +9,7 @@ export const docsData = {
     content: "How to comment files",
     examples: [
       "# Commenting line\nASSERT label",
-      ""
+      "END_TURN # This is a bad comment because it leaks into the END_TURN args"
     ],
     warning: {
       about: "If you put comments at the end of your line, if improperly set they can leak through into your arguments for the respective command",
@@ -24,7 +24,7 @@ export const docsData = {
       "ASSERT": {
         name: "ASSERT",
         description: "Makes a label into the player's action.\n Additional arguments can be left empty in order to call assert for all players.",
-        usage: "ASSERT[label: str][[OPTIONAL] player: int]",
+        usage: "ASSERT [label: str] | [label: str][player: int]",
         example: "ASSERT label1 0",
       },
       "CALL": {
@@ -78,38 +78,38 @@ export const docsData = {
       "MOVE": {
         name: "MOVE",
         description: "Moves a card from a player's hand and then move it to a specified deck",
-        usage: "MOVE [DECK][p: int][c: int]",
+        usage: "MOVE [DECK][player_idx: int][card_idx: int]",
         example: "MOVE DISCARD 1 2"
       },
       "REVEAL": {
         name: "REVEAL",
         description: "Specify a player's most recently drawn card (Lastmost Index).\n Sets its global visibility flag to TRUE for everybody.",
-        usage: "REVEAL [p: int: int]",
+        usage: "REVEAL [player_idx: int]",
         example: "REVEAL 2"
       },
       "SUIT": {
         name: "SUIT",
         description: "Stores the suit of the card of player [p], in their hand at [c] into [VAR]",
-        usage: "SUIT [VAR: str][p: int][c: int]",
-        examples: "SUIT VARSUIT 0 1"
+        usage: "SUIT [VAR][player_idx: int][card_idx: int]",
+        example: "SUIT VARSUIT 0 1"
       },
       "VALUE": {
         name: "VALUE",
         description: "Stores the value of the card at VAR",
-        usage: "VALUE [VAR: str][p: int][c: int]",
-        examples: "VALUE VARVALUE 0 1"
+        usage: "VALUE [VAR][player_idx: int][card_idx: int]",
+        example: "VALUE VARVALUE 0 1"
       },
       "VARG": {
         name: "VARG",
         description: "Declares a 'Game State' Variable. Server-Sided/Global Variable",
-        usage: "VARG [SET][VAR][v: str | int]",
+        usage: "VARG [SET][VAR][insert_value: str | int]",
         example: "VARG TOTAL 5"
       },
       "VARP": {
         name: "VARP",
         description: "Declares a Variable related to a given player.\n Client-Sided/Local Variable",
-        usage: "VARP [SET][playerID: int][name: str][value: str]",
-        example: "VARP 2 TOTAL 5 # Player 2 has a TOTAL of 5"
+        usage: "VARP [SET][player_idx: int][VAR][insert_value: str]",
+        example: "VARP 2 TOTAL 5"
       },
       "SHOWVAR": {
         name: "SHOWVAR",
@@ -117,15 +117,19 @@ export const docsData = {
         usage: "SHOWVAR [NAME]",
         example: "VARP 2 TOTAL 5",
         warning: {
-          about: "Be careful about when you do SHOWVAR because you can logically get away with setting SHOWVAR after a VARG",
+          about: "SHOWVAR should not be declared before a VARG declaration",
           code: "SHOWVAR variable\nVARG variable 1",
         }
       },
       "RETURN": {
         name: "RETURN",
         description: "Returns back to the last CALL on the stack trace.\n Works in Unison with CALL command.",
-        usage: "VARP [SET][playerID: int][name: str][value: str/int]",
-        example: "VARP 2 TOTAL 5 # Player 2 has a TOTAL of 5"
+        usage: "RETURN []",
+        example: "RETURN",
+        warning: {
+          about: "Don't use RETURN without having CALLed first",
+          code: "RETURN\nCALL label1",
+        }
       },
     }
   },

@@ -1,5 +1,6 @@
-<script>
-    let { instruction } = $props();
+<script lang="ts">
+  import RuleEditor from "$lib/components/RuleEditor.svelte";
+  let { instruction } = $props();
 </script>
 
 <div class="space-y-6">
@@ -14,10 +15,10 @@
     </section>
 
     <div class="grid grid-cols-2 gap-4">
-        <section class="bg-slate-900 p-4 rounded-lg">
-            <h3 class="text-xs uppercase font-bold text-slate-400 mb-2">Example</h3>
-            <code class="text-emerald-400">{instruction.example}</code>
-        </section>
+      <div class="flex flex-col h-96">
+        <h3 class="text-xs uppercase font-bold text-slate-400 mb-2">Example</h3>
+        <RuleEditor bind:value={instruction.example} editable={false} />
+      </div>
     </div>
 
   {#if instruction.warning}
@@ -26,11 +27,9 @@
       <h2 class="text-sm uppercase font-semibold text-slate-500 mb-2">Description</h2>
       <p class="text-slate-700 text-lg">{instruction.warning.about}</p>
     </section>
-    <div class="grid grid-cols-2 gap-4">
-      <section class="bg-slate-900 p-4 rounded-lg">
-        <h3 class="text-xs uppercase font-bold text-slate-400 mb-2">Example</h3>
-        <code class="text-emerald-400">{instruction.warning.code}</code>
-      </section>
+    <div class="flex flex-col h-96">
+      <h3 class="text-xs uppercase font-bold text-slate-400 mb-2">Example</h3>
+      <RuleEditor bind:value={instruction.warning.code} editable={false} />
     </div>
   {/if}
 </div>
