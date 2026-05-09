@@ -1,14 +1,22 @@
 from backend.engine.classes.instruction import Instruction
-from backend.engine.engine import GameEngine
 from backend.engine.classes.states import *
+from backend.engine.engine import GameEngine
 
-#END_TURN [next player index / None]
-def execute(instruction : Instruction, engine: GameEngine):
+"""
+END_TURN:
+    Finishes the label execution initiated by action
+"""
+
+
+# END_TURN [next player index / None]
+def execute(instruction: Instruction, engine: GameEngine):
     print("ending turn")
-    gameState : GameState = engine.gameState
-    if instruction.args:
+    gameState: GameState = engine.gameState
+    if len(instruction.args) == 0:
         if len(instruction.args) == 1:
-            gameState.turnPlayer = engine.gameState.resolve_variable(instruction.args[0])
+            gameState.turnPlayer = engine.gameState.resolve_variable(
+                instruction.args[0]
+            )
         elif len(instruction.args) == 3:
             left = engine.gameState.resolve_variable(instruction.args[0])
             right = engine.gameState.resolve_variable(instruction.args[3])
@@ -18,5 +26,6 @@ def execute(instruction : Instruction, engine: GameEngine):
             elif operator == "-":
                 gameState.turnPlayer = left - right
             else:
-                gameState.turnPlayer = left #pick as default
+                gameState.turnPlayer = left  # pick as default
     return "break"
+

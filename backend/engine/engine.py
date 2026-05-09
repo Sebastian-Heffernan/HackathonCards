@@ -37,6 +37,9 @@ class GameEngine:
 
         self.gameState.variables["turnCount"] += 1
         while True:
+            #check if label exits
+            if self.label not in self.rules.labels:
+                raise BuildError(f"Runtime Error: Label '{self.label}' not found in script rules.")
             labelObj = self.rules.labels[self.label]
             # check pointer is in limit
             if not len(labelObj) > self.pointer:
@@ -104,37 +107,6 @@ class GameEngine:
 
 
 if __name__ == "__main__":
-    raw_text = """
-# SETUP
-ACTION START:
-    SHUFFLE deck
-    MOVE_CARD deck active_zone
-    SET_VAR score 0
-    SET_VAR status "Game start"
-LABEL SWAP_CARD:
-    MOVE_CARD active_zone discard
-    MOVE_CARD deck active_zone
-    RETURN
-ACTION GUESS_HIGHER:
-    CALL SWAP_CARD
-    GET_ATTR last_moved_card value next_val
-    IF next_val > current_val GOTO WIN
-    GOTO LOSE
-ACTION GUESS_LOWER:
-    CALL SWAP_CARD
-    GET_ATTR last_moved_card value next_val
-    IF next_val < current_val GOTO WIN
-    GOTO LOSE
-LABEL WIN:
-    MATH score + 1
-    SET_VAR current_val next_val
-    SET_VAR status "Correct"
-    EXIT
-LABEL LOSE:
-    SET_VAR status "Wrong"
-    SET_VAR score 0
-    GOTO START
-"""
     test = """
 LABEL SETUP:
     DECK MAKE deck
@@ -142,16 +114,33 @@ LABEL SETUP:
     CALL FUNC
     GOTO TEST
 LABEL TEST:
-    # VARG SET test 0
-    # VARG SET test2 1
-    # COMPARE test2 > test
-    # PRINT playerStates[0].variables
+    VARG SET test 0
+    VARG SET test2 1
+    COMPARE test2 > test
+    PRINT gameState.variables
     END_TURN
 LABEL FUNC:
     DRAW deck 0 1
     REVEAL 0
     PRINT playerStates[0].hand
     RETURN
+"""
+
+    test = """
+LABEL SETUP:
+    VARG SET i 0
+    DECK MAKE deck
+    GOTO LOOP
+LABEL LOOP:
+    DRAW deck 0 1
+    MATH i + 1
+    COMPARE i > 10
+    GOTO YES
+    GOTO LOOP
+LABEL YES:
+    PRINT gameState.variables
+    PRINT playerStates[0].hand
+    END_TURN
 """
     rules: Rules = Compiler.compile(test)
     engine = GameEngine(rules)

@@ -5,6 +5,7 @@
 <div class="space-y-6">
     <header class="flex items-baseline justify-between border-b pb-4">
         <h1 class="text-4xl font-bold text-slate-900">{instruction.name}</h1>
+          <code class="text-blue-700 font-semibold">{instruction.usage}</code>
     </header>
 
     <section>
@@ -13,11 +14,6 @@
     </section>
 
     <div class="grid grid-cols-2 gap-4">
-        <section class="bg-slate-50 p-4 rounded-lg border border-slate-200">
-            <h3 class="text-xs uppercase font-bold text-slate-500 mb-2">Usage</h3>
-            <code class="text-blue-700 font-semibold">{instruction.usage}</code>
-        </section>
-
         <section class="bg-slate-900 p-4 rounded-lg">
             <h3 class="text-xs uppercase font-bold text-slate-400 mb-2">Example</h3>
             <code class="text-emerald-400">{instruction.example}</code>
