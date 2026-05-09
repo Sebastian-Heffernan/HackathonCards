@@ -112,7 +112,7 @@ LABEL DRAW_CARD:
       <!-- Left button -->
       <button
          class="absolute left-4 text-sm font-semibold px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-800"
-         onclick={() => goto("/docs/getting-started")}
+         onclick={() => goto("/docs/overview")}
       >
          How to Play
       </button>
