@@ -66,7 +66,7 @@ class GameEngine:
         player = PlayerState(uuid)
         self.playerStates.append(player)
         self.gameState.global_revealed.append([])  # new player means no hand
-        self.gameState.playerCount += 1
+        self.gameState.variables["playerCount"] += 1
 
     def get_current_player_uuid(self):
         return self.playerStates[self.gameState.turnPlayer].uuid
