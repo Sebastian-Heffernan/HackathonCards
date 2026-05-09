@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { page } from '$app/state';
+  import { onMount } from "svelte";
+  import { page } from "$app/state";
+
   type Player = {
     id: string;
     name: string;
@@ -8,16 +9,11 @@
   };
 
   let lobbyCode = $state(page.params.lobbyId || "");
-  let players = $state<Player[]>([]);
-    
-  let rulesText = $state(`ACTION START BUTTON "Start Game":
-    EXIT`); // hidden for now, do not show in a textbox
-
   let userName = $state("username");
 
-  let ruleId = $state("");
   let gameId = $state("");
   let playerId = $state("");
+  let players = $state<Player[]>([]);
   let output = $state("");
   let socket = $state<WebSocket | null>(null);
 
@@ -25,11 +21,35 @@
     gameId = sessionStorage.getItem("gameId") || "";
     playerId = sessionStorage.getItem("playerId") || "";
 
-    if (!gameId || !playerId) {
-      output = "Missing gameId/playerId";
-      return;
+    if (gameId && playerId) {
+      createWebsocket();
     }
+  });
 
+  async function joinFromLobbyPage() {
+    const response = await fetch(`/api/lobbies/${lobbyCode}/join`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name: userName
+      })
+    });
+
+    const data = await response.json();
+
+    gameId = data.gameId;
+    playerId = data.playerId;
+
+    sessionStorage.setItem("gameId", gameId);
+    sessionStorage.setItem("playerId", playerId);
+    sessionStorage.setItem("lobbyCode", lobbyCode);
+
+    createWebsocket();
+  }
+
+  function createWebsocket() {
     socket = new WebSocket(`ws://localhost:8000/ws/${gameId}/${playerId}`);
 
     socket.onopen = () => {
@@ -54,13 +74,13 @@
         });
       }
     };
-  });
+  }
 
-function startGame() {
-  socket?.send(JSON.stringify({
-    type: "START_GAME"
-  }));
-}
+  function startGame() {
+    socket?.send(JSON.stringify({
+      type: "START_GAME"
+    }));
+  }
 </script>
 
 
