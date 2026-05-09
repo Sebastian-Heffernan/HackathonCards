@@ -17,6 +17,7 @@ class GameEngine:
     def __init__(self, rules : Rules):
         self.rules = rules
         self.decks = []
+        self.stack = [] # for CALl pointer
         self.pointer = 0
 
         self.label = "SETUP"
@@ -30,7 +31,8 @@ class GameEngine:
         while 1:
             instruction : Instruction = self.rules.labels[self.label][self.pointer]
             # print(f"{self.pointer}: {instruction.name}")
-            if instruction.run(self) == False:
+            result = instruction.run(self) == "Break"
+            if result:
                 print("Exiting game")
                 break
             self.pointer += 1
@@ -130,10 +132,11 @@ if __name__ == "__main__":
         Instruction("DECK", ["MAKE", "deck"]),
         Instruction("DECK", ["SHUFFLE", "deck"]),
         Instruction("PRINT", ["decks[0].name"]),
-        Instruction("GOTO", ["TEST"])
-    ])
-    rules2.add_new_rule(0, "TEST", [
+        Instruction("CALL", ["TEST"]),
         Instruction("END_TURN", [0])
     ])
-    engine = GameEngine(rules2)
-    engine.run_script()
+    rules2.add_new_rule(0, "TEST", [
+        Instruction("RETURN", [0])
+    ])
+    # engine = GameEngine(rules2)
+    # engine.run_script()
