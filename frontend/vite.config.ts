@@ -4,6 +4,14 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
     plugins: [tailwindcss(), sveltekit()],
+    resolve: {
+        alias: {
+            'node:process': 'process/browser',
+        }
+    },
+        define: {
+        'process.title': JSON.stringify('browser'),
+    },
     server: {
     proxy: {
       '/api': {

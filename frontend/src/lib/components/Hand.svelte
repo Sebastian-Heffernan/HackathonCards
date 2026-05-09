@@ -25,7 +25,7 @@
 
 <div class="w-full h-full flex flex-col items-center">
   <div class="flex">
-    {#each cards as card, cardIdx}
+    {#each cards as card, cardIdx (`${card.suit}-${card.value}-${cardIdx}`)}
       <button
         class="focus:outline-none outline-none border-none focus-visible:outline-none"
         onclick={() => onCardClick(cardIdx)}

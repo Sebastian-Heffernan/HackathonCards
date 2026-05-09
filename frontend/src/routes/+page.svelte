@@ -292,10 +292,12 @@ LABEL P1_ADD_NUMBER:
 <!-- Page Wrapped -->
 <div class="min-h-screen bg-gray-100 flex flex-col">
    <!-- Header -->
-   <header class="flex items-center justify-center p-4 bg-white shadow">
+   <header
+      class="relative flex items-center justify-center p-4 bg-white shadow"
+   >
       <!-- Left button -->
       <button
-         class="absolute left-4 text-sm font-semibold px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-800"
+         class="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-800"
          onclick={() => goto("/docs/overview")}
       >
          How to Play
@@ -305,14 +307,14 @@ LABEL P1_ADD_NUMBER:
 
       <!-- Create Lobby Button -->
       <button
-         class="absolute right-4 text-3xl font-bold px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-800"
+         class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-800"
          onclick={openModal}
       >
-         +Create Lobby
+         Create Lobby
       </button>
    </header>
 
-   <main class="flex-1 flex flex-col items-center p-6">
+<main class="flex-1 flex flex-col items-center p-6">
       <!-- Welcome message -->
       <p class="text-lg text-gray-600 mb-6 text-center">
          Welcome to Cardssembly! Join or create a lobby to start playing.
@@ -326,7 +328,7 @@ LABEL P1_ADD_NUMBER:
       <!-- Lobby Table -->
       <div class="flex justify-center w-full">
          <div
-            class="w-full max-w-3xl min-h-[500px] bg-white shadow rounded overflow-hidden flex flex-col"
+            class="w-full max-w-3xl bg-white shadow rounded overflow-hidden flex flex-col"
          >
             <div class="divide-y">
                <!-- Table Headers -->
@@ -366,10 +368,10 @@ LABEL P1_ADD_NUMBER:
          </div>
       </div>
 
-      <div class="mt-6 w-full max-w-3xl bg-white shadow rounded p-4">
+      <div class="mt-6 w-full max-w-3xl bg-white shadow rounded p-4 mx-auto">
          <h2 class="text-lg font-bold mb-3 text-center">Join Lobby by Code</h2>
 
-         <div class="flex flex-col md:flex-row gap-3">
+         <div class="flex flex-col gap-3">
             <input
                bind:value={userName}
                placeholder="Username"

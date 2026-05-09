@@ -92,6 +92,9 @@
 
       if (message.type === "START_GAME") {
         sessionStorage.setItem("initialPlayerState", JSON.stringify(message.playerState));
+        sessionStorage.setItem("initialGameVars", JSON.stringify(message.gameVars ?? {}));
+        sessionStorage.setItem("initialPlayerNames", JSON.stringify(message.playerNames ?? []));
+
         goto(`/game/${gameId}`);
       }
     };
