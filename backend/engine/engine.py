@@ -1,7 +1,7 @@
 import os
 import importlib
-from commands import *
-from instruction import Instruction
+from backend.engine.commands import *
+from backend.engine.instruction import Instruction
 from backend.compiler.rules import Rules
 
 class BaseCommand:
@@ -33,7 +33,7 @@ class GameEngine:
         path = os.path.join(os.path.dirname(__file__), "commands")
         for filename in os.listdir(path):
             if filename.endswith(".py"):
-                module_name = f"commands.{filename[:-3]}" # remove extension
+                module_name = f"backend.engine.commands.{filename[:-3]}" # remove extension
                 module = importlib.import_module(module_name)
                 # execute function in each file
                 if hasattr(module, "execute"):
@@ -91,16 +91,5 @@ if __name__ == "__main__":
         Instruction("SET_VAR", ["status", "\"Wrong\""]),
         Instruction("GOTO", ["START"])
     ])
-    game_data = {
-        "labels": {
-            "START": [
-                Instruction("GOTO", ["TEST"]),
-            ],
-            "TEST": [
-                Instruction("PRINT", ["test"]),
-                Instruction("EXIT", None)
-            ]
-        }
-    }
-    engine = GameEngine(rules)
-    engine.run_script()
+    # engine = GameEngine(rules)
+    # engine.run_script()
