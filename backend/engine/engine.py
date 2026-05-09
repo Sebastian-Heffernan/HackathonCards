@@ -1,24 +1,27 @@
-import os
 import importlib
-from backend.engine.commands import *
-from backend.engine.classes.instruction import Instruction
-from backend.compiler.rules import Rules
-from backend.engine.classes.states import *
-from backend.engine.classes.deck import *
-from backend.BuildError import BuildError
 import json
+import os
 import re
+
+from backend.BuildError import BuildError
 from backend.compiler.compiler import Compiler
+from backend.compiler.rules import Rules
+from backend.engine.classes.deck import *
+from backend.engine.classes.instruction import Instruction
+from backend.engine.classes.states import *
+from backend.engine.commands import *
+
 
 class BaseCommand:
     def execute(self, engine, args):
         raise NotImplementedError("No execute")
 
+
 class GameEngine:
-    def __init__(self, rules : Rules):
+    def __init__(self, rules: Rules):
         self.rules = rules
         self.decks = []
-        self.stack = [] # for CALl pointer
+        self.stack = []  # for CALl pointer
         self.pointer = 0
 
         self.label = "SETUP"
@@ -48,38 +51,44 @@ class GameEngine:
         path = os.path.join(os.path.dirname(__file__), "commands")
         for filename in os.listdir(path):
             if filename.endswith(".py"):
-                module_name = f"backend.engine.commands.{filename[:-3]}" # remove extension
+                module_name = (
+                    f"backend.engine.commands.{filename[:-3]}"  # remove extension
+                )
                 module = importlib.import_module(module_name)
                 # execute function in each file
                 if hasattr(module, "execute"):
                     cmd_key = filename[:-3].upper()
                     self.commandList[cmd_key] = module.execute
-    
+
     # Getters/setters
     def add_player(self, uuid):
         player = PlayerState(uuid)
         self.playerStates.append(player)
+        self.gameState.global_revealed.append([])  # new player means no hand
         self.gameState.playerCount += 1
+
     def get_current_player_uuid(self):
         return self.playerStates[self.gameState.turnPlayer].uuid
+
     def get_player_state(self, uuid):
         for player in self.playerStates:
             if player.uuid == uuid:
                 return vars(player)
+
     def get_game_state(self):
         return vars(self.gameState)
-    
+
     def get_deck(self, name):
         for deck in self.decks:
             if deck.name == name:
                 return deck
         return None
-    
+
     # gets the final object of a path like decks[0].name
     def resolve_path(self, obj, path):
-        parts = path.split('.')
+        parts = path.split(".")
         for part in parts:
-            match = re.match(r"(\w+)\[(\d+)\]", part) #array management
+            match = re.match(r"(\w+)\[(\d+)\]", part)  # array management
             if match:
                 attr_name, index = match.groups()
                 obj = getattr(obj, attr_name)
@@ -87,7 +96,6 @@ class GameEngine:
             else:
                 obj = getattr(obj, part)
         return obj
-
 
 
 if __name__ == "__main__":
@@ -132,7 +140,8 @@ LABEL TEST:
     END_TURN
 LABEL FUNC:
     DRAW deck 0 1
-    REVEAL
+    REVEAL 0
+    PRINT gameState.global_revealed
     PRINT playerStates[0].hand
     RETURN
 """
