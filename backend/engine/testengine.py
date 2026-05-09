@@ -64,11 +64,11 @@ LABEL SETUP:
     PRINT gameState.variables[#e]
     PRINT playerStates[#e]
     
-LABEL HIT:
+LABEL HIGHER:
     DRAW deck $turnPlayer
     GOTO CALC
 
-LABEL STAY:
+LABEL LOWERS:
     GOTO CALC
 
 LABEL TEST:

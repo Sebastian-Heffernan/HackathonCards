@@ -134,6 +134,15 @@ def get_visible_game_vars(engine):
 
     return visible_vars
 
+def get_player_names(game):
+    names = []
+
+    for player_state in game["engine"].playerStates:
+        player_id = player_state.uuid
+        names.append(game["players"].get(player_id, {}).get("name", "Unknown"))
+
+    return names
+
 # socket for game
 @app.websocket("/ws/{game_id}/{player_id}")
 async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str):
@@ -167,7 +176,8 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                                 games[game_id],
                                 connected_player_id
                             ),
-                            "gameVars": get_visible_game_vars(games[game_id]["engine"])
+                            "gameVars": get_visible_game_vars(games[game_id]["engine"]),
+                            "playerNames": get_player_names(games[game_id]),
                         }
                     )
             # if a new player joins, send the playerlist to the client if not started
@@ -178,6 +188,36 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                     )
         else:
             if action["type"] == "START_GAME":
+                continue
+
+            if action["type"] == "GO_HOME":
+                for player_socket in games[game_id]["connections"].values():
+                    await player_socket.send_json({
+                        "type": "GO_HOME"
+                    })
+                continue
+
+            # remake game storage logic
+            if action["type"] == "RESTART_GAME":
+                old_engine = games[game_id]["engine"]
+                games[game_id]["engine"] = GameEngine(
+                    games[game_id]["rules"],
+                    old_engine.commandList
+                )
+                for connected_player_id in games[game_id]["connections"].keys():
+                    games[game_id]["engine"].add_player(connected_player_id)
+                games[game_id]["engine"].run_script("SETUP")
+                for connected_player_id, player_socket in games[game_id]["connections"].items():
+                    await player_socket.send_json({
+                        "type": "START_GAME",
+                        "players": games[game_id]["players"],
+                        "playerState": get_client_side_for_player(
+                            games[game_id],
+                            connected_player_id
+                        ),
+                        "gameVars": get_visible_game_vars(games[game_id]["engine"]),
+                        "playerNames": get_player_names(games[game_id]),
+                    })
                 continue
             # ======= game loop =======
             # run the action through engine, should take the rules and the players action
@@ -197,6 +237,7 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                         {
                             "type": "GAME_STATE",
                             "playerState": get_client_side_for_player(games[game_id], connected_player_id),
-                            "gameVars": get_visible_game_vars(games[game_id]["engine"])
+                            "gameVars": get_visible_game_vars(games[game_id]["engine"]),
+                            "playerNames": get_player_names(games[game_id]),
                         }
                     )
