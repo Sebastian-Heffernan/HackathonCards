@@ -2,8 +2,8 @@ class GameState:
     def __init__(self):
         self.turnPlayer = 0
         self.playerCount = 0
-        self.variables = []
-        self.global_revealed = [[]]
+        self.variables = [] # {name: value}
+        self.global_revealed = [[]] # [[{suit: 'suit', value: 'value'}], []]
 
     #returns value of variable if found, else returns value
     def resolve_variable(self, value):
