@@ -6,6 +6,7 @@ from fastapi import FastAPI, WebSocket
 from pydantic import BaseModel
 
 from backend.compiler.compiler import Compiler
+from backend.compiler.compiler import CompilationError
 from backend.db.cache import games, lobby_codes, rules_store
 from backend.engine.engine import *
 from backend.engine.engine import GameEngine
@@ -53,14 +54,19 @@ def root():
 @app.post("/api/rules")
 def get_rules(rules: GetRules):
     source = rules.source
-    # pass them to the json compiler
-    compiled_rules = Compiler.compile(source, command_list)
-    # store in dict to reference when game starts
+    try:
+        compiled_rules = Compiler.compile(source, command_list)
+    except CompilationError as error:
+        return {
+            "ok": False,
+            "error": str(error)
+        }
     rule_id = str(uuid4())
     rules_store[rule_id] = compiled_rules
-
-    return {"ok": True, "ruleId": rule_id}
-
+    return {
+        "ok": True,
+        "ruleId": rule_id
+    }
 
 # player starts the game lobby
 @app.post("/api/lobbies")
@@ -115,7 +121,6 @@ def get_client_side_for_player(game, player_id):
         if player_state.uuid == player_id:
             client_side = client_side_to_dict(client_sides[idx])
             opponent_names = []
-
             for other_player_state in engine.playerStates:
                 if other_player_state.uuid == player_id:
                     continue
@@ -128,19 +133,15 @@ def get_client_side_for_player(game, player_id):
 
 def get_visible_game_vars(engine):
     visible_vars = {}
-
     for var_name in engine.gameState.showVars:
         visible_vars[var_name] = engine.gameState.variables.get(var_name)
-
     return visible_vars
 
 def get_player_names(game):
     names = []
-
     for player_state in game["engine"].playerStates:
         player_id = player_state.uuid
         names.append(game["players"].get(player_id, {}).get("name", "Unknown"))
-
     return names
 
 # socket for game
@@ -158,28 +159,41 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
         if not games[game_id]["started"]:
             # see if the player is host and action is start game
             if player_id == games[game_id]["hostId"] and action["type"] == "START_GAME":
-                games[game_id]["started"] = True
+                game = games[game_id]
 
-                for connected_player_id in games[game_id]["connections"].keys():
-                    games[game_id]["engine"].add_player(connected_player_id)
+                try:
+                    # reset engine so repeated failed starts do not duplicate players
+                    game["engine"] = GameEngine(game["rules"], command_list)
 
-                games[game_id]["engine"].run_script("SETUP")
+                    for connected_player_id in game["connections"].keys():
+                        game["engine"].add_player(connected_player_id)
 
-                for connected_player_id, player_socket in games[game_id][
-                    "connections"
-                ].items():
-                    await player_socket.send_json(
-                        {
-                            "type": "START_GAME",
-                            "players": games[game_id]["players"],
-                            "playerState": get_client_side_for_player(
-                                games[game_id],
-                                connected_player_id
-                            ),
-                            "gameVars": get_visible_game_vars(games[game_id]["engine"]),
-                            "playerNames": get_player_names(games[game_id]),
-                        }
-                    )
+                    game["engine"].run_script("SETUP")
+
+                except BuildError as error:
+                    message = str(error) or "Setup failed. Check player count or player indexes."
+
+                    for player_socket in game["connections"].values():
+                        await player_socket.send_json({
+                            "type": "LOBBY_ERROR",
+                            "message": message
+                        })
+
+                    continue
+
+                game["started"] = True
+
+                for connected_player_id, player_socket in game["connections"].items():
+                    await player_socket.send_json({
+                        "type": "START_GAME",
+                        "players": game["players"],
+                        "playerState": get_client_side_for_player(
+                            game,
+                            connected_player_id
+                        ),
+                        "gameVars": get_visible_game_vars(game["engine"]),
+                        "playerNames": get_player_names(game),
+                    })
             # if a new player joins, send the playerlist to the client if not started
             elif action["type"] == "JOIN_GAME":
                 for player_socket in games[game_id]["connections"].values():
