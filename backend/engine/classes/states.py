@@ -7,7 +7,7 @@ class GameState:
             "$turnCount": 0,
             "$winner": -1
         } # {name: value}
-        self.showVars = ["$winner"] # [name]
+        self.showVars = ["$turnPlayer", "$winner"] # [name]
         self.global_revealed = [[]] # [[{suit: 'suit', value: 'value'}], []]
 
     # returns value of variable if found, else returns value
@@ -17,7 +17,15 @@ class GameState:
             return value
         # if value is actullay a variable name, return it's value
         if value in self.variables:
-            return self.variables[value]
+            resolved = self.variables[value]
+
+            if isinstance(resolved, str):
+                try:
+                    return int(resolved)
+                except ValueError:
+                    return resolved.strip('"')
+
+            return resolved
         # convert string to int
         try:
             return int(value)

@@ -34,6 +34,10 @@
 
   let winnerIndex = $derived(Number(gameVars["$winner"] ?? -1));
   let winnerName = $derived(playerNames[winnerIndex] ?? `Player ${winnerIndex}`);
+  let currentTurnIndex = $derived(Number(gameVars["$turnPlayer"] ?? -1));
+  let currentTurnName = $derived(
+    playerNames[currentTurnIndex] ?? `Player ${currentTurnIndex}`
+  );
 
   let selected = $state<boolean[]>([]);
 
@@ -97,21 +101,27 @@
       </div>
     {/if}
 
-    <div class="absolute top-4 left-1/2 -translate-x-1/2 flex gap-8">
-      {#each playerState.opponent_hand ?? [] as opponentCards, opponentIdx}
-        <div class="flex flex-col items-center gap-2">
-          <p class="bg-white text-black px-2 py-1 rounded text-sm">
-            {playerState.opponent_names?.[opponentIdx] ?? `Player ${opponentIdx + 1}`}
-          </p>
+    <div class="absolute top-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4">
+      <div class="bg-white text-black px-4 py-2 rounded shadow font-bold">
+        Turn: {currentTurnName}
+      </div>
 
-          <Hand
-            cards={opponentCards}
-            actions={[]}
-            isOpponent={true}
-            selected={[]}
-          />
-        </div>
-      {/each}
+      <div class="flex gap-8">
+        {#each playerState.opponent_hand ?? [] as opponentCards, opponentIdx}
+          <div class="flex flex-col items-center gap-2">
+            <p class="bg-white text-black px-2 py-1 rounded text-sm">
+              {playerState.opponent_names?.[opponentIdx] ?? `Player ${opponentIdx + 1}`}
+            </p>
+
+            <Hand
+              cards={opponentCards}
+              actions={[]}
+              isOpponent={true}
+              selected={[]}
+            />
+          </div>
+        {/each}
+      </div>
     </div>
 
     <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4">

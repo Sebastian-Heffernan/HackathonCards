@@ -7,7 +7,10 @@
    // svelte-ignore non_reactive_update
    let textarea: HTMLTextAreaElement;
 
-   let rules = $state(`
+   let showCompilationErrorPopup = $state(false);
+   let compilationErrorMessage = $state("");
+
+  let rules = $state(`
 LABEL SETUP:
     DECK MAKE deck
     DECK SHUFFLE deck
@@ -22,6 +25,7 @@ LABEL SETUP:
     SHOW_VAR status
 
     DRAW deck 0 1
+    REVEAL 0
     DRAW deck 1 1
     DRAW deck 0 1
     DRAW deck 1 1
@@ -34,7 +38,6 @@ LABEL SETUP:
 
     ASSERT HIT
     ASSERT STAND
-    ASSERT RESTART 0
 
     END_TURN 0
     
@@ -79,6 +82,7 @@ LABEL P0_BUST:
 
 LABEL P1_BUST:
     VARG SET status "Player_1_busts._Player_0_wins."
+    VARG SET $winner 0
     END_TURN
 
 LABEL FINAL_SCORE:
@@ -92,14 +96,17 @@ LABEL FINAL_SCORE:
 
 LABEL P0_WIN:
     VARG SET status "Player_0_wins."
+    VARG SET $winner 0
     END_TURN
 
 LABEL P1_WIN:
     VARG SET status "Player_1_wins."
+    VARG SET $winner 1
     END_TURN
 
 LABEL PUSH:
     VARG SET status "Push."
+    # push?
     END_TURN
 
 LABEL SCORE_P0:
@@ -224,11 +231,22 @@ LABEL P1_ADD_NUMBER:
       });
 
       const data = await response.json();
+
+      if (!data.ok) {
+         compilationErrorMessage = data.error ?? "Compilation failed";
+         showCompilationErrorPopup = true;
+         return null;
+      }
+
       return data.ruleId;
    }
 
    async function createLobby() {
       const ruleId = await sendRules();
+
+      if (!ruleId) {
+         return;
+      }
 
       const response = await fetch("/api/lobbies", {
          method: "POST",
@@ -406,6 +424,28 @@ LABEL P1_ADD_NUMBER:
                   onclick={createLobby}
                >
                   Create
+               </button>
+            </div>
+         </div>
+      </div>
+   {/if}
+   {#if showCompilationErrorPopup}
+      <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
+         <div class="bg-white rounded-lg shadow-lg max-w-lg w-[90vw] p-6">
+            <h2 class="text-xl font-bold mb-3 text-red-600">
+               Compilation Error
+            </h2>
+
+            <p class="mb-6 whitespace-pre-wrap">
+               {compilationErrorMessage}
+            </p>
+
+            <div class="flex justify-center">
+               <button
+                  class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-800"
+                  onclick={() => (showCompilationErrorPopup = false)}
+               >
+                  OK
                </button>
             </div>
          </div>

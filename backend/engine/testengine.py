@@ -59,24 +59,19 @@ LABEL SETUP:
     DECK CLEAR discard
     ASSERT HIT
     ASSERT STAY
-    # PRINT gameState.variables[$turnPlayer]
-    VARG SET #e 0
-    PRINT gameState.variables[#e]
-    PRINT playerStates[#e]
     
 LABEL HIGHER:
     DRAW deck $turnPlayer
     GOTO CALC
 
-LABEL LOWERS:
+LABEL LOWER:
     GOTO CALC
 
+LABEL CALC:
+    VARP SET $turnPlayer temp 2
+
 LABEL TEST:
-    VARG SET a "hell"
-    VARG SET b "hello"
-    MATH b + 1
-    COMPARE a == b
-    END_TURN
+    VARP SET $turnPlayer test 2
     GOTO EXIT
 
 LABEL EXIT:
