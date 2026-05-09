@@ -117,38 +117,42 @@ if __name__ == "__main__":
 LABEL SETUP:
     DECK MAKE deck
     DECK SHUFFLE deck
-    CALL FUNC
-    GOTO TEST
-LABEL TEST:
-    VARG SET test 0
-    VARG SET test2 1
-    COMPARE test2 > test
-    PRINT gameState.variables
-    END_TURN
-LABEL FUNC:
-    DRAW deck 0 1
-    REVEAL 0
-    PRINT playerStates[0].hand
+    DECK MAKE discard
+    DECK CLEAR discard
+
+    VARG SET i 0
+    GOTO ADDCARDSTOALL
+# Will add 2 cards to each player
+LABEL ADDCARDSTOALL:
+    VARG SET j 0
+    CALL ADDCARDS
+    PRINT playerStates[i].hand
+
+    MATH i + 1
+    COMPARE i < playerCount
+    GOTO ADDCARDSTOALL
+    GOTO CONTINUE
+LABEL ADDCARDS:
+    DRAW deck i 1
+    MATH j + 1
+    COMPARE j < 2
+    GOTO ADDCARDS
     RETURN
+LABEL CONTINUE:
+    # PRINT gameState.variables
+    END_TURN
 """
 
-    test = """
+    test2 = """
 LABEL SETUP:
-    VARG SET i 0
-    DECK MAKE deck
-    GOTO LOOP
-LABEL LOOP:
-    DRAW deck 0 1
-    MATH i + 1
-    COMPARE i < 2
-    GOTO LOOP
-    GOTO YES
-LABEL YES:
-    PRINT gameState.variables
-    PRINT playerStates[0].hand
+    GOTO ADDCARDSTOALL
+LABEL ADDCARDSTOALL:
     END_TURN
 """
     rules: Rules = Compiler.compile(test)
+    # print(rules)
     engine = GameEngine(rules)
     engine.add_player(0)
+    engine.add_player(1)
+    engine.add_player(2)
     engine.run_script("SETUP")

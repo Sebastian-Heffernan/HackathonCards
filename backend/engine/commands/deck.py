@@ -13,7 +13,7 @@ DECK:
 """
 
 
-# DECK [MAKE/SHUFFLE][name]
+# DECK [MAKE/SHUFFLE/CLEAR][name]
 def execute(instruction: Instruction, engine: GameEngine):
     if len(instruction.args) < 2:
         raise BuildError()
@@ -25,6 +25,8 @@ def execute(instruction: Instruction, engine: GameEngine):
         engine.decks.append(Deck(name))
     elif command == "SHUFFLE":
         random.shuffle(engine.get_deck(name).cards)
+    elif command == "CLEAR":
+        engine.get_deck(name).cards = []
     else:
         raise BuildError()
 
