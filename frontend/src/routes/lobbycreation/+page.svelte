@@ -1,4 +1,5 @@
 <script lang="ts">
+import { goto } from '$app/navigation'; // Add this import
   type Player = {
     id: string;
     name: string;
@@ -38,12 +39,10 @@
     output = JSON.stringify(data, null, 2);
   }
 
-  async function createLobby() {
+async function createLobby() {
     const response = await fetch("/api/lobbies", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         rule_id: ruleId,
         host_name: userName
@@ -52,13 +51,11 @@
 
     const data = await response.json();
 
-    gameId = data.gameId;
-    playerId = data.playerId;
-    lobbyCode = data.lobbyCode;
-    output = JSON.stringify(data, null, 2);
-
-    // connect web socket, same call as if joining lobby
-    createWebsocket()
+    if (data.lobbyCode) {
+      // Redirect to the dynamic route
+      // This ensures the URL changes to /lobby/ABCDE
+      goto(`/lobby/${data.lobbyCode}`);
+    }
   }
 
   // host doesn't join own lobby since already joined when created
@@ -82,6 +79,11 @@
 
     // connect web socket, same call as if joining lobby
     createWebsocket()
+        if (data.lobbyCode) {
+      // Redirect to the dynamic route
+      // This ensures the URL changes to /lobby/ABCDE
+      goto(`/lobby/${data.lobbyCode}`);
+    }
   }
 
   function createWebsocket() {

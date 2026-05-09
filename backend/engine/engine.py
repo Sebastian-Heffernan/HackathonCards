@@ -4,7 +4,10 @@ from backend.engine.commands import *
 from backend.engine.classes.instruction import Instruction
 from backend.compiler.rules import Rules
 from backend.engine.classes.states import *
+from backend.engine.classes.deck import *
+from backend.BuildError import BuildError
 import json
+import re
 
 class BaseCommand:
     def execute(self, engine, args):
@@ -27,10 +30,9 @@ class GameEngine:
         while 1:
             instruction : Instruction = self.rules.labels[self.label][self.pointer]
             # print(f"{self.pointer}: {instruction.name}")
-            if instruction.name == "EXIT":
-                print("exiting")
+            if instruction.run(self) == False:
+                print("Exiting game")
                 break
-            instruction.run(self)
             self.pointer += 1
 
     # Loads availabe commands into array
@@ -58,12 +60,31 @@ class GameEngine:
                 return vars(player)
     def get_game_state(self):
         return vars(self.gameState)
+    
+    def get_deck(self, name):
+        for deck in self.decks:
+            if deck.name == name:
+                return deck
+        return None
+    
+    # gets the final object of a path like decks[0].name
+    def resolve_path(self, obj, path):
+        parts = path.split('.')
+        for part in parts:
+            match = re.match(r"(\w+)\[(\d+)\]", part) #array management
+            if match:
+                attr_name, index = match.groups()
+                obj = getattr(obj, attr_name)
+                obj = obj[int(index)]
+            else:
+                obj = getattr(obj, part)
+        return obj
 
 
 
 if __name__ == "__main__":
     rules = Rules()
-    rules.add_new_rule(1, "SETUP", [
+    rules.add_new_rule(0, "SETUP", [
         Instruction("DECK", ["MAKE", "deck"]),
         Instruction("GOTO", ["START"])
     ])
@@ -106,12 +127,13 @@ if __name__ == "__main__":
     ])
     rules2 = Rules()
     rules2.add_new_rule(0, "SETUP", [
-        Instruction("PRINT", ["Test print"]),
+        Instruction("DECK", ["MAKE", "deck"]),
+        Instruction("DECK", ["SHUFFLE", "deck"]),
+        Instruction("PRINT", ["decks[0].name"]),
         Instruction("GOTO", ["TEST"])
     ])
     rules2.add_new_rule(0, "TEST", [
-        Instruction("PRINT", ["Test print 2"]),
-        Instruction("EXIT", None)
+        Instruction("END_TURN", [0])
     ])
     engine = GameEngine(rules2)
     engine.run_script()

@@ -6,6 +6,8 @@ class Instruction:
 
     def run(self, engine):
         if self.name in engine.commandList:
-            engine.commandList[self.name](self, engine)
+            print(f"Running {self.name} {self.args}")
+            return engine.commandList[self.name](self, engine)
         else:
             print("Unrecognised command")
+            return True
