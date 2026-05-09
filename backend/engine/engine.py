@@ -21,7 +21,7 @@ class GameEngine:
     def __init__(self, rules: Rules):
         self.rules = rules
         self.decks = []
-        self.stack = []  # for CALl pointer
+        self.stack = []  # for CALL pointer
         self.pointer = 0
 
         self.label = "SETUP"
@@ -37,7 +37,11 @@ class GameEngine:
 
         self.gameState.variables["turnCount"] += 1
         while True:
-            instruction = self.rules.labels[self.label][self.pointer]
+            labelObj = self.rules.labels[self.label]
+            # check pointer is in limit
+            if not len(labelObj) > self.pointer:
+                break
+            instruction = labelObj[self.pointer]
             # print(instruction.name)
             result = instruction.run(self)
 
@@ -138,6 +142,10 @@ LABEL SETUP:
     CALL FUNC
     GOTO TEST
 LABEL TEST:
+    # VARG SET test 0
+    # VARG SET test2 1
+    # COMPARE test2 > test
+    # PRINT playerStates[0].variables
     END_TURN
 LABEL FUNC:
     DRAW deck 0 1
