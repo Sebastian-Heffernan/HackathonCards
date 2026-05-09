@@ -62,6 +62,9 @@ class GameEngine:
         for player in self.playerStates:
             if player.uuid == uuid:
                 return vars(player)
+    def get_game_state(self):
+        return vars(self.gameState)
+
 
 
 if __name__ == "__main__":
