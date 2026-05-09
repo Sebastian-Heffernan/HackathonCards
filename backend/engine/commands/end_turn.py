@@ -9,5 +9,8 @@ def execute(instruction : Instruction, engine: GameEngine):
         if len(instruction.args) == 1:
             gameState.turnPlayer = engine.resolve_game_variable(instruction.args[0])
         elif len(instruction.args) == 3:
-            left = 
+            left = instruction.args[0]
+            right = instruction.args[3]
             operator = instruction.args[1]
+            if operator == "+":
+                gameState.turnPlayer = 
