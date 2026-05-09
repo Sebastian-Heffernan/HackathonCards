@@ -27,5 +27,5 @@ def execute(instruction: Instruction, engine: GameEngine):
     ):
         raise BuildError("Player Index out of Bounds for player states")
 
-    var_value = engine.playerStates[player_idx].hand[card_idx].value
+    var_value = engine.playerStates[player_idx].hand[card_idx]["value"]
     engine.gameState.variables[var_name] = var_value  # set the value

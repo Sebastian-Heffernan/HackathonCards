@@ -11,4 +11,3 @@ class Instruction:
             return engine.commandList[self.name](self, engine)
         else:
             raise BuildError("Unrecognised command")
-            return True

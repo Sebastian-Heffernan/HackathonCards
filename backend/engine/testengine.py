@@ -18,7 +18,7 @@ LABEL SETUP:
 LABEL SETUPPLAYERS:
     VARG SET j 0
     CALL SETUPPLAYER
-    PRINT playerStates[i].hand
+    # PRINT playerStates[i].hand
     ASSERT DRAW i
     ASSERT DISCARD i
 
@@ -44,6 +44,8 @@ LABEL DISCARD:
     GOTO MOVE
     END_TURN
 LABEL MOVE:
+    VALUE TEMP $turnPlayer $selectedCardId
+    PRINT gameState.variables["TEMP"]
     MOVE discard $turnPlayer $selectedCardId
     GOTO CONTINUE
 """
@@ -54,4 +56,5 @@ LABEL MOVE:
     engine.add_player(0)
     engine.add_player(1)
     engine.add_player(2)
-    # engine.run_script("SETUP")
+    engine.run_script("SETUP")
+    engine.run_script("MOVE")
