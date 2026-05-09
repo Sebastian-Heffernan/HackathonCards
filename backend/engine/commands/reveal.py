@@ -11,9 +11,3 @@ from backend.engine.classes.instruction import Instruction
 from backend.engine.engine import GameEngine
 from backend.engine.classes.states import *
 
-# REVEAL [PLAYER]
-def execute(instruction: Instruction, engine: GameEngine):
-    if len(instruction.args) != 1:
-        raise BuildError() 
-    
-    ## 
