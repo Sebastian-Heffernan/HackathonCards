@@ -6,5 +6,6 @@ class GameState:
 
 class PlayerState:
     def __init__(self):
-        self.uid = None
+        self.uuid = None
         self.variables = []
+        self.hand = []
