@@ -1,4 +1,4 @@
-from backend.engine.instruction import Instruction
+from backend.engine.classes.instruction import Instruction
 
 def execute(instruction : Instruction, engine):
     print("Arguments:")
