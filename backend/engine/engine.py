@@ -69,7 +69,7 @@ class GameEngine:
         self.gameState.variables["playerCount"] += 1
 
     def get_current_player_uuid(self):
-        return self.playerStates[self.gameState.turnPlayer].uuid
+        return self.playerStates[self.gameState.variables["turnPlayer"]].uuid
 
     def get_player_state(self, uuid):
         for player in self.playerStates:
@@ -141,7 +141,7 @@ LABEL TEST:
     END_TURN
 LABEL FUNC:
     DRAW deck 0 1
-    REVEAL
+    REVEAL 0
     PRINT playerStates[0].hand
     RETURN
 """
