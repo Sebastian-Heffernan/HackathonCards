@@ -18,7 +18,7 @@ LABEL SETUP:
     VARG SET P1_SCORE 0
     VARG SET P0_STOOD 0
     VARG SET P1_STOOD 0
-    VARG SET status "Blackjack started"
+    VARG SET status "game_playing"
 
     DRAW deck 0 1
     DRAW deck 1 1

@@ -189,6 +189,6 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                         {
                             "type": "GAME_STATE",
                             "playerState": get_client_side_for_player(games[game_id], connected_player_id),
-                            "gameVars": games[game_id]["engine"].gameState.variables
+                            "gameVars": games[game_id]["engine"].gameState.showVars
                         }
                     )
