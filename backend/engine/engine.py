@@ -102,11 +102,24 @@ class GameEngine:
     def resolve_path(self, obj, path):
         parts = path.split(".")
         for part in parts:
-            match = re.match(r"(\w+)\[(\d+)\]", part)  # array management
+            match = re.match(r"(\w+)\[([^\]]+)\]", part)  # array management
             if match:
-                attr_name, index = match.groups()
-                obj = getattr(obj, attr_name)
-                obj = obj[int(index)]
+                attr_name, index_str = match.groups()
+                if hasattr(obj, attr_name):
+                    obj = getattr(obj, attr_name)
+                elif isinstance(obj, dict) and attr_name in obj:
+                    obj = obj[attr_name]
+                else:
+                    raise BuildError(f"Path Error: {obj} has no attribute/key '{attr_name}'")
+                try:
+                    idx = int(index_str)
+                    obj = obj[int(idx)]
+                except (ValueError, TypeError):
+                    obj = obj[index_str] #treat as key for dictionary
+                except KeyError:
+                    obj = obj[str(index_str)]
+                except IndexError:
+                    raise BuildError(f"Index {index_str} out of bounds")
             else:
                 obj = getattr(obj, part)
         return obj

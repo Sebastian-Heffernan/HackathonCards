@@ -102,22 +102,37 @@ def join_lobby(lobby_code: str, request: JoinLobby):
 def client_side_to_dict(client_side):
     if hasattr(client_side, "model_dump"):
         return client_side.model_dump()
-
     if hasattr(client_side, "dict"):
         return client_side.dict()
-
     return vars(client_side)
 
 
-def get_client_side_for_player(engine, player_id):
+def get_client_side_for_player(game, player_id):
+    engine = game["engine"]
     client_sides = ClientSideGenerator.generate_client_sides(engine)
 
     for idx, player_state in enumerate(engine.playerStates):
         if player_state.uuid == player_id:
-            return client_side_to_dict(client_sides[idx])
+            client_side = client_side_to_dict(client_sides[idx])
+            opponent_names = []
+
+            for other_player_state in engine.playerStates:
+                if other_player_state.uuid == player_id:
+                    continue
+                opponent_name = game["players"][other_player_state.uuid]["name"]
+                opponent_names.append(opponent_name)
+            client_side["opponent_names"] = opponent_names
+            return client_side
 
     return None
 
+def get_visible_game_vars(engine):
+    visible_vars = {}
+
+    for var_name in engine.gameState.showVars:
+        visible_vars[var_name] = engine.gameState.variables.get(var_name)
+
+    return visible_vars
 
 # socket for game
 @app.websocket("/ws/{game_id}/{player_id}")
@@ -149,8 +164,10 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                             "type": "START_GAME",
                             "players": games[game_id]["players"],
                             "playerState": get_client_side_for_player(
-                                games[game_id]["engine"], connected_player_id
+                                games[game_id],
+                                connected_player_id
                             ),
+                            "gameVars": get_visible_game_vars(games[game_id]["engine"])
                         }
                     )
             # if a new player joins, send the playerlist to the client if not started
@@ -179,8 +196,7 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                     await player_socket.send_json(
                         {
                             "type": "GAME_STATE",
-                            "playerState": get_client_side_for_player(
-                                games[game_id]["engine"], connected_player_id
-                            ),
+                            "playerState": get_client_side_for_player(games[game_id], connected_player_id),
+                            "gameVars": get_visible_game_vars(games[game_id]["engine"])
                         }
                     )

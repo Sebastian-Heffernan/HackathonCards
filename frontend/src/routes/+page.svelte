@@ -14,41 +14,181 @@ LABEL SETUP:
     DECK MAKE discard
     DECK CLEAR discard
 
-    VARG SET i 0
-    GOTO SETUPPLAYERS
-# Will add 2 cards to each player
-# Game setup
-LABEL SETUPPLAYERS:
-    VARG SET j 0
-    CALL SETUPPLAYER
-    PRINT playerStates[i].hand
-    ASSERT DRAW i
-    ASSERT DISCARD i
+    VARG SET P0_SCORE 0
+    VARG SET P1_SCORE 0
+    VARG SET P0_STOOD 0
+    VARG SET P1_STOOD 0
+    VARG SET status "game_playing"
+    SHOW_VAR status
 
-    MATH i + 1
-    COMPARE i < $playerCount
-    GOTO SETUPPLAYERS
+    DRAW deck 0 1
+    DRAW deck 1 1
+    DRAW deck 0 1
+    DRAW deck 1 1
+
+    REVEAL 0
+    REVEAL 1
+
+    CALL SCORE_P0
+    CALL SCORE_P1
+
+    ASSERT HIT 0
+    ASSERT STAND 0
+    ASSERT HIT 1
+    ASSERT STAND 1
+
+    END_TURN 0
+
+LABEL HIT:
+    COMPARE $turnPlayer == 0
+    GOTO HIT_P0
+    GOTO HIT_P1
+
+LABEL HIT_P0:
+    DRAW deck 0 1
+    REVEAL 0
+    CALL SCORE_P0
+    COMPARE P0_SCORE > 21
+    GOTO P0_BUST
+    END_TURN 0
+
+LABEL HIT_P1:
+    DRAW deck 1 1
+    REVEAL 1
+    CALL SCORE_P1
+    COMPARE P1_SCORE > 21
+    GOTO P1_BUST
+    END_TURN 1
+
+LABEL STAND:
+    COMPARE $turnPlayer == 0
+    GOTO STAND_P0
+    GOTO STAND_P1
+
+LABEL STAND_P0:
+    VARG SET P0_STOOD 1
+    END_TURN 1
+
+LABEL STAND_P1:
+    VARG SET P1_STOOD 1
+    GOTO FINAL_SCORE
+
+LABEL P0_BUST:
+    VARG SET status "Player_0_busts._Player_1_wins."
     END_TURN
-LABEL SETUPPLAYER:
-    DRAW deck i 1
-    MATH j + 1
-    COMPARE j < 2
-    GOTO SETUPPLAYER
+
+LABEL P1_BUST:
+    VARG SET status "Player_1_busts._Player_0_wins."
+    END_TURN
+
+LABEL FINAL_SCORE:
+    COMPARE P0_SCORE > P1_SCORE
+    GOTO P0_WIN
+
+    COMPARE P1_SCORE > P0_SCORE
+    GOTO P1_WIN
+
+    GOTO PUSH
+
+LABEL P0_WIN:
+    VARG SET status "Player_0_wins."
+    END_TURN
+
+LABEL P1_WIN:
+    VARG SET status "Player_1_wins."
+    END_TURN
+
+LABEL PUSH:
+    VARG SET status "Push."
+    END_TURN
+
+LABEL SCORE_P0:
+    VARG SET P0_SCORE 0
+    VARG SET cardIdx 0
+    HANDLEN handLen 0
+    GOTO SCORE_P0_LOOP
+
+LABEL SCORE_P0_LOOP:
+    COMPARE cardIdx < handLen
+    GOTO SCORE_P0_CARD
     RETURN
-LABEL CONTINUE:
-    # PRINT gameState.variables
-    END_TURN $turnPlayer + 1
-# Turn logic
-LABEL DRAW:
-    DRAW deck $turnPlayer 1
-    GOTO CONTINUE
-LABEL DISCARD:
-    COMPARE -1 < $selectedCardId
-    GOTO MOVE
-    END_TURN
-LABEL MOVE:
-    MOVE discard $turnPlayer $selectedCardId
-    GOTO CONTINUE
+
+LABEL SCORE_P0_CARD:
+    VALUE cardValue 0 cardIdx
+    CALL ADD_TO_P0
+    MATH cardIdx + 1
+    GOTO SCORE_P0_LOOP
+
+LABEL ADD_TO_P0:
+    COMPARE cardValue == "A"
+    GOTO P0_ADD_ACE
+
+    COMPARE cardValue == "K"
+    GOTO P0_ADD_FACE
+
+    COMPARE cardValue == "Q"
+    GOTO P0_ADD_FACE
+
+    COMPARE cardValue == "J"
+    GOTO P0_ADD_FACE
+
+    GOTO P0_ADD_NUMBER
+
+LABEL P0_ADD_ACE:
+    MATH P0_SCORE + 11
+    RETURN
+
+LABEL P0_ADD_FACE:
+    MATH P0_SCORE + 10
+    RETURN
+
+LABEL P0_ADD_NUMBER:
+    MATH P0_SCORE + cardValue
+    RETURN
+
+LABEL SCORE_P1:
+    VARG SET P1_SCORE 0
+    VARG SET cardIdx 0
+    HANDLEN handLen 1
+    GOTO SCORE_P1_LOOP
+
+LABEL SCORE_P1_LOOP:
+    COMPARE cardIdx < handLen
+    GOTO SCORE_P1_CARD
+    RETURN
+
+LABEL SCORE_P1_CARD:
+    VALUE cardValue 1 cardIdx
+    CALL ADD_TO_P1
+    MATH cardIdx + 1
+    GOTO SCORE_P1_LOOP
+
+LABEL ADD_TO_P1:
+    COMPARE cardValue == "A"
+    GOTO P1_ADD_ACE
+
+    COMPARE cardValue == "K"
+    GOTO P1_ADD_FACE
+
+    COMPARE cardValue == "Q"
+    GOTO P1_ADD_FACE
+
+    COMPARE cardValue == "J"
+    GOTO P1_ADD_FACE
+
+    GOTO P1_ADD_NUMBER
+
+LABEL P1_ADD_ACE:
+    MATH P1_SCORE + 11
+    RETURN
+
+LABEL P1_ADD_FACE:
+    MATH P1_SCORE + 10
+    RETURN
+
+LABEL P1_ADD_NUMBER:
+    MATH P1_SCORE + cardValue
+    RETURN
 `);
 
    let userName = $state("username");

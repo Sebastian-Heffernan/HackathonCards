@@ -23,7 +23,7 @@
               <div class="ml-4 border-l border-slate-200 pl-4 space-y-1">
                 {#each Object.keys(category.items) as itemKey}
                   <a 
-                    href="/docs/instructions/{itemKey}"
+                    href="/docs/{key}/{itemKey}"
                     class="block text-sm text-slate-600 hover:text-blue-600
                     {$page.params.item === itemKey ? 'text-blue-600 font-medium' : ''}"
                   >

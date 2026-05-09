@@ -12,11 +12,11 @@ def execute(instruction : Instruction, engine : GameEngine):
         if not var_name.isdigit():
             return f"[{engine.gameState.resolve_variable(var_name)}]"
         return f"[{var_name}]"
-    resolved_path = re.sub(r"\[(\w+)\]", replace_var, path)
+    resolved_path = re.sub(r"\[([#$]?\w+)\]", replace_var, path)
 
-    if resolved_path.startswith("playerStates"):
-        value = engine.resolve_path(engine, resolved_path)
-    else:
-        value = engine.resolve_path(engine.gameState, resolved_path)
+    #if resolved_path.startswith("playerStates"):
+    value = engine.resolve_path(engine, resolved_path)
+    #else:
+        #value = engine.resolve_path(engine.gameState, resolved_path)
         
     print(f"DEBUG: {resolved_path} = {value}")
