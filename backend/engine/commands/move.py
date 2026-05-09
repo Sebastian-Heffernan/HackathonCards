@@ -30,6 +30,7 @@ def execute(instruction: Instruction, engine: GameEngine):
 
     ### search for card via id
     if card_id < 0 or card_id >= len(player.hand):
+        print(card_id)
         raise BuildError()
     
     card = player.hand.pop(card_id)
