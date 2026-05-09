@@ -26,6 +26,7 @@ def execute(instruction: Instruction, engine: GameEngine):
     elif command == "SHUFFLE":
         if not engine.get_deck(name):
             raise BufferError("DECK SHUFFLE: deck does not exist")
+        random.seed()
         random.shuffle(engine.get_deck(name).cards)
     elif command == "CLEAR":
         if not engine.get_deck(name):

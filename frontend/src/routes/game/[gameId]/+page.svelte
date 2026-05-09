@@ -38,9 +38,16 @@
     playerId = sessionStorage.getItem("playerId") || "";
 
     const initialPlayerState = sessionStorage.getItem("initialPlayerState");
-
+    const initialGameVars = sessionStorage.getItem("initialGameVars");
+    const initialPlayerNames = sessionStorage.getItem("initialPlayerNames");
     if (initialPlayerState) {
       playerState = JSON.parse(initialPlayerState);
+    }
+    if (initialGameVars) {
+      gameVars = JSON.parse(initialGameVars);
+    }
+    if (initialPlayerNames) {
+      playerNames = JSON.parse(initialPlayerNames);
     }
 
     if (gameId && playerId) {
@@ -57,6 +64,10 @@
           playerState = message.playerState;
           gameVars = message.gameVars ?? {};
           playerNames = message.playerNames ?? playerNames;
+
+          if (message.type === "START_GAME") {
+            sessionStorage.setItem("initialPlayerState", JSON.stringify(message.playerState));
+          }
         }
       };
     }
