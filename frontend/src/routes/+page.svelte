@@ -5,11 +5,12 @@
    // svelte-ignore non_reactive_update
    let textarea: HTMLTextAreaElement;
 
-   let rules = $state(`
-LABEL SETUP:
+  let rules = $state(
+`LABEL SETUP:
     DECK MAKE deck
     DECK SHUFFLE deck
     CALL FUNC
+    ASSERT DRAW_CARD 0
     GOTO TEST
 LABEL TEST:
     END_TURN
@@ -18,7 +19,10 @@ LABEL FUNC:
     REVEAL 0
     PRINT playerStates[0].hand
     RETURN
-  `);
+LABEL DRAW_CARD:
+    DRAW deck 0 1
+    REVEAL 0
+    END_TURN`);
 
    let userName = $state("username");
    let joinLobbyCode = $state("");

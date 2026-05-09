@@ -9,6 +9,7 @@ from backend.compiler.compiler import *
 from backend.db.cache import games, lobby_codes, rules_store
 from backend.engine.engine import *
 from backend.routers import lobby
+from backend.routers.processors.client_side import ClientSideGenerator
 
 app = FastAPI()
 
@@ -94,6 +95,24 @@ def join_lobby(lobby_code: str, request: JoinLobby):
         "playerId": player_id,
     }
 
+def client_side_to_dict(client_side):
+    if hasattr(client_side, "model_dump"):
+        return client_side.model_dump()
+
+    if hasattr(client_side, "dict"):
+        return client_side.dict()
+
+    return vars(client_side)
+
+def get_client_side_for_player(engine, player_id):
+    client_sides = ClientSideGenerator.generate_client_sides(engine)
+
+    for idx, player_state in enumerate(engine.playerStates):
+        if player_state.uuid == player_id:
+            return client_side_to_dict(client_sides[idx])
+
+    return None
+
 # socket for game
 @app.websocket("/ws/{game_id}/{player_id}")
 async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str):
@@ -110,19 +129,18 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
             # see if the player is host and action is start game
             if player_id == games[game_id]["hostId"] and action["type"] == "START_GAME":
                 games[game_id]["started"] = True
-                # add each player to the gamestate playerlist
+
                 for connected_player_id in games[game_id]["connections"].keys():
                     games[game_id]["engine"].add_player(connected_player_id)
 
-                # run setup so cards actually get drawn/dealt
                 games[game_id]["engine"].run_script("SETUP")
 
-                # now send updated state to every player
                 for connected_player_id, player_socket in games[game_id]["connections"].items():
                     await player_socket.send_json({
                         "type": "START_GAME",
                         "players": games[game_id]["players"],
-                        "playerState": games[game_id]["engine"].get_player_state(
+                        "playerState": get_client_side_for_player(
+                            games[game_id]["engine"],
                             connected_player_id
                         ),
                     })
@@ -142,10 +160,14 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                 # check if valid in near future
                 games[game_id]["engine"].run_script(action["type"])
                 # send state to each player
+
                 for connected_player_id, player_socket in games[game_id][
                     "connections"
                 ].items():
                     await player_socket.send_json({
                         "type": "GAME_STATE",
-                        "playerState": games[game_id]["engine"].get_player_state(connected_player_id),
+                        "playerState": get_client_side_for_player(
+                            games[game_id]["engine"],
+                            connected_player_id
+                        ),
                     })
