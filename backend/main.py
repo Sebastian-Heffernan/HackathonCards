@@ -58,8 +58,12 @@ def start_game(request: CreateLobby):
         "players": {
             host_id : {"name": request.host_name}
         },
+        # TODO: figure out whats happening with state/engine?
         "state": {
             # figure out game state somehow maybe?
+        },
+        "engine": {
+            #GameEngine(rules_store[request.rule_id])
         }
     }
 
