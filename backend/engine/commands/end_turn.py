@@ -15,7 +15,7 @@ def execute(instruction: Instruction, engine: GameEngine):
     if len(instruction.args) == 0:
         return "break"
     elif len(instruction.args) == 1:
-        gameState.turnPlayer = engine.gameState.resolve_variable(
+        gameState.variables["$turnPlayer"] = engine.gameState.resolve_variable(
             instruction.args[0]
         )
     elif len(instruction.args) == 3:
@@ -23,10 +23,10 @@ def execute(instruction: Instruction, engine: GameEngine):
         right = engine.gameState.resolve_variable(instruction.args[2])
         operator = instruction.args[1]
         if operator == "+":
-            gameState.turnPlayer = left + right
+            gameState.variables["$turnPlayer"] = (left + right) % gameState.variables["$playerCount"]
         elif operator == "-":
-            gameState.turnPlayer = left - right
+            gameState.variables["$turnPlayer"] = (left - right) % gameState.variables["$playerCount"]
         else:
-            gameState.turnPlayer = left  # pick as default
+            gameState.variables["$turnPlayer"] = left % gameState.variables["$playerCount"] # pick as default
     return "break"
 

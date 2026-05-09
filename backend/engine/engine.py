@@ -34,7 +34,7 @@ class GameEngine:
         self.label = label
         self.pointer = 0
 
-        self.gameState.variables["turnCount"] += 1
+        self.gameState.variables["$turnCount"] += 1
         while True:
             # check if label exits
             if self.label not in self.rules.labels:
@@ -79,10 +79,10 @@ class GameEngine:
         player = PlayerState(uuid)
         self.playerStates.append(player)
         self.gameState.global_revealed.append([])  # new player means no hand
-        self.gameState.variables["playerCount"] += 1
+        self.gameState.variables["$playerCount"] += 1
 
     def get_current_player_uuid(self):
-        return self.playerStates[self.gameState.variables["turnPlayer"]].uuid
+        return self.playerStates[self.gameState.variables["$turnPlayer"]].uuid
 
     def get_player_state(self, uuid):
         for player in self.playerStates:
@@ -110,59 +110,3 @@ class GameEngine:
             else:
                 obj = getattr(obj, part)
         return obj
-
-
-if __name__ == "__main__":
-    test = """
-LABEL SETUP:
-    DECK MAKE deck
-    DECK SHUFFLE deck
-    DECK MAKE discard
-    DECK CLEAR discard
-
-    VARG SET i 0
-    GOTO SETUPPLAYERS
-# Will add 2 cards to each player
-# Game setup
-LABEL SETUPPLAYERS:
-    VARG SET j 0
-    CALL SETUPPLAYER
-    PRINT playerStates[i].hand
-    ASSERT DRAW i
-    ASSERT DISCARD i
-
-    MATH i + 1
-    COMPARE i < playerCount
-    GOTO SETUPPLAYERS
-    END_TURN
-LABEL SETUPPLAYER:
-    DRAW deck i 1
-    MATH j + 1
-    COMPARE j < 2
-    GOTO SETUPPLAYER
-    RETURN
-LABEL CONTINUE:
-    # PRINT gameState.variables
-    END_TURN turnPlayer + 1
-# Turn logic
-LABEL DRAW:
-    DRAW deck turnPlayer 1
-    GOTO CONTINUE
-LABEL DISCARD:
-    MOVE discard turnPlayer $selectedCardId
-    GOTO CONTINUE
-"""
-
-    test2 = """
-LABEL SETUP:
-    GOTO ADDCARDSTOALL
-LABEL ADDCARDSTOALL:
-    END_TURN
-"""
-    rules: Rules = Compiler.compile(test)
-    # print(rules)
-    engine = GameEngine(rules)
-    engine.add_player(0)
-    engine.add_player(1)
-    engine.add_player(2)
-    engine.run_script("SETUP")
