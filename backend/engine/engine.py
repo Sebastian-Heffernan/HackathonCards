@@ -31,11 +31,12 @@ class GameEngine:
         while 1:
             instruction : Instruction = self.rules.labels[self.label][self.pointer]
             # print(f"{self.pointer}: {instruction.name}")
-            result = instruction.run(self) == "Break"
-            if result:
+            result = instruction.run(self)
+            if result  == "break":
                 print("Exiting game")
                 break
-            self.pointer += 1
+            elif result != "jump":
+                self.pointer += 1
 
     # Loads availabe commands into array
     def _load_commands(self):
@@ -138,5 +139,5 @@ if __name__ == "__main__":
     rules2.add_new_rule(0, "TEST", [
         Instruction("RETURN", [0])
     ])
-    # engine = GameEngine(rules2)
-    # engine.run_script()
+    engine = GameEngine(rules2)
+    engine.run_script()

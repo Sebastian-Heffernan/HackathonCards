@@ -19,4 +19,4 @@ def execute(instruction : Instruction, engine: GameEngine):
                 gameState.turnPlayer = left - right
             else:
                 gameState.turnPlayer = left #pick as default
-    return "Break"
+    return "break"

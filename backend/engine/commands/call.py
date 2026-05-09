@@ -10,4 +10,5 @@ def execute(instruction : Instruction, engine: GameEngine):
 
     #normal GOTO
     engine.label = instruction.args[0]
-    engine.pointer = -1
+    engine.pointer = 0
+    return "jump"

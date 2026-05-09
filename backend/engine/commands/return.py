@@ -11,3 +11,4 @@ def execute(instruction : Instruction, engine: GameEngine):
     prev_label, prev_pointer = engine.stack.pop()
     engine.label = prev_label
     engine.pointer = prev_pointer
+    return "jump"
