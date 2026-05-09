@@ -120,7 +120,7 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                 games[game_id]["started"] = True
                 # add each player to the gamestate playerlist
                 for player_socket in games[game_id]["connections"].values():
-                    games[game_id]["engine"].
+                    games[game_id]["engine"].add_player(player_id)
                     await player_socket.send_json({
                         "type": "START_GAME",
                         "players": games[game_id]["players"],
@@ -137,7 +137,7 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
         else:
             # ======= game loop =======
             # run the action through engine, should take the rules and the players action
-            if (player_id == games[game_id]["engine"].get_):
+            if (player_id == games[game_id]["engine"].get_current_player()):
                 games[game_id]["engine"].run_script(action["type"])
 
             # get state and build player specific state to send to each player
