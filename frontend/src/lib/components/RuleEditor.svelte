@@ -24,12 +24,12 @@
 
     const dslHighlight = StreamLanguage.define({
         token(stream) {
-            //if ()//
-
+            if (stream.match(/\bLABEL\b/)) {
+                return "atom";
+            }
             if (stream.match(new RegExp(`\\b(${keywords.join("|")})\\b`))) {
                 return "keyword";
             }
-
             stream.next();
             return null;
         },
@@ -60,20 +60,17 @@
     });
 </script>
 
-<div bind:this={container} class="h-full w-full"></div>
+<div class="flex-1 min-h-0 overflow-hidden">
+    <div bind:this={container} class="h-full w-full"></div>
+</div>
 
 <style>
-    .cm-editor {
+    :global(.cm-editor) {
         height: 100%;
-        font-size: 14px;
     }
 
-    .cm-content {
-        font-family: monospace;
-        padding: 12px;
-    }
-
-    .cm-scroller {
+    :global(.cm-scroller) {
+        height: 100%;
         overflow: auto;
     }
 </style>
