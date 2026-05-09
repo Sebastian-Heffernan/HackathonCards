@@ -19,7 +19,7 @@
     sendAction
   } = $props<{
     playerState: PlayerState;
-    sendAction: (action: string, cards: Card[]) => void;
+    sendAction: (action: string, selectedCardId: number | null) => void;
   }>();
 
   let selected = $state<boolean[]>([]);
@@ -36,9 +36,10 @@
 
   const playAction = (actionIdx: number) => {
     const action = playerState.actions[actionIdx];
+    const selectedCardId = selected.findIndex(Boolean);
     const chosenCards = playerState.hand.filter((_, i) => selected[i]);
 
-    sendAction(action, chosenCards);
+    sendAction(action, selectedCardId);
   };
 </script>
 <div class="absolute top-4 right-4 bg-white text-black p-4 rounded shadow max-w-xl max-h-96 overflow-auto z-50">

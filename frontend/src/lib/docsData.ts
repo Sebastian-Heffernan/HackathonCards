@@ -38,7 +38,55 @@ export const docsData = {
               description: "Takes a card from deck name to a players hand by number of times",
               usage: "DRAW [deck_name: str][player_id: int][times: int]",
               example: "DRAW deck1 0 1"
-            }
+            },
+            "END_TURN": {
+              name: "END_TURN",
+              description: "Finishes the player's turn through finishing a label execution initiated by an action. Can break a loop",
+              usage: "END_TURN [next_index(Next Pointer)/None]",
+              example: "END_TURN 1 # Finishes up the current player's turn, go to pointer 1"
+            },
+            "GOTO": {
+              name: "GOTO",
+              description: "Jumps process to a given label.",
+              usage: "GOTO [LABEL]",
+              example: "GOTO LABEL"
+            },
+            "MATH": {
+              name: "MATH",
+              description: "Performs mathematical operations between two labels, such as \n addition, subtraction, multiplication, division and modulus",
+              usage: "MATH [LABEL1][ + | - | * | / | % ][LABEL2]",
+              example: "MATH X + Y # Equivalent would be X = X + Y"
+            },
+            "MOVE": {
+              name: "MOVE",
+              description: "Moves a card from a player's hand and then move it to a specified deck",
+              usage: "MOVE [Deck][PlayerID][CardID]",
+              example: "MOVE DISCARD 1 2 # Move a card to the discard pile from player 1, card 2"
+            },
+            "REVEAL": {
+              name: "REVEAL",
+              description: "Specify a player's most recent drawn card (-1)",
+              usage: "REVEAL [PlayerID]",
+              example: "REVEAL 2 # Show Player 2's Last Card"
+            },
+            "VARG": {
+              name: "VARG",
+              description: "Declares a 'Game State' Variable. Server-Sided/Global Variable",
+              usage: "VARG [SET][NAME][VALUE]",
+              example: "VARG TOTAL 5 # Everyone can access this value"
+            },
+            "VARP": {
+              name: "VARP",
+              description: "Declares a Variable related to a given player.\n Client-Sided/Local Variable",
+              usage: "VARP [SET][playerID][name][value]",
+              example: "VARP 2 TOTAL 5 # Player 2 has a TOTAL of 5"
+            },
+            "RETURN": {
+              name: "RETURN",
+              description: "Exits out of the Program at the given line.",
+              usage: "VARP [SET][playerID][name][value]",
+              example: "VARP 2 TOTAL 5 # Player 2 has a TOTAL of 5"
+            },
         }
     }
 };
