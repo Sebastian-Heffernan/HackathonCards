@@ -14,7 +14,8 @@ def execute(instruction: Instruction, engine: GameEngine):
     if len(instruction.args) < 3:
         raise BuildError()
     left = engine.gameState.resolve_variable(instruction.args[0])
-    right = engine.gameState.resolve_variable(instruction.args[3])
+    right = engine.gameState.resolve_variable(instruction.args[2])
+    print(right)
     operator = instruction.args[1]
     condition_met = False
     if operator == "==":
@@ -33,4 +34,3 @@ def execute(instruction: Instruction, engine: GameEngine):
         raise BuildError()
     if not condition_met:
         engine.pointer += 1  # skip a step on false
-

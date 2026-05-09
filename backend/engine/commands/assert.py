@@ -17,8 +17,8 @@ def execute(instruction: Instruction, engine: GameEngine):
     if len(instruction.args) != 2:
         raise BuildError()
 
-    label = instruction.arg[LABEL]
-    player_idx = instruction.arg[PLAYER]
+    label = instruction.args[LABEL]
+    player_idx = int(instruction.args[PLAYER])
 
     if label not in engine.rules.labels:
         raise BuildError()
