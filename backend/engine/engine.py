@@ -4,6 +4,8 @@ from backend.engine.commands import *
 from backend.engine.classes.instruction import Instruction
 from backend.compiler.rules import Rules
 from backend.engine.classes.states import *
+from backend.engine.classes.deck import *
+from backend.BuildError import BuildError
 import json
 
 class BaseCommand:
@@ -27,10 +29,9 @@ class GameEngine:
         while 1:
             instruction : Instruction = self.rules.labels[self.label][self.pointer]
             # print(f"{self.pointer}: {instruction.name}")
-            if instruction.name == "EXIT":
-                print("exiting")
+            if instruction.run(self) == False:
+                print("Exiting game")
                 break
-            instruction.run(self)
             self.pointer += 1
 
     # Loads availabe commands into array
@@ -58,17 +59,24 @@ class GameEngine:
                 return vars(player)
     def get_game_state(self):
         return vars(self.gameState)
+    
+    def get_deck(self, name):
+        for deck in self.decks:
+            if deck.name == name:
+                return deck
+        return None
 
 
 
 if __name__ == "__main__":
     rules = Rules()
-    rules.add_new_rule(1, "SETUP", [
+    rules.add_new_rule(0, "SETUP", [
         Instruction("DECK", ["MAKE", "deck"]),
         Instruction("GOTO", ["START"])
     ])
     rules.add_new_rule(0, "START", [
         Instruction("DECK", ["SHUFFLE", "deck"]),
+        Instruction("END_TURN", None),
         Instruction("MOVE_CARD", ["deck", "active"]),
         Instruction("SET_VAR", ["score", "0"]),
         Instruction("SET_VAR", ["status", "\"Game start\""]),
@@ -111,7 +119,7 @@ if __name__ == "__main__":
     ])
     rules2.add_new_rule(0, "TEST", [
         Instruction("PRINT", ["Test print 2"]),
-        Instruction("EXIT", None)
+        Instruction("END_TURN", [0])
     ])
-    engine = GameEngine(rules2)
+    engine = GameEngine(rules)
     engine.run_script()
