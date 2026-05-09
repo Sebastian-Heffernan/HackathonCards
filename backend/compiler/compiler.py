@@ -80,6 +80,11 @@ class Compiler:
 if __name__ == "__main__":
     raw_text = """
     LABEL SETUP:
+        DECK MAKE deck0
+        DRAW deck0 0 5
+        VARG SET VARDEF 0
+        VARG SET VARDEF2 0
+        VALUE VAR VARDEF VARDEF2 
         GOTO TEST
     LABEL TEST:
         END_TURN
@@ -87,7 +92,7 @@ if __name__ == "__main__":
 
     command_list: dict = GameEngine.load_commands()
 
-    print(command_list)
-
     rules: Rules = Compiler.compile(raw_text, command_list)
-    print(rules)
+    gameEngine: GameEngine = GameEngine(rules, command_list)
+    gameEngine.add_player(0)
+    gameEngine.run_script("SETUP")

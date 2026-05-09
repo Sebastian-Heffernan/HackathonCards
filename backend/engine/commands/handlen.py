@@ -17,8 +17,8 @@ def execute(instruction: Instruction, engine: GameEngine):
     if len(instruction.args) != 2:
         raise BuildError("HANDLEN requires 2 args")
 
-    var_name = instruction.args[VAR_NAME]
-    player_idx = instruction.args[PLAYER_IDX]
+    var_name = int(engine.gameState.resolve_variable(instruction.args[VAR_NAME]))
+    player_idx = int(engine.gameState.resolve_variable(instruction.args[PLAYER_IDX]))
 
     if player_idx >= len(engine.playerStates):
         raise BuildError("Player Index out of Bounds for player states")
