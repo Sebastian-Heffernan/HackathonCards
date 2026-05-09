@@ -19,12 +19,21 @@
   let {
     playerState,
     gameVars = {},
-    sendAction
+    playerNames = [],
+    sendAction,
+    restartGame,
+    goHomeAll
   } = $props<{
     playerState: PlayerState;
     gameVars?: Record<string, unknown>;
+    playerNames?: string[];
     sendAction: (action: string, selectedCardId: number | null) => void;
+    restartGame: () => void;
+    goHomeAll: () => void;
   }>();
+
+  let winnerIndex = $derived(Number(gameVars["$winner"] ?? -1));
+  let winnerName = $derived(playerNames[winnerIndex] ?? `Player ${winnerIndex}`);
 
   let selected = $state<boolean[]>([]);
 
@@ -58,6 +67,35 @@
       <Deck />
     </div>
 -->
+    {#if winnerIndex >= 0}
+      <div class="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
+        <div class="nes-container is-dark with-title w-[420px] text-center">
+          <p class="title">Game Over</p>
+
+          <p class="text-2xl font-bold mb-6">
+            {winnerName} wins!
+          </p>
+
+          <div class="flex justify-center gap-4">
+            <button
+              type="button"
+              class="nes-btn is-primary"
+              onclick={restartGame}
+            >
+              Restart
+            </button>
+
+            <button
+              type="button"
+              class="nes-btn is-error"
+              onclick={goHomeAll}
+            >
+              Home
+            </button>
+          </div>
+        </div>
+      </div>
+    {/if}
 
     <div class="absolute top-4 left-1/2 -translate-x-1/2 flex gap-8">
       {#each playerState.opponent_hand ?? [] as opponentCards, opponentIdx}

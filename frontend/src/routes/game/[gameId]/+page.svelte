@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { page } from "$app/state";
+  import { goto } from "$app/navigation";
   import Game from "$lib/components/Game.svelte";
 
   type Card = {
@@ -22,6 +23,7 @@
   let gameId = $state(page.params.gameId || "");
   let playerId = $state("");
   let socket = $state<WebSocket | null>(null);
+  let playerNames = $state<string[]>([]);
 
   let playerState = $state<PlayerState>({
     uuid: "",
@@ -46,14 +48,31 @@
 
       socket.onmessage = (ev) => {
         const message = JSON.parse(ev.data);
-
+        if (message.type === "GO_HOME") {
+          sessionStorage.clear();
+          goto("/");
+          return;
+        }
         if (message.type === "GAME_STATE" || message.type === "START_GAME") {
           playerState = message.playerState;
           gameVars = message.gameVars ?? {};
+          playerNames = message.playerNames ?? playerNames;
         }
       };
     }
   });
+
+  function restartGame() {
+    socket?.send(JSON.stringify({
+      type: "RESTART_GAME"
+    }));
+  }
+
+  function goHomeAll() {
+    socket?.send(JSON.stringify({
+      type: "GO_HOME"
+    }));
+  }
 
   function sendAction(action: string, selectedCardId: number | null) {
     socket?.send(JSON.stringify({
@@ -63,4 +82,11 @@
   }
 </script>
 
-<Game {playerState} {gameVars} {sendAction} />
+<Game
+  {playerState}
+  {gameVars}
+  {playerNames}
+  {sendAction}
+  {restartGame}
+  {goHomeAll}
+/>

@@ -75,6 +75,7 @@ LABEL STAND_P1:
 
 LABEL P0_BUST:
     VARG SET status "Player_0_busts._Player_1_wins."
+    VARG SET $winner 1
     END_TURN
 
 LABEL P1_BUST:
