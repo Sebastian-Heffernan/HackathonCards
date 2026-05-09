@@ -3,6 +3,7 @@ from backend.engine.classes.instruction import Instruction
 from backend.engine.engine import GameEngine
 
 # Sets x = x + y for COMPARE x + y
+# On true executes n+1. On false, n+2
 # COMPARE [x][operator][y]
 def execute(instruction : Instruction, engine: GameEngine):
     if len(instruction.args) < 3:
@@ -10,4 +11,18 @@ def execute(instruction : Instruction, engine: GameEngine):
     left = engine.gameState.resolve_variable(instruction.args[0])
     right = engine.gameState.resolve_variable(instruction.args[3])
     operator = instruction.args[1]
-    engine.gameState.variables
+    condition_met = False
+    if operator == "==":
+        condition_met = (left == right)
+    elif operator == "!=":
+        condition_met = (left != right)
+    elif operator == ">":
+        condition_met = (left > right)
+    elif operator == "<":
+        condition_met = (left < right)
+    elif operator == ">=":
+        condition_met = (left >= right)
+    elif operator == "<=":
+        condition_met = (left <= right)
+    else:
+        raise BuildError()

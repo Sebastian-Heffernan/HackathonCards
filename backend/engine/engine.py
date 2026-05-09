@@ -8,6 +8,7 @@ from backend.engine.classes.deck import *
 from backend.BuildError import BuildError
 import json
 import re
+from backend.compiler.compiler import Compiler
 
 class BaseCommand:
     def execute(self, engine, args):
@@ -88,16 +89,36 @@ class GameEngine:
 
 
 if __name__ == "__main__":
-    rules2 = Rules()
-    rules2.add_new_rule(0, "SETUP", [
-        Instruction("DECK", ["MAKE", "deck"]),
-        Instruction("DECK", ["SHUFFLE", "deck"]),
-        Instruction("PRINT", ["decks[0].name"]),
-        Instruction("CALL", ["TEST"]),
-        Instruction("END_TURN", [0])
-    ])
-    rules2.add_new_rule(0, "TEST", [
-        Instruction("RETURN", [0])
-    ])
-    engine = GameEngine(rules2)
-    engine.run_script()
+    raw_text = """
+# SETUP
+ACTION START:
+    SHUFFLE deck
+    MOVE_CARD deck active_zone
+    SET_VAR score 0
+    SET_VAR status "Game start"
+LABEL SWAP_CARD:
+    MOVE_CARD active_zone discard
+    MOVE_CARD deck active_zone
+    RETURN
+ACTION GUESS_HIGHER:
+    CALL SWAP_CARD
+    GET_ATTR last_moved_card value next_val
+    IF next_val > current_val GOTO WIN
+    GOTO LOSE
+ACTION GUESS_LOWER:
+    CALL SWAP_CARD
+    GET_ATTR last_moved_card value next_val
+    IF next_val < current_val GOTO WIN
+    GOTO LOSE
+LABEL WIN:
+    MATH score + 1
+    SET_VAR current_val next_val
+    SET_VAR status "Correct"
+    EXIT
+LABEL LOSE:
+    SET_VAR status "Wrong"
+    SET_VAR score 0
+    GOTO START
+"""
+    rules: Rules = Compiler.compile(raw_text)
+    print(rules)
