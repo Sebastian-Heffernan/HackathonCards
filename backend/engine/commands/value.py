@@ -19,8 +19,8 @@ def execute(instruction: Instruction, engine: GameEngine):
         raise BuildError("VALUE requires 3 args")
 
     var_name = instruction.args[VAR_NAME]
-    player_idx = instruction.args[PLAYER_IDX]
-    card_idx = instruction.args[CARD_IDX]
+    player_idx = engine.gameState.resolve_variable(instruction.args[PLAYER_IDX])
+    card_idx = engine.gameState.resolve_variable(instruction.args[CARD_IDX])
 
     if player_idx >= len(engine.playerStates) or card_idx >= len(
         engine.playerStates[player_idx].hand
