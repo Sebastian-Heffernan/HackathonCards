@@ -4,6 +4,14 @@ export const docsData = {
     title: "Overview",
     content: "An introduction to the language syntax."
   },
+  "commenting": {
+    title: "Commenting",
+    content: "How to comment files",
+    examples: [
+      "# Commenting line\nASSERT label",
+      ""
+    ]
+  },
   "instructions": {
     title: "Instruction Set",
     content: "A complete list of available opcodes.",
@@ -103,7 +111,11 @@ export const docsData = {
         name: "SHOWVAR",
         description: "Adds a variable to showVars array, to then be shown to every client",
         usage: "SHOWVAR [NAME]",
-        example: "VARP 2 TOTAL 5 # Player 2 has a TOTAL of 5"
+        example: "VARP 2 TOTAL 5 # Player 2 has a TOTAL of 5",
+        warning: {
+          about: "Be careful about when you do SHOWVAR because you can logically get away with setting SHOWVAR after a VARG",
+          code: "SHOWVAR variable\nVARG variable 1",
+        }
       },
       "RETURN": {
         name: "RETURN",
