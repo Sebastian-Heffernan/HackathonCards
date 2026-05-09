@@ -20,7 +20,7 @@ def execute(instruction: Instruction, engine: GameEngine):
         )
     elif len(instruction.args) == 3:
         left = engine.gameState.resolve_variable(instruction.args[0])
-        right = engine.gameState.resolve_variable(instruction.args[3])
+        right = engine.gameState.resolve_variable(instruction.args[2])
         operator = instruction.args[1]
         if operator == "+":
             gameState.turnPlayer = left + right

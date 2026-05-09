@@ -2,11 +2,14 @@ from backend import BuildError
 from backend.engine.classes.instruction import Instruction
 from backend.engine.engine import GameEngine
 
-# GETATR [VAR] [ARGS]
+# GETATR [VAR] [PATH]
 def execute(instruction : Instruction, engine : GameEngine):
-    path = instruction.args[0]
+    if len(instruction.args) != 2:
+            raise BuildError("GETATR requires 2 args")
+    var_name = instruction.args[0]
+    path = instruction.args[1]
     try:
         value = engine.resolve_path(engine, path)
-        print(f"DEBUG: gameState.{path} = {value}")
+        engine.gameState.variables[var_name] = value #set the value
     except:
         raise BuildError("GETATR Incorrect path")

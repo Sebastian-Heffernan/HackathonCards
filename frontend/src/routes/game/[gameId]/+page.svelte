@@ -13,6 +13,7 @@
     variables: unknown[] | Record<string, unknown>;
     hand: Card[];
     actions: string[];
+    opponent_hand?: Card[][];
   };
 
   let gameId = $state(page.params.gameId || "");
@@ -23,7 +24,8 @@
     uuid: "",
     variables: [],
     hand: [],
-    actions: []
+    actions: [],
+    opponent_hand: []
   });
 
   onMount(() => {

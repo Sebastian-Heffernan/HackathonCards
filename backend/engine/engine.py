@@ -4,7 +4,6 @@ import os
 import re
 
 from backend.BuildError import BuildError
-from backend.compiler.compiler import Compiler
 from backend.compiler.rules import Rules
 from backend.engine.classes.deck import *
 from backend.engine.classes.instruction import Instruction
@@ -18,7 +17,7 @@ class BaseCommand:
 
 
 class GameEngine:
-    def __init__(self, rules: Rules):
+    def __init__(self, rules: Rules, commandList: dict):
         self.rules = rules
         self.decks = []
         self.stack = []  # for CALL pointer
@@ -29,7 +28,7 @@ class GameEngine:
 
         self.gameState = GameState()
         self.commandList = {}
-        self._load_commands()
+        self.commandList = commandList
 
     def run_script(self, label):
         self.label = label
@@ -37,9 +36,11 @@ class GameEngine:
 
         self.gameState.variables["turnCount"] += 1
         while True:
-            #check if label exits
+            # check if label exits
             if self.label not in self.rules.labels:
-                raise BuildError(f"Runtime Error: Label '{self.label}' not found in script rules.")
+                raise BuildError(
+                    f"Runtime Error: Label '{self.label}' not found in script rules."
+                )
             labelObj = self.rules.labels[self.label]
             # check pointer is in limit
             if not len(labelObj) > self.pointer:
@@ -55,7 +56,9 @@ class GameEngine:
             self.pointer += 1
 
     # Loads availabe commands into array
-    def _load_commands(self):
+    @staticmethod
+    def load_commands() -> dict:
+        commandList = {}
         path = os.path.join(os.path.dirname(__file__), "commands")
         for filename in os.listdir(path):
             if filename.endswith(".py"):
@@ -66,7 +69,10 @@ class GameEngine:
                 # execute function in each file
                 if hasattr(module, "execute"):
                     cmd_key = filename[:-3].upper()
-                    self.commandList[cmd_key] = module.execute
+                    commandList[cmd_key] = module.execute
+
+        commandList["LABEL"] = ""
+        return commandList
 
     # Getters/setters
     def add_player(self, uuid):
@@ -111,38 +117,52 @@ if __name__ == "__main__":
 LABEL SETUP:
     DECK MAKE deck
     DECK SHUFFLE deck
-    CALL FUNC
-    GOTO TEST
-LABEL TEST:
-    VARG SET test 0
-    VARG SET test2 1
-    COMPARE test2 > test
-    PRINT gameState.variables
+    DECK MAKE discard
+    DECK CLEAR discard
+
+    VARG SET i 0
+    GOTO SETUPPLAYERS
+# Will add 2 cards to each player
+# Game setup
+LABEL SETUPPLAYERS:
+    VARG SET j 0
+    CALL SETUPPLAYER
+    PRINT playerStates[i].hand
+    ASSERT DRAW i
+    ASSERT DISCARD i
+
+    MATH i + 1
+    COMPARE i < playerCount
+    GOTO SETUPPLAYERS
     END_TURN
-LABEL FUNC:
-    DRAW deck 0 1
-    REVEAL 0
-    PRINT playerStates[0].hand
+LABEL SETUPPLAYER:
+    DRAW deck i 1
+    MATH j + 1
+    COMPARE j < 2
+    GOTO SETUPPLAYER
     RETURN
+LABEL CONTINUE:
+    # PRINT gameState.variables
+    END_TURN turnPlayer + 1
+# Turn logic
+LABEL DRAW:
+    DRAW deck turnPlayer 1
+    GOTO CONTINUE
+LABEL DISCARD:
+    MOVE discard turnPlayer $selectedCardId
+    GOTO CONTINUE
 """
 
-    test = """
+    test2 = """
 LABEL SETUP:
-    VARG SET i 0
-    DECK MAKE deck
-    GOTO LOOP
-LABEL LOOP:
-    DRAW deck 0 1
-    MATH i + 1
-    COMPARE i < 2
-    GOTO LOOP
-    GOTO YES
-LABEL YES:
-    PRINT gameState.variables
-    PRINT playerStates[0].hand
+    GOTO ADDCARDSTOALL
+LABEL ADDCARDSTOALL:
     END_TURN
 """
     rules: Rules = Compiler.compile(test)
+    # print(rules)
     engine = GameEngine(rules)
     engine.add_player(0)
+    engine.add_player(1)
+    engine.add_player(2)
     engine.run_script("SETUP")

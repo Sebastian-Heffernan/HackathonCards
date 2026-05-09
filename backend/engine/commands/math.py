@@ -13,8 +13,8 @@ def execute(instruction: Instruction, engine: GameEngine):
         raise BuildError()
 
     name = instruction.args[X_INDEX]
-    x = engine.gameState.resolve_variable(name)
-    y = engine.gameState.resolve_variable(instruction.args[Y_INDEX])
+    x = int(engine.gameState.resolve_variable(name))
+    y = int(engine.gameState.resolve_variable(instruction.args[Y_INDEX]))
     operator = instruction.args[OP_INDEX]
     if operator == "+":
         x += y

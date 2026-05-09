@@ -5,15 +5,18 @@ from uuid import uuid4
 from fastapi import FastAPI, WebSocket
 from pydantic import BaseModel
 
-from backend.compiler.compiler import *
+from backend.compiler.compiler import Compiler
 from backend.db.cache import games, lobby_codes, rules_store
 from backend.engine.engine import *
+from backend.engine.engine import GameEngine
 from backend.routers import lobby
 from backend.routers.processors.client_side import ClientSideGenerator
 
 app = FastAPI()
+command_list = GameEngine.load_commands()
 
-#app.include_router(lobby.router)
+
+# app.include_router(lobby.router)
 
 
 class CreateLobby(BaseModel):
@@ -51,7 +54,7 @@ def root():
 def get_rules(rules: GetRules):
     source = rules.source
     # pass them to the json compiler
-    compiled_rules = Compiler.compile(source)
+    compiled_rules = Compiler.compile(source, command_list)
     # store in dict to reference when game starts
     rule_id = str(uuid4())
     rules_store[rule_id] = compiled_rules
@@ -70,7 +73,7 @@ def start_game(request: CreateLobby):
         "hostId": host_id,
         "connections": {},
         "players": {host_id: {"name": request.host_name}},
-        "engine": GameEngine(rules_store[request.rule_id]),
+        "engine": GameEngine(rules_store[request.rule_id], command_list),
     }
 
     code = create_code()
@@ -95,6 +98,7 @@ def join_lobby(lobby_code: str, request: JoinLobby):
         "playerId": player_id,
     }
 
+
 def client_side_to_dict(client_side):
     if hasattr(client_side, "model_dump"):
         return client_side.model_dump()
@@ -104,6 +108,7 @@ def client_side_to_dict(client_side):
 
     return vars(client_side)
 
+
 def get_client_side_for_player(engine, player_id):
     client_sides = ClientSideGenerator.generate_client_sides(engine)
 
@@ -112,6 +117,7 @@ def get_client_side_for_player(engine, player_id):
             return client_side_to_dict(client_sides[idx])
 
     return None
+
 
 # socket for game
 @app.websocket("/ws/{game_id}/{player_id}")
@@ -135,15 +141,18 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
 
                 games[game_id]["engine"].run_script("SETUP")
 
-                for connected_player_id, player_socket in games[game_id]["connections"].items():
-                    await player_socket.send_json({
-                        "type": "START_GAME",
-                        "players": games[game_id]["players"],
-                        "playerState": get_client_side_for_player(
-                            games[game_id]["engine"],
-                            connected_player_id
-                        ),
-                    })
+                for connected_player_id, player_socket in games[game_id][
+                    "connections"
+                ].items():
+                    await player_socket.send_json(
+                        {
+                            "type": "START_GAME",
+                            "players": games[game_id]["players"],
+                            "playerState": get_client_side_for_player(
+                                games[game_id]["engine"], connected_player_id
+                            ),
+                        }
+                    )
             # if a new player joins, send the playerlist to the client if not started
             elif action["type"] == "JOIN_GAME":
                 for player_socket in games[game_id]["connections"].values():
@@ -151,24 +160,27 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                         {"type": "UPDATE_PLAYERS", "players": games[game_id]["players"]}
                     )
         else:
-            if action["type"] == "START_GAME": 
+            if action["type"] == "START_GAME":
                 continue
             # ======= game loop =======
             # run the action through engine, should take the rules and the players action
             if player_id == games[game_id]["engine"].get_current_player_uuid():
                 # get state and build player specific state to send to each player
                 # check if valid in near future
-                games[game_id]["engine"].gameState.variables["$selectedCardId"] = action["selectedCardId"]
+                games[game_id]["engine"].gameState.variables["$selectedCardId"] = (
+                    action["selectedCardId"]
+                )
                 games[game_id]["engine"].run_script(action["type"])
                 # send state to each player
 
                 for connected_player_id, player_socket in games[game_id][
                     "connections"
                 ].items():
-                    await player_socket.send_json({
-                        "type": "GAME_STATE",
-                        "playerState": get_client_side_for_player(
-                            games[game_id]["engine"],
-                            connected_player_id
-                        ),
-                    })
+                    await player_socket.send_json(
+                        {
+                            "type": "GAME_STATE",
+                            "playerState": get_client_side_for_player(
+                                games[game_id]["engine"], connected_player_id
+                            ),
+                        }
+                    )
