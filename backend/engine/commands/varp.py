@@ -8,5 +8,4 @@ def execute(instruction : Instruction, engine):
     command = instruction.args[0]
     name = instruction.args[1]
     value = instruction.args[2]
-    if command == "SET":
-        
+    #if command == "SET":
