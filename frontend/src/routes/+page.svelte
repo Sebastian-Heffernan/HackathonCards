@@ -14,99 +14,187 @@
 LABEL SETUP:
     DECK MAKE deck
     DECK SHUFFLE deck
+    DECK MAKE discard
+    DECK CLEAR discard
 
-    VARG SET $winner -1
-    VARG SET status "highest_card_waiting"
-    VARG SET bestValue -1
-    VARG SET bestPlayer -1
-    VARG SET drawnCount 0
-
+    VARG SET P0_SCORE 0
+    VARG SET P1_SCORE 0
+    VARG SET P0_STOOD 0
+    VARG SET P1_STOOD 0
+    VARG SET status "game_playing"
     SHOW_VAR status
-    SHOW_VAR $winner
-    SHOW_VAR bestValue
-    SHOW_VAR bestPlayer
-    SHOW_VAR drawnCount
 
-    ASSERT SHOWDOWN
+    DRAW deck 0 1
+    REVEAL 0
+    DRAW deck 1 1
+    DRAW deck 0 1
+    DRAW deck 1 1
+
+    REVEAL 0
+    REVEAL 1
+
+    CALL SCORE_P0
+    CALL SCORE_P1
+
+    ASSERT HIT
+    ASSERT STAND
+
+    END_TURN 0
+    
+LABEL HIT:
+    COMPARE $turnPlayer == 0
+    GOTO HIT_P0
+    GOTO HIT_P1
+
+LABEL HIT_P0:
+    DRAW deck 0 1
+    REVEAL 0
+    CALL SCORE_P0
+    COMPARE P0_SCORE > 21
+    GOTO P0_BUST
     END_TURN 0
 
-LABEL SHOWDOWN:
-    DRAW deck $turnPlayer 1
-    REVEAL $turnPlayer
+LABEL HIT_P1:
+    DRAW deck 1 1
+    REVEAL 1
+    CALL SCORE_P1
+    COMPARE P1_SCORE > 21
+    GOTO P1_BUST
+    END_TURN 1
 
-    MATH drawnCount + 1
+LABEL STAND:
+    COMPARE $turnPlayer == 0
+    GOTO STAND_P0
+    GOTO STAND_P1
 
-    COMPARE drawnCount < $playerCount
-    GOTO NEXT_PLAYER
-    GOTO SCORE_START
+LABEL STAND_P0:
+    VARG SET P0_STOOD 1
+    END_TURN 1
 
-LABEL NEXT_PLAYER:
-    END_TURN $turnPlayer + 1
+LABEL STAND_P1:
+    VARG SET P1_STOOD 1
+    GOTO FINAL_SCORE
 
-LABEL SCORE_START:
-    VARG SET i 0
-    VARG SET bestValue -1
-    VARG SET bestPlayer -1
-    VARG SET status "scoring"
-    GOTO SCORE_ALL
-
-LABEL SCORE_ALL:
-    VALUE cardValue i 0
-    CALL CARD_TO_VALUE
-
-    COMPARE cardScore > bestValue
-    GOTO NEW_BEST
-    GOTO NEXT_SCORE
-
-LABEL NEW_BEST:
-    VARG SET bestValue cardScore
-    VARG SET bestPlayer i
-    GOTO NEXT_SCORE
-
-LABEL NEXT_SCORE:
-    MATH i + 1
-    COMPARE i < $playerCount
-    GOTO SCORE_ALL
-    GOTO FINISH_GAME
-
-LABEL FINISH_GAME:
-    VARG SET $winner bestPlayer
-    VARG SET status "highest_card_winner"
+LABEL P0_BUST:
+    VARG SET status "Player_0_busts._Player_1_wins."
+    VARG SET $winner 1
     END_TURN
 
-LABEL CARD_TO_VALUE:
+LABEL P1_BUST:
+    VARG SET status "Player_1_busts._Player_0_wins."
+    VARG SET $winner 0
+    END_TURN
+
+LABEL FINAL_SCORE:
+    COMPARE P0_SCORE > P1_SCORE
+    GOTO P0_WIN
+
+    COMPARE P1_SCORE > P0_SCORE
+    GOTO P1_WIN
+
+    GOTO PUSH
+
+LABEL P0_WIN:
+    VARG SET status "Player_0_wins."
+    VARG SET $winner 0
+    END_TURN
+
+LABEL P1_WIN:
+    VARG SET status "Player_1_wins."
+    VARG SET $winner 1
+    END_TURN
+
+LABEL PUSH:
+    VARG SET status "Push."
+    # push?
+    END_TURN
+
+LABEL SCORE_P0:
+    VARG SET P0_SCORE 0
+    VARG SET cardIdx 0
+    HANDLEN handLen 0
+    GOTO SCORE_P0_LOOP
+
+LABEL SCORE_P0_LOOP:
+    COMPARE cardIdx < handLen
+    GOTO SCORE_P0_CARD
+    RETURN
+
+LABEL SCORE_P0_CARD:
+    VALUE cardValue 0 cardIdx
+    CALL ADD_TO_P0
+    MATH cardIdx + 1
+    GOTO SCORE_P0_LOOP
+
+LABEL ADD_TO_P0:
     COMPARE cardValue == "A"
-    GOTO CARD_A
+    GOTO P0_ADD_ACE
 
     COMPARE cardValue == "K"
-    GOTO CARD_K
+    GOTO P0_ADD_FACE
 
     COMPARE cardValue == "Q"
-    GOTO CARD_Q
+    GOTO P0_ADD_FACE
 
     COMPARE cardValue == "J"
-    GOTO CARD_J
+    GOTO P0_ADD_FACE
 
-    GOTO CARD_NUMBER
+    GOTO P0_ADD_NUMBER
 
-LABEL CARD_A:
-    VARG SET cardScore 14
+LABEL P0_ADD_ACE:
+    MATH P0_SCORE + 11
     RETURN
 
-LABEL CARD_K:
-    VARG SET cardScore 13
+LABEL P0_ADD_FACE:
+    MATH P0_SCORE + 10
     RETURN
 
-LABEL CARD_Q:
-    VARG SET cardScore 12
+LABEL P0_ADD_NUMBER:
+    MATH P0_SCORE + cardValue
     RETURN
 
-LABEL CARD_J:
-    VARG SET cardScore 11
+LABEL SCORE_P1:
+    VARG SET P1_SCORE 0
+    VARG SET cardIdx 0
+    HANDLEN handLen 1
+    GOTO SCORE_P1_LOOP
+
+LABEL SCORE_P1_LOOP:
+    COMPARE cardIdx < handLen
+    GOTO SCORE_P1_CARD
     RETURN
 
-LABEL CARD_NUMBER:
-    VARG SET cardScore cardValue
+LABEL SCORE_P1_CARD:
+    VALUE cardValue 1 cardIdx
+    CALL ADD_TO_P1
+    MATH cardIdx + 1
+    GOTO SCORE_P1_LOOP
+
+LABEL ADD_TO_P1:
+    COMPARE cardValue == "A"
+    GOTO P1_ADD_ACE
+
+    COMPARE cardValue == "K"
+    GOTO P1_ADD_FACE
+
+    COMPARE cardValue == "Q"
+    GOTO P1_ADD_FACE
+
+    COMPARE cardValue == "J"
+    GOTO P1_ADD_FACE
+
+    GOTO P1_ADD_NUMBER
+
+LABEL P1_ADD_ACE:
+    MATH P1_SCORE + 11
+    RETURN
+
+LABEL P1_ADD_FACE:
+    MATH P1_SCORE + 10
+    RETURN
+
+LABEL P1_ADD_NUMBER:
+    MATH P1_SCORE + cardValue
     RETURN
 `);
 
@@ -204,10 +292,12 @@ LABEL CARD_NUMBER:
 <!-- Page Wrapped -->
 <div class="min-h-screen bg-gray-100 flex flex-col">
    <!-- Header -->
-   <header class="flex items-center justify-center p-4 bg-white shadow">
+   <header
+      class="relative flex items-center justify-center p-4 bg-white shadow"
+   >
       <!-- Left button -->
       <button
-         class="absolute left-4 text-sm font-semibold px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-800"
+         class="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-800"
          onclick={() => goto("/docs/overview")}
       >
          How to Play
@@ -217,14 +307,14 @@ LABEL CARD_NUMBER:
 
       <!-- Create Lobby Button -->
       <button
-         class="absolute right-4 text-3xl font-bold px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-800"
+         class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-800"
          onclick={openModal}
       >
-         +Create Lobby
+         Create Lobby
       </button>
    </header>
 
-   <main class="flex-1 flex flex-col items-center p-6">
+<main class="flex-1 flex flex-col items-center p-6">
       <!-- Welcome message -->
       <p class="text-lg text-gray-600 mb-6 text-center">
          Welcome to Cardssembly! Join or create a lobby to start playing.
@@ -238,7 +328,7 @@ LABEL CARD_NUMBER:
       <!-- Lobby Table -->
       <div class="flex justify-center w-full">
          <div
-            class="w-full max-w-3xl min-h-[500px] bg-white shadow rounded overflow-hidden flex flex-col"
+            class="w-full max-w-3xl bg-white shadow rounded overflow-hidden flex flex-col"
          >
             <div class="divide-y">
                <!-- Table Headers -->
@@ -278,10 +368,10 @@ LABEL CARD_NUMBER:
          </div>
       </div>
 
-      <div class="mt-6 w-full max-w-3xl bg-white shadow rounded p-4">
+      <div class="mt-6 w-full max-w-3xl bg-white shadow rounded p-4 mx-auto">
          <h2 class="text-lg font-bold mb-3 text-center">Join Lobby by Code</h2>
 
-         <div class="flex flex-col md:flex-row gap-3">
+         <div class="flex flex-col gap-3">
             <input
                bind:value={userName}
                placeholder="Username"
