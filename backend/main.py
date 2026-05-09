@@ -126,6 +126,14 @@ def get_client_side_for_player(game, player_id):
 
     return None
 
+def get_visible_game_vars(engine):
+    visible_vars = {}
+
+    for var_name in engine.gameState.showVars:
+        visible_vars[var_name] = engine.gameState.variables.get(var_name)
+
+    return visible_vars
+
 # socket for game
 @app.websocket("/ws/{game_id}/{player_id}")
 async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str):
@@ -159,7 +167,7 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                                 games[game_id],
                                 connected_player_id
                             ),
-                            "gameVars": games[game_id]["engine"].gameState.variables
+                            "gameVars": get_visible_game_vars(games[game_id]["engine"])
                         }
                     )
             # if a new player joins, send the playerlist to the client if not started
@@ -189,6 +197,6 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                         {
                             "type": "GAME_STATE",
                             "playerState": get_client_side_for_player(games[game_id], connected_player_id),
-                            "gameVars": games[game_id]["engine"].gameState.showVars
+                            "gameVars": get_visible_game_vars(games[game_id]["engine"])
                         }
                     )
