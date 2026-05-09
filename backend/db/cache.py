@@ -1,7 +1,7 @@
 from backend.compiler.compiler import Compiler
 from backend.compiler.rules import Rules
+from backend.engine.classes.instruction import Instruction
 from backend.engine.engine import GameEngine
-from backend.engine.instruction import Instruction
 
 raw_text = """
 # SETUP
