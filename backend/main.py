@@ -71,12 +71,8 @@ def start_game(request: CreateLobby):
         "players": {
             host_id : {"name": request.host_name}
         },
-        # TODO: figure out whats happening with state/engine?
-        "state": {
-            # figure out game state somehow maybe?
-        },
         "engine": {
-            #GameEngine(rules_store[request.rule_id])
+            GameEngine(rules_store[request.rule_id])
         }
     }
 
@@ -122,12 +118,14 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
             # see if the player is host and action is start game
             if (player_id == games[game_id]["hostId"] and action["type"] == "START_GAME"):
                 games[game_id]["started"] = True
+                # add each player to the gamestate playerlist
                 for player_socket in games[game_id]["connections"].values():
+                    games[game_id]["engine"].
                     await player_socket.send_json({
-                        # what to send to every client to start game?
                         "type": "START_GAME",
                         "players": games[game_id]["players"],
-                        "state": games[game_id]["state"]
+                        # state of the game for every player
+                        "state": games[game_id]["engine"]
                     })
             # if a new player joins, send the playerlist to the client if not started
             elif (action["type"] == "JOIN_GAME"):
@@ -137,10 +135,10 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                         "players": games[game_id]["players"]
                     })
         else:
-            pass
             # ======= game loop =======
             # run the action through engine, should take the rules and the players action
-            games[game_id]["engine"].run_script(action["type"])
+            if (player_id == games[game_id]["engine"].get_):
+                games[game_id]["engine"].run_script(action["type"])
 
             # get state and build player specific state to send to each player
 
