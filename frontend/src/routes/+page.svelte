@@ -106,55 +106,62 @@
   }
 </script>
 
-<main class="flex items-center justify-center min-h-screen w-screen">
-  <div class="w-96 flex items-center flex-col m-auto">
-    <h1>Hackathon Cards Test</h1>
+<main>
+  <h1>Cardssembly Cards Test</h1>
 
-    <section class="flex items-center justify-center">
-      <h2>Rules</h2>
+  <section>
+    <h2>Rules</h2>
 
-      <textarea bind:value={rulesText}></textarea>
+    <textarea bind:value={rulesText}></textarea>
 
-      <br />
+    <br />
 
-      <button onclick={sendRules} type="button" class="nes-btn is-primary">
-        Send Rules
-      </button>
-    </section>
+    <button onclick={sendRules}>
+      Send Rules
+    </button>
+  </section>
 
-    <section>
-      <h2>Create Lobby</h2>
+  <section>
+    <h2>Create Lobby</h2>
+    <p>username:</p>
+    <input bind:value={userName} placeholder="Host name" />
 
-      <input bind:value={userName} placeholder="Host name" />
+    <br />
 
-      <br />
+    <button onclick={createLobby} disabled={!ruleId}>
+      Create Lobby
+    </button>
 
-      <button onclick={createLobby} disabled={!ruleId} type="button" class="nes-btn is-primary">
-        Create Lobby
-      </button>
-    </section>
+    <br />
 
-    <section>
-      <h2>Current IDs</h2>
+    <h3>Join Lobby</h3>
+    <p>gameId: {gameId || "none"}</p>
+    <input bind:value={lobbyCode} placeholder="Code" />
+    <button onclick={joinLobby}>
+      Join Lobby
+    </button>
+  </section>
 
-      <p><strong>Rule ID:</strong> {ruleId || "none"}</p>
-      <p><strong>Game ID:</strong> {gameId || "none"}</p>
-      <p><strong>Player ID:</strong> {playerId || "none"}</p>
-      <p><strong>Players in Lobby:</strong></p>
-      {#if players.length > 0}
-      <ul>
-        {#each players as player}
-          <li>{player.name}</li>
-        {/each}
-      </ul>
-      {/if}
-    </section>
+  <section>
+    <h2>Current IDs</h2>
 
-    <section>
-      <h2>Response</h2>
-      <pre>{output}</pre>
-    </section>
-  </div>
+    <p><strong>Rule ID:</strong> {ruleId || "none"}</p>
+    <p><strong>Game ID:</strong> {gameId || "none"}</p>
+    <p><strong>Player ID:</strong> {playerId || "none"}</p>
+    <p><strong>Players in Lobby:</strong></p>
+    {#if players.length > 0}
+    <ul>
+      {#each players as player}
+        <li>{player.name}</li>
+      {/each}
+    </ul>
+    {/if}
 
+  </section>
+
+  <section>
+    <h2>Response</h2>
+    <pre>{output}</pre>
+  </section>
 </main>
 
