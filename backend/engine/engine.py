@@ -17,7 +17,7 @@ class BaseCommand:
 
 
 class GameEngine:
-    def __init__(self, rules: Rules):
+    def __init__(self, rules: Rules, commandList: dict):
         self.rules = rules
         self.decks = []
         self.stack = []  # for CALL pointer
@@ -28,7 +28,7 @@ class GameEngine:
 
         self.gameState = GameState()
         self.commandList = {}
-        self._load_commands()
+        self.commandList = commandList
 
     def run_script(self, label):
         self.label = label
