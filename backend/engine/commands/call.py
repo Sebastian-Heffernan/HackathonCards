@@ -1,3 +1,4 @@
+from backend import BuildError
 from backend.engine.classes.deck import *
 from backend.engine.classes.instruction import Instruction
 from backend.engine.classes.states import *
@@ -11,6 +12,9 @@ CALL:
 
 # CALL [label: str]
 def execute(instruction: Instruction, engine: GameEngine):
+    arg_count = len(instruction.args)
+    if arg_count < 1:
+        raise BuildError("CALL [label: str] (Usage)")
     return_address = (engine.label, engine.pointer + 1)  # where to come back to
     engine.stack.append(return_address)
 

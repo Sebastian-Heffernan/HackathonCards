@@ -7,187 +7,106 @@
    // svelte-ignore non_reactive_update
    let textarea: HTMLTextAreaElement;
 
+   let showCompilationErrorPopup = $state(false);
+   let compilationErrorMessage = $state("");
+
   let rules = $state(`
 LABEL SETUP:
     DECK MAKE deck
     DECK SHUFFLE deck
-    DECK MAKE discard
-    DECK CLEAR discard
 
-    VARG SET P0_SCORE 0
-    VARG SET P1_SCORE 0
-    VARG SET P0_STOOD 0
-    VARG SET P1_STOOD 0
-    VARG SET status "game_playing"
+    VARG SET $winner -1
+    VARG SET status "highest_card_waiting"
+    VARG SET bestValue -1
+    VARG SET bestPlayer -1
+    VARG SET drawnCount 0
+
     SHOW_VAR status
+    SHOW_VAR $winner
+    SHOW_VAR bestValue
+    SHOW_VAR bestPlayer
+    SHOW_VAR drawnCount
 
-    DRAW deck 0 1
-    DRAW deck 1 1
-    DRAW deck 0 1
-    DRAW deck 1 1
-
-    REVEAL 0
-    REVEAL 1
-
-    CALL SCORE_P0
-    CALL SCORE_P1
-
-    ASSERT HIT
-    ASSERT STAND
-    ASSERT RESTART 0
-
-    END_TURN 0
-    
-LABEL HIT:
-    COMPARE $turnPlayer == 0
-    GOTO HIT_P0
-    GOTO HIT_P1
-
-LABEL HIT_P0:
-    DRAW deck 0 1
-    REVEAL 0
-    CALL SCORE_P0
-    COMPARE P0_SCORE > 21
-    GOTO P0_BUST
+    ASSERT SHOWDOWN
     END_TURN 0
 
-LABEL HIT_P1:
-    DRAW deck 1 1
-    REVEAL 1
-    CALL SCORE_P1
-    COMPARE P1_SCORE > 21
-    GOTO P1_BUST
-    END_TURN 1
+LABEL SHOWDOWN:
+    DRAW deck $turnPlayer 1
+    REVEAL $turnPlayer
 
-LABEL STAND:
-    COMPARE $turnPlayer == 0
-    GOTO STAND_P0
-    GOTO STAND_P1
+    MATH drawnCount + 1
 
-LABEL STAND_P0:
-    VARG SET P0_STOOD 1
-    END_TURN 1
+    COMPARE drawnCount < $playerCount
+    GOTO NEXT_PLAYER
+    GOTO SCORE_START
 
-LABEL STAND_P1:
-    VARG SET P1_STOOD 1
-    GOTO FINAL_SCORE
+LABEL NEXT_PLAYER:
+    END_TURN $turnPlayer + 1
 
-LABEL P0_BUST:
-    VARG SET status "Player_0_busts._Player_1_wins."
-    VARG SET $winner 1
+LABEL SCORE_START:
+    VARG SET i 0
+    VARG SET bestValue -1
+    VARG SET bestPlayer -1
+    VARG SET status "scoring"
+    GOTO SCORE_ALL
+
+LABEL SCORE_ALL:
+    VALUE cardValue i 0
+    CALL CARD_TO_VALUE
+
+    COMPARE cardScore > bestValue
+    GOTO NEW_BEST
+    GOTO NEXT_SCORE
+
+LABEL NEW_BEST:
+    VARG SET bestValue cardScore
+    VARG SET bestPlayer i
+    GOTO NEXT_SCORE
+
+LABEL NEXT_SCORE:
+    MATH i + 1
+    COMPARE i < $playerCount
+    GOTO SCORE_ALL
+    GOTO FINISH_GAME
+
+LABEL FINISH_GAME:
+    VARG SET $winner bestPlayer
+    VARG SET status "highest_card_winner"
     END_TURN
 
-LABEL P1_BUST:
-    VARG SET status "Player_1_busts._Player_0_wins."
-    END_TURN
-
-LABEL FINAL_SCORE:
-    COMPARE P0_SCORE > P1_SCORE
-    GOTO P0_WIN
-
-    COMPARE P1_SCORE > P0_SCORE
-    GOTO P1_WIN
-
-    GOTO PUSH
-
-LABEL P0_WIN:
-    VARG SET status "Player_0_wins."
-    END_TURN
-
-LABEL P1_WIN:
-    VARG SET status "Player_1_wins."
-    END_TURN
-
-LABEL PUSH:
-    VARG SET status "Push."
-    END_TURN
-
-LABEL SCORE_P0:
-    VARG SET P0_SCORE 0
-    VARG SET cardIdx 0
-    HANDLEN handLen 0
-    GOTO SCORE_P0_LOOP
-
-LABEL SCORE_P0_LOOP:
-    COMPARE cardIdx < handLen
-    GOTO SCORE_P0_CARD
-    RETURN
-
-LABEL SCORE_P0_CARD:
-    VALUE cardValue 0 cardIdx
-    CALL ADD_TO_P0
-    MATH cardIdx + 1
-    GOTO SCORE_P0_LOOP
-
-LABEL ADD_TO_P0:
+LABEL CARD_TO_VALUE:
     COMPARE cardValue == "A"
-    GOTO P0_ADD_ACE
+    GOTO CARD_A
 
     COMPARE cardValue == "K"
-    GOTO P0_ADD_FACE
+    GOTO CARD_K
 
     COMPARE cardValue == "Q"
-    GOTO P0_ADD_FACE
+    GOTO CARD_Q
 
     COMPARE cardValue == "J"
-    GOTO P0_ADD_FACE
+    GOTO CARD_J
 
-    GOTO P0_ADD_NUMBER
+    GOTO CARD_NUMBER
 
-LABEL P0_ADD_ACE:
-    MATH P0_SCORE + 11
+LABEL CARD_A:
+    VARG SET cardScore 14
     RETURN
 
-LABEL P0_ADD_FACE:
-    MATH P0_SCORE + 10
+LABEL CARD_K:
+    VARG SET cardScore 13
     RETURN
 
-LABEL P0_ADD_NUMBER:
-    MATH P0_SCORE + cardValue
+LABEL CARD_Q:
+    VARG SET cardScore 12
     RETURN
 
-LABEL SCORE_P1:
-    VARG SET P1_SCORE 0
-    VARG SET cardIdx 0
-    HANDLEN handLen 1
-    GOTO SCORE_P1_LOOP
-
-LABEL SCORE_P1_LOOP:
-    COMPARE cardIdx < handLen
-    GOTO SCORE_P1_CARD
+LABEL CARD_J:
+    VARG SET cardScore 11
     RETURN
 
-LABEL SCORE_P1_CARD:
-    VALUE cardValue 1 cardIdx
-    CALL ADD_TO_P1
-    MATH cardIdx + 1
-    GOTO SCORE_P1_LOOP
-
-LABEL ADD_TO_P1:
-    COMPARE cardValue == "A"
-    GOTO P1_ADD_ACE
-
-    COMPARE cardValue == "K"
-    GOTO P1_ADD_FACE
-
-    COMPARE cardValue == "Q"
-    GOTO P1_ADD_FACE
-
-    COMPARE cardValue == "J"
-    GOTO P1_ADD_FACE
-
-    GOTO P1_ADD_NUMBER
-
-LABEL P1_ADD_ACE:
-    MATH P1_SCORE + 11
-    RETURN
-
-LABEL P1_ADD_FACE:
-    MATH P1_SCORE + 10
-    RETURN
-
-LABEL P1_ADD_NUMBER:
-    MATH P1_SCORE + cardValue
+LABEL CARD_NUMBER:
+    VARG SET cardScore cardValue
     RETURN
 `);
 
@@ -224,11 +143,22 @@ LABEL P1_ADD_NUMBER:
       });
 
       const data = await response.json();
+
+      if (!data.ok) {
+         compilationErrorMessage = data.error ?? "Compilation failed";
+         showCompilationErrorPopup = true;
+         return null;
+      }
+
       return data.ruleId;
    }
 
    async function createLobby() {
       const ruleId = await sendRules();
+
+      if (!ruleId) {
+         return;
+      }
 
       const response = await fetch("/api/lobbies", {
          method: "POST",
@@ -404,6 +334,28 @@ LABEL P1_ADD_NUMBER:
                   onclick={createLobby}
                >
                   Create
+               </button>
+            </div>
+         </div>
+      </div>
+   {/if}
+   {#if showCompilationErrorPopup}
+      <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
+         <div class="bg-white rounded-lg shadow-lg max-w-lg w-[90vw] p-6">
+            <h2 class="text-xl font-bold mb-3 text-red-600">
+               Compilation Error
+            </h2>
+
+            <p class="mb-6 whitespace-pre-wrap">
+               {compilationErrorMessage}
+            </p>
+
+            <div class="flex justify-center">
+               <button
+                  class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-800"
+                  onclick={() => (showCompilationErrorPopup = false)}
+               >
+                  OK
                </button>
             </div>
          </div>

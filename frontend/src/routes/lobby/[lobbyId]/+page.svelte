@@ -18,6 +18,9 @@
   let lobbyCode = $state(page.params.lobbyId || "");
   let userName = $state("username");
 
+  let showErrorPopup = $state(false);
+  let errorMessage = $state("");
+
   let gameId = $state("");
   let playerId = $state("");
   let players = $state<Player[]>([]);
@@ -68,6 +71,12 @@
     socket.onmessage = (ev) => {
       const message = JSON.parse(ev.data);
       output = JSON.stringify(message, null, 2);
+
+      if (message.type === "LOBBY_ERROR") {
+        errorMessage = message.message;
+        showErrorPopup = true;
+        return;
+      }
 
       if (message.type === "UPDATE_PLAYERS") {
         players = Object.entries(message.players).map(([id, playerData]) => {
@@ -140,4 +149,26 @@
             </div>
         </div>
     </div>
+    {#if showErrorPopup}
+      <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg max-w-lg w-[90vw] p-6">
+          <h2 class="text-xl font-bold mb-3 text-red-600">
+            Setup Error
+          </h2>
+
+          <p class="mb-6 whitespace-pre-wrap">
+            {errorMessage}
+          </p>
+
+          <div class="flex justify-center">
+            <button
+              class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-800"
+              onclick={() => (showErrorPopup = false)}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    {/if}
 </main>
