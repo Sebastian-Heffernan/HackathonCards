@@ -24,6 +24,8 @@
 
     const dslHighlight = StreamLanguage.define({
         token(stream) {
+            //if ()//
+
             if (stream.match(new RegExp(`\\b(${keywords.join("|")})\\b`))) {
                 return "keyword";
             }
