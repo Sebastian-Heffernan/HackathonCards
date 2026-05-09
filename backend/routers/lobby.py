@@ -28,3 +28,13 @@ async def get_lobbies():
             )
 
     return summary
+
+
+@router.websocket("/ws/{lobby_id}")
+async def lobby_websocket():
+    pass
+
+
+@router.websocket("/ws/{lobby_id}/{player_id}")
+async def player_spec_websocket():
+    pass
