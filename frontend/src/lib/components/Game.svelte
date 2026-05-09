@@ -13,6 +13,7 @@
     hand: Card[];
     actions: string[];
     opponent_hand?: Card[][];
+    opponent_names?: string[];
   };
 
   let {
@@ -47,16 +48,16 @@
   <pre>{JSON.stringify(playerState, null, 2)}</pre>
 </div> -->
 <div class="relative w-screen h-screen p-4 bg-green-500">
-  <div class="nes-container with-title absolute t-0 l-0 w-40 h-full is-dark">
+  <!-- <div class="nes-container with-title absolute t-0 l-0 w-40 h-full is-dark">
     <p class="title">Decks</p>
     <Deck />
-  </div>
+  </div> -->
 
   <div class="absolute top-4 left-1/2 -translate-x-1/2 flex gap-8">
     {#each playerState.opponent_hand ?? [] as opponentCards, opponentIdx}
       <div class="flex flex-col items-center gap-2">
         <p class="bg-white text-black px-2 py-1 rounded text-sm">
-          Player {opponentIdx + 1}
+          {playerState.opponent_names?.[opponentIdx] ?? `Player ${opponentIdx + 1}`}
         </p>
 
         <Hand
