@@ -24,8 +24,8 @@ class GameState:
         return self.variables.get(name, None)
 
 class PlayerState:
-    def __init__(self):
-        self.uuid = None
+    def __init__(self, uuid):
+        self.uuid = uuid
         self.variables = []
         self.hand = []
 
