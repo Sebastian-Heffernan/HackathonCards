@@ -39,22 +39,42 @@ LABEL CONTINUE:
 LABEL DRAW:
     DRAW deck $turnPlayer 1
     GOTO CONTINUE
+
+# Discarding logic
 LABEL DISCARD:
     COMPARE -1 < $selectedCardId
     GOTO MOVE
     END_TURN
 LABEL MOVE:
     VALUE TEMP $turnPlayer $selectedCardId
-    PRINT gameState.variables["TEMP"]
+    # PRINT gameState.variables[TEMP]
     MOVE discard $turnPlayer $selectedCardId
     GOTO CONTINUE
 """
+    black_jack = """
+LABEL SETUP:
+    DECK MAKE deck
+    DECK SHUFFLE deck
+    DECK MAKE discard
+    DECK CLEAR discard
+    ASSERT HIT
+    ASSERT STAY
+    PRINT playerState
+    
+LABEL HIT:
+    DRAW deck $turnPlayer
+    GOTO CALC
+
+LABEL STAY:
+    GOTO CALC
+"""
     commandList = GameEngine.load_commands()
-    rules: Rules = Compiler.compile(test, commandList)
+    rules: Rules = Compiler.compile(black_jack, commandList)
     engine = GameEngine(rules, commandList)
     # print(rules)
     engine.add_player(0)
     engine.add_player(1)
     engine.add_player(2)
     engine.run_script("SETUP")
-    engine.run_script("MOVE")
+    # engine.gameState.variables["$selectedCardId"] = 1
+    # engine.run_script("DISCARD")
