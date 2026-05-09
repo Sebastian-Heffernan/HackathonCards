@@ -1,4 +1,4 @@
-from instruction import Instruction
+from backend.engine.instruction import Instruction
 
 def execute(instruction : Instruction, engine):
     print("setting var")

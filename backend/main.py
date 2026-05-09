@@ -140,7 +140,7 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
             pass
             # ======= game loop =======
             # run the action through engine, should take the rules and the players action
-            games[game_id]["engine"].run_command(games[game_id]["rules"], action["type"])
+            games[game_id]["engine"].run_script(action["type"])
 
             # get state and build player specific state to send to each player
 
