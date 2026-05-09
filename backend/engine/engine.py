@@ -4,7 +4,6 @@ import os
 import re
 
 from backend.BuildError import BuildError
-from backend.compiler.compiler import Compiler
 from backend.compiler.rules import Rules
 from backend.engine.classes.deck import *
 from backend.engine.classes.instruction import Instruction
@@ -37,9 +36,11 @@ class GameEngine:
 
         self.gameState.variables["turnCount"] += 1
         while True:
-            #check if label exits
+            # check if label exits
             if self.label not in self.rules.labels:
-                raise BuildError(f"Runtime Error: Label '{self.label}' not found in script rules.")
+                raise BuildError(
+                    f"Runtime Error: Label '{self.label}' not found in script rules."
+                )
             labelObj = self.rules.labels[self.label]
             # check pointer is in limit
             if not len(labelObj) > self.pointer:
@@ -55,7 +56,9 @@ class GameEngine:
             self.pointer += 1
 
     # Loads availabe commands into array
-    def _load_commands(self):
+    @staticmethod
+    def load_commands() -> dict:
+        commandList = {}
         path = os.path.join(os.path.dirname(__file__), "commands")
         for filename in os.listdir(path):
             if filename.endswith(".py"):
@@ -66,7 +69,10 @@ class GameEngine:
                 # execute function in each file
                 if hasattr(module, "execute"):
                     cmd_key = filename[:-3].upper()
-                    self.commandList[cmd_key] = module.execute
+                    commandList[cmd_key] = module.execute
+
+        commandList["LABEL"] = ""
+        return commandList
 
     # Getters/setters
     def add_player(self, uuid):
