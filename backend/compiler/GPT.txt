@@ -1,0 +1,100 @@
+LABEL SETUP:
+    DECK MAKE MAIN_DECK
+    DECK SHUFFLE MAIN_DECK
+
+    # Initial State
+    VARG SET P0_SUM 0
+    VARG SET P1_SUM 0
+    VARG SET P0_STOOD 0
+    VARG SET P1_STOOD 0
+
+    # Deal 2 cards to each to start
+    DRAW MAIN_DECK 0 2
+    DRAW MAIN_DECK 1 2
+
+    # Calculate initial hand values
+    VARG SET CURRENT_P 0
+    CALL CALC_TOTAL
+    VARG SET CURRENT_P 1
+    CALL CALC_TOTAL
+
+    GOTO GAME_LOOP
+LABEL CALC_TOTAL:
+    # Get the most recent card drawn by CURRENT_P
+    HANDLEN LAST_IDX CURRENT_P
+    MATH LAST_IDX - 1
+    VALUE TEMP_STR CURRENT_P LAST_IDX
+
+    # Conversion Logic
+    COMPARE TEMP_STR == "A"
+    GOTO ADD_11
+    COMPARE TEMP_STR == "K"
+    GOTO ADD_10
+    COMPARE TEMP_STR == "Q"
+    GOTO ADD_10
+    COMPARE TEMP_STR == "J"
+    GOTO ADD_10
+
+    # If it's a number string, the engine treats it as int
+    GOTO ADD_NUM
+
+LABEL ADD_11:
+    VARG SET VAL_TO_ADD 11
+    GOTO APPLY_MATH
+
+LABEL ADD_10:
+    VARG SET VAL_TO_ADD 10
+    GOTO APPLY_MATH
+
+LABEL ADD_NUM:
+    VARG SET VAL_TO_ADD TEMP_STR
+    GOTO APPLY_MATH
+
+LABEL APPLY_MATH:
+    # Apply to the correct player's sum
+    COMPARE CURRENT_P == 0
+    MATH P0_SUM + VAL_TO_ADD
+    COMPARE CURRENT_P == 1
+    MATH P1_SUM + VAL_TO_ADD
+    RETURN
+LABEL GAME_LOOP:
+    ASSERT PLAYER0_HIT 0
+    ASSERT PLAYER0_STAND 0
+    ASSERT PLAYER1_HIT 1
+    ASSERT PLAYER1_STAND 1
+
+    # Check if both players are done
+    COMPARE P0_STOOD == 1
+    COMPARE P1_STOOD == 1
+    GOTO FINAL_JUDGMENT
+
+    END_TURN 0
+
+LABEL PLAYER0_HIT:
+    DRAW MAIN_DECK 0 1
+    VARG SET CURRENT_P 0
+    CALL CALC_TOTAL
+    COMPARE P0_SUM > 21
+    GOTO P1_WINS # P0 Busted
+    RETURN
+
+LABEL PLAYER0_STAND:
+    VARG SET P0_STOOD 1
+    RETURN
+LABEL FINAL_JUDGMENT:
+    COMPARE P0_SUM > P1_SUM
+    GOTO P0_WINS
+
+    COMPARE P1_SUM > P0_SUM
+    GOTO P1_WINS
+
+    # If equal, it's a draw or house rules apply
+    GOTO GAME_DRAW
+
+LABEL P0_WINS:
+    # Logic for Player 0 victory
+    END_TURN None
+
+LABEL P1_WINS:
+    # Logic for Player 1 victory
+    END_TURN None
