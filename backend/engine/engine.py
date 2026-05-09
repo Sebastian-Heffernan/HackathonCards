@@ -140,4 +140,4 @@ LABEL FUNC:
     engine = GameEngine(rules)
     engine.add_player(0)
     engine.run_script("SETUP")
-    # print(rules)
+    print(vars(engine.playerStates[0]))
