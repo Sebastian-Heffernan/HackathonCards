@@ -2,12 +2,8 @@ class GameState:
     def __init__(self):
         self.turnPlayer = 0
         self.playerCount = 0
-<<<<<<< HEAD
         self.variables = []
         self.global_revealed = [[]]
-=======
-        self.variables = {}
->>>>>>> d9802de296c4146fb3cc2a0a7eb372e2a2d8d3ee
 
     #returns value of variable if found, else returns value
     def resolve_variable(self, value):

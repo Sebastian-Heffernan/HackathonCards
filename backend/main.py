@@ -107,7 +107,7 @@ def build_frontend_state(engine : GameEngine, player_id):
     return {
         "actions": ["Hit", "Stand"],  # later from compiled rules/buttons
         "cards": player_state["hand"],
-        "masked_cards": engine.get_game_state.revealed,
+        "masked_cards": engine.get_game_state()["revealed"],
     }
 
 # socket for game
