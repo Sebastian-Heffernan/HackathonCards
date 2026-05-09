@@ -13,11 +13,11 @@
     CALL FUNC
     ASSERT DRAW_CARD 0
     ASSERT REMOVE_CARD 0
-    GOTO TEST
-LABEL TEST:
     END_TURN
 LABEL FUNC:
     DRAW deck 0 2
+    DRAW deck 1 5
+   DRAW deck 2 3
     REVEAL 0
     PRINT playerStates[0].hand
     RETURN
@@ -121,7 +121,7 @@ LABEL REMOVE_CARD_ACTION
       <!-- Left button -->
       <button
          class="absolute left-4 text-sm font-semibold px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-800"
-         onclick={() => goto("/docs/getting-started")}
+         onclick={() => goto("/docs/overview")}
       >
          How to Play
       </button>
@@ -133,7 +133,7 @@ LABEL REMOVE_CARD_ACTION
          class="absolute right-4 text-3xl font-bold px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-800"
          onclick={openModal}
       >
-         +
+         +Create Lobby
       </button>
    </header>
 

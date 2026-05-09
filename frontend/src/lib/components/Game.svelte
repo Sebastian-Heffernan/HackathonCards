@@ -12,6 +12,7 @@
     variables: unknown[] | Record<string, unknown>;
     hand: Card[];
     actions: string[];
+    opponent_hand?: Card[][];
   };
 
   let {
@@ -37,7 +38,6 @@
   const playAction = (actionIdx: number) => {
     const action = playerState.actions[actionIdx];
     const selectedCardId = selected.findIndex(Boolean);
-    const chosenCards = playerState.hand.filter((_, i) => selected[i]);
 
     sendAction(action, selectedCardId);
   };
@@ -50,6 +50,23 @@
   <div class="nes-container with-title absolute t-0 l-0 w-40 h-full is-dark">
     <p class="title">Decks</p>
     <Deck />
+  </div>
+
+  <div class="absolute top-4 left-1/2 -translate-x-1/2 flex gap-8">
+    {#each playerState.opponent_hand ?? [] as opponentCards, opponentIdx}
+      <div class="flex flex-col items-center gap-2">
+        <p class="bg-white text-black px-2 py-1 rounded text-sm">
+          Player {opponentIdx + 1}
+        </p>
+
+        <Hand
+          cards={opponentCards}
+          actions={[]}
+          isOpponent={true}
+          selected={[]}
+        />
+      </div>
+    {/each}
   </div>
 
   <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4">
