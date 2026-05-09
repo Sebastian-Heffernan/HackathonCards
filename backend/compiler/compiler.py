@@ -60,7 +60,7 @@ class Compiler:
 
                 if tokenized_line[0] not in command_list:
                     raise CompilationError(
-                        f"Command ({tokenized_line[0]}) does not exist"
+                        f"Command ({tokenized_line[0]}) does not exist at line {line_idx}"
                     )
 
                 # Check if this line is the start of a NEW rule
