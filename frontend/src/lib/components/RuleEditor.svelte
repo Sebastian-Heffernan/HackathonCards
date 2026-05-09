@@ -21,7 +21,7 @@
         label: k,
         type: "keyword",
     }));
-    let { value = $bindable("") } = $props();
+    let { value = $bindable(""), editable = true } = $props();
 
     let container!: HTMLDivElement;
     let view: EditorView;
