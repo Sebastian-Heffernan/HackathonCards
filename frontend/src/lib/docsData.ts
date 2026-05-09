@@ -2,7 +2,7 @@
 export const docsData = {
   "overview": {
     title: "Overview",
-    content: "An introduction to the language syntax."
+    content: "An introduction to the language syntax. How to read the notation",
   },
   "commenting": {
     title: "Commenting",
@@ -10,7 +10,11 @@ export const docsData = {
     examples: [
       "# Commenting line\nASSERT label",
       ""
-    ]
+    ],
+    warning: {
+      about: "If you put comments at the end of your line, if improperly set they can leak through into your arguments for the respective command",
+      example: "END_TURN # Same player plays the turn again"
+    }
   },
   "instructions": {
     title: "Instruction Set",
@@ -50,8 +54,8 @@ export const docsData = {
       "END_TURN": {
         name: "END_TURN",
         description: "Finishes the player's turn through finishing a label execution initiated by an action. Can break a loop",
-        usage: "END_TURN [next_index(Next Pointer)/None]",
-        example: "END_TURN 1 # Finishes up the current player's turn, go to pointer 1"
+        usage: "END_TURN [] | [next_index: int] | [VAR1][+ | -][VAR2 | i: int]",
+        example: "END_TURN 1"
       },
       "GOTO": {
         name: "GOTO",
@@ -69,19 +73,19 @@ export const docsData = {
         name: "MATH",
         description: "Performs mathematical operations between two labels, such as \n addition, subtraction, multiplication, division and modulus",
         usage: "MATH [LABEL1][ + | - | * | / | % ][LABEL2]",
-        example: "MATH X + Y # Equivalent would be X = X + Y"
+        example: "MATH X + Y"
       },
       "MOVE": {
         name: "MOVE",
         description: "Moves a card from a player's hand and then move it to a specified deck",
-        usage: "MOVE [Deck][PlayerID][CardID]",
-        example: "MOVE DISCARD 1 2 # Move a card to the discard pile from player 1, card 2"
+        usage: "MOVE [DECK][p: int][c: int]",
+        example: "MOVE DISCARD 1 2"
       },
       "REVEAL": {
         name: "REVEAL",
         description: "Specify a player's most recent drawn card (-1)",
-        usage: "REVEAL [PlayerID]",
-        example: "REVEAL 2 # Show Player 2's Last Card"
+        usage: "REVEAL [p: int]",
+        example: "REVEAL 2"
       },
       "SUIT": {
         name: "SUIT",
@@ -98,20 +102,20 @@ export const docsData = {
       "VARG": {
         name: "VARG",
         description: "Declares a 'Game State' Variable. Server-Sided/Global Variable",
-        usage: "VARG [SET][NAME][VALUE]",
-        example: "VARG TOTAL 5 # Everyone can access this value"
+        usage: "VARG [SET][VAR][v: str | int]",
+        example: "VARG TOTAL 5"
       },
       "VARP": {
         name: "VARP",
         description: "Declares a Variable related to a given player.\n Client-Sided/Local Variable",
         usage: "VARP [SET][playerID][name][value]",
-        example: "VARP 2 TOTAL 5 # Player 2 has a TOTAL of 5"
+        example: "VARP 2 TOTAL 5"
       },
       "SHOWVAR": {
         name: "SHOWVAR",
         description: "Adds a variable to showVars array, to then be shown to every client",
         usage: "SHOWVAR [NAME]",
-        example: "VARP 2 TOTAL 5 # Player 2 has a TOTAL of 5",
+        example: "VARP 2 TOTAL 5",
         warning: {
           about: "Be careful about when you do SHOWVAR because you can logically get away with setting SHOWVAR after a VARG",
           code: "SHOWVAR variable\nVARG variable 1",
@@ -121,7 +125,7 @@ export const docsData = {
         name: "RETURN",
         description: "Returns back to the last CALL on the stack trace",
         usage: "VARP [SET][playerID][name][value]",
-        example: "VARP 2 TOTAL 5 # Player 2 has a TOTAL of 5"
+        example: "VARP 2 TOTAL 5"
       },
     }
   },
