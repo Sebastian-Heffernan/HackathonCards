@@ -121,26 +121,36 @@ LABEL SETUP:
     DECK CLEAR discard
 
     VARG SET i 0
-    GOTO ADDCARDSTOALL
+    GOTO SETUPPLAYERS
 # Will add 2 cards to each player
-LABEL ADDCARDSTOALL:
+# Game setup
+LABEL SETUPPLAYERS:
     VARG SET j 0
-    CALL ADDCARDS
+    CALL SETUPPLAYER
     PRINT playerStates[i].hand
+    ASSERT DRAW i
+    ASSERT DISCARD i
 
     MATH i + 1
     COMPARE i < playerCount
-    GOTO ADDCARDSTOALL
-    GOTO CONTINUE
-LABEL ADDCARDS:
+    GOTO SETUPPLAYERS
+    END_TURN
+LABEL SETUPPLAYER:
     DRAW deck i 1
     MATH j + 1
     COMPARE j < 2
-    GOTO ADDCARDS
+    GOTO SETUPPLAYER
     RETURN
 LABEL CONTINUE:
     # PRINT gameState.variables
-    END_TURN
+    END_TURN turnPlayer + 1
+# Turn logic
+LABEL DRAW:
+    DRAW deck turnPlayer 1
+    GOTO CONTINUE
+LABEL DISCARD:
+    MOVE discard turnPlayer $selectedCardId
+    GOTO CONTINUE
 """
 
     test2 = """
