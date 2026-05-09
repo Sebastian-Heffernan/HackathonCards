@@ -36,11 +36,7 @@
       output = JSON.stringify(message, null, 2);
 
       if (message.type === "GAME_STATE" || message.type === "START_GAME") {
-        gameState = {
-          actions: message.playerState?.actions ?? [],
-          cards: message.playerState?.cards ?? [],
-          masked_cards: message.gameState?.masked_cards ?? []
-        };
+        gameState = message.gameState;
       }
     };
   });
