@@ -95,7 +95,7 @@ def join_lobby(lobby_code: str, request: JoinLobby):
     }
 
 # build the frontend state from the player's state
-def build_frontend_state(engine, player_id):
+def build_frontend_state(engine : GameEngine, player_id):
     player_state = engine.get_player_state(player_id)
     other_hands = []
     for other_player in engine.playerStates:
@@ -107,7 +107,7 @@ def build_frontend_state(engine, player_id):
     return {
         "actions": ["Hit", "Stand"],  # later from compiled rules/buttons
         "cards": player_state["hand"],
-        "masked_cards": other_hands,
+        "masked_cards": engine.get_game_state.revealed,
     }
 
 # socket for game
