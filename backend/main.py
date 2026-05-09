@@ -1,20 +1,19 @@
+import random
+import string
 from uuid import uuid4
 
 from fastapi import FastAPI, WebSocket
 from pydantic import BaseModel
 
-from backend.engine.engine import *
 from backend.compiler.compiler import *
-
-import random
-import string
+from backend.db.cache import games, lobby_codes, rules_store
+from backend.engine.engine import *
+from backend.routers import lobby
 
 app = FastAPI()
 
-# the objects storing the different rules and games
-games = {}
-rules_store = {}
-lobby_codes = {}
+app.include_router(lobby.router)
+
 
 class CreateLobby(BaseModel):
     rule_id: str
@@ -28,20 +27,23 @@ class JoinLobby(BaseModel):
 class GetRules(BaseModel):
     source: str
 
+
 def create_code():
     code = ""
 
     for i in range(5):
         code += random.choice("ABCDEFGHIJKLMNOPQRSTUVWQYZ1234567890")
-    
+
     if code not in lobby_codes:
         return code
     else:
         return create_code()
 
+
 @app.get("/")
 def root():
     return {"message": "Backend is running"}
+
 
 # recieve the rules from the client
 @app.post("/api/rules")
@@ -53,10 +55,8 @@ def get_rules(rules: GetRules):
     rule_id = str(uuid4())
     rules_store[rule_id] = compiled_rules
 
-    return {
-        "ok": True,
-        "ruleId": rule_id
-    }
+    return {"ok": True, "ruleId": rule_id}
+
 
 # player starts the game lobby
 @app.post("/api/lobbies")
@@ -68,23 +68,15 @@ def start_game(request: CreateLobby):
         "started": False,
         "hostId": host_id,
         "connections": {},
-        "players": {
-            host_id : {"name": request.host_name}
-        },
-        "engine": {
-            GameEngine(rules_store[request.rule_id])
-        }
+        "players": {host_id: {"name": request.host_name}},
+        "engine": {GameEngine(rules_store[request.rule_id])},
     }
 
     code = create_code()
     lobby_codes[code] = game_id
 
-    return {
-        "ok": True,
-        "gameId": game_id,
-        "lobbyCode": code,
-        "playerId": host_id
-    }
+    return {"ok": True, "gameId": game_id, "lobbyCode": code, "playerId": host_id}
+
 
 # player joins lobby
 # make sure to open websocket on client if joined and then use the websocket to tell server we joined
@@ -99,8 +91,9 @@ def join_lobby(lobby_code: str, request: JoinLobby):
         "ok": True,
         "gameId": game_id,
         "lobbyCode": lobby_code,
-        "playerId": player_id
+        "playerId": player_id,
     }
+
 
 # socket for game
 @app.websocket("/ws/{game_id}/{player_id}")
@@ -113,39 +106,50 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
         # recieve the players action
         action = await websocket.receive_json()
 
-        # first if the game isn't started, 
-        if (not games[game_id]["started"]):
+        # first if the game isn't started,
+        if not games[game_id]["started"]:
             # see if the player is host and action is start game
-            if (player_id == games[game_id]["hostId"] and action["type"] == "START_GAME"):
+            if player_id == games[game_id]["hostId"] and action["type"] == "START_GAME":
                 games[game_id]["started"] = True
                 # add each player to the gamestate playerlist
-                for connected_player_id, player_socket in games[game_id]["connections"].items():
+                for connected_player_id, player_socket in games[game_id][
+                    "connections"
+                ].items():
                     games[game_id]["engine"].add_player(connected_player_id)
-                    await player_socket.send_json({
-                        "type": "START_GAME",
-                        "players": games[game_id]["players"],
-                        # state of the game for every player
-                        "playerState": games[game_id]["engine"].get_player_state(connected_player_id),
-                        "gameState": games[game_id]["engien"].get_game_state()
-                    })
+                    await player_socket.send_json(
+                        {
+                            "type": "START_GAME",
+                            "players": games[game_id]["players"],
+                            # state of the game for every player
+                            "playerState": games[game_id]["engine"].get_player_state(
+                                connected_player_id
+                            ),
+                            "gameState": games[game_id]["engien"].get_game_state(),
+                        }
+                    )
             # if a new player joins, send the playerlist to the client if not started
-            elif (action["type"] == "JOIN_GAME"):
+            elif action["type"] == "JOIN_GAME":
                 for player_socket in games[game_id]["connections"].values():
-                    await player_socket.send_json({
-                        "type": "UPDATE_PLAYERS",
-                        "players": games[game_id]["players"]
-                    })
+                    await player_socket.send_json(
+                        {"type": "UPDATE_PLAYERS", "players": games[game_id]["players"]}
+                    )
         else:
             # ======= game loop =======
             # run the action through engine, should take the rules and the players action
-            if (player_id == games[game_id]["engine"].get_current_player_uuid()):
+            if player_id == games[game_id]["engine"].get_current_player_uuid():
                 # get state and build player specific state to send to each player
                 games[game_id]["engine"].run_script(action["type"])
                 # send state to each player
-                for connected_player_id, player_socket in games[game_id]["connections"].items():
-                    await player_socket.send_json({
-                        "type": "UPDATE_PLAYERS",
-                        "players": games[game_id]["players"],
-                        "playerState": games[game_id]["engine"].get_player_state(connected_player_id),
-                        "gameState": games[game_id]["engien"].get_game_state()
-                    })
+                for connected_player_id, player_socket in games[game_id][
+                    "connections"
+                ].items():
+                    await player_socket.send_json(
+                        {
+                            "type": "UPDATE_PLAYERS",
+                            "players": games[game_id]["players"],
+                            "playerState": games[game_id]["engine"].get_player_state(
+                                connected_player_id
+                            ),
+                            "gameState": games[game_id]["engien"].get_game_state(),
+                        }
+                    )
