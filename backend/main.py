@@ -159,6 +159,7 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                                 games[game_id],
                                 connected_player_id
                             ),
+                            "gameVars": games[game_id]["engine"].gameState.variables
                         }
                     )
             # if a new player joins, send the playerlist to the client if not started
@@ -187,9 +188,7 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                     await player_socket.send_json(
                         {
                             "type": "GAME_STATE",
-                            "playerState": get_client_side_for_player(
-                                games[game_id],
-                                connected_player_id
-                            ),
+                            "playerState": get_client_side_for_player(games[game_id], connected_player_id),
+                            "gameVars": games[game_id]["engine"].gameState.variables
                         }
                     )

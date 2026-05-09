@@ -14,175 +14,179 @@ LABEL SETUP:
     DECK MAKE discard
     DECK CLEAR discard
 
-    VARG SET pCount 0
-    VARG SET dCount 0
-    VARG SET playerTotal 0
-    VARG SET dealerTotal 0
-    VARG SET status "Blackjack start"
+    VARG SET P0_SCORE 0
+    VARG SET P1_SCORE 0
+    VARG SET P0_STOOD 0
+    VARG SET P1_STOOD 0
+    VARG SET status "Blackjack started"
 
     DRAW deck 0 1
-    REVEAL 0
-    MATH pCount + 1
-
     DRAW deck 1 1
+    DRAW deck 0 1
+    DRAW deck 1 1
+
+    REVEAL 0
     REVEAL 1
-    MATH dCount + 1
 
-    DRAW deck 0 1
-    REVEAL 0
-    MATH pCount + 1
-
-    DRAW deck 1 1
-    MATH dCount + 1
+    CALL SCORE_P0
+    CALL SCORE_P1
 
     ASSERT HIT 0
     ASSERT STAND 0
-
-    CALL SCORE_PLAYER
-    CALL SCORE_DEALER
+    ASSERT HIT 1
+    ASSERT STAND 1
 
     END_TURN 0
 
 LABEL HIT:
+    COMPARE $turnPlayer == 0
+    GOTO HIT_P0
+    GOTO HIT_P1
+
+LABEL HIT_P0:
     DRAW deck 0 1
     REVEAL 0
-    MATH pCount + 1
-
-    CALL SCORE_PLAYER
-
-    COMPARE playerTotal > 21
-    GOTO PLAYER_BUST
+    CALL SCORE_P0
+    COMPARE P0_SCORE > 21
+    GOTO P0_BUST
     END_TURN 0
 
-LABEL STAND:
-    GOTO DEALER_TURN
-
-LABEL DEALER_TURN:
-    CALL SCORE_DEALER
-
-    COMPARE dealerTotal < 17
-    GOTO DEALER_HIT
-    GOTO COMPARE_WINNER
-
-LABEL DEALER_HIT:
+LABEL HIT_P1:
     DRAW deck 1 1
     REVEAL 1
-    MATH dCount + 1
+    CALL SCORE_P1
+    COMPARE P1_SCORE > 21
+    GOTO P1_BUST
+    END_TURN 1
 
-    GOTO DEALER_TURN
+LABEL STAND:
+    COMPARE $turnPlayer == 0
+    GOTO STAND_P0
+    GOTO STAND_P1
 
-LABEL COMPARE_WINNER:
-    COMPARE dealerTotal > 21
-    GOTO PLAYER_WIN
+LABEL STAND_P0:
+    VARG SET P0_STOOD 1
+    END_TURN 1
 
-    COMPARE playerTotal > dealerTotal
-    GOTO PLAYER_WIN
+LABEL STAND_P1:
+    VARG SET P1_STOOD 1
+    GOTO FINAL_SCORE
 
-    COMPARE playerTotal == dealerTotal
+LABEL P0_BUST:
+    VARG SET status "Player_0_busts._Player_1_wins."
+    END_TURN
+
+LABEL P1_BUST:
+    VARG SET status "Player_1_busts._Player_0_wins."
+    END_TURN
+
+LABEL FINAL_SCORE:
+    COMPARE P0_SCORE > P1_SCORE
+    GOTO P0_WIN
+
+    COMPARE P1_SCORE > P0_SCORE
+    GOTO P1_WIN
+
     GOTO PUSH
 
-    GOTO DEALER_WIN
+LABEL P0_WIN:
+    VARG SET status "Player_0_wins."
+    END_TURN
 
-LABEL PLAYER_BUST:
-    VARG SET status "Player busts"
-    END_TURN 0
-
-LABEL PLAYER_WIN:
-    VARG SET status "Player wins"
-    END_TURN 0
-
-LABEL DEALER_WIN:
-    VARG SET status "Dealer wins"
-    END_TURN 0
+LABEL P1_WIN:
+    VARG SET status "Player_1_wins."
+    END_TURN
 
 LABEL PUSH:
-    VARG SET status "Push"
-    END_TURN 0
+    VARG SET status "Push."
+    END_TURN
 
-LABEL SCORE_PLAYER:
-    VARG SET playerTotal 0
-    VARG SET pCardIdx 0
-    GOTO SCORE_PLAYER_LOOP
+LABEL SCORE_P0:
+    VARG SET P0_SCORE 0
+    VARG SET cardIdx 0
+    HANDLEN handLen 0
+    GOTO SCORE_P0_LOOP
 
-LABEL SCORE_PLAYER_LOOP:
-    COMPARE pCardIdx < pCount
-    GOTO SCORE_PLAYER_CARD
+LABEL SCORE_P0_LOOP:
+    COMPARE cardIdx < handLen
+    GOTO SCORE_P0_CARD
     RETURN
 
-LABEL SCORE_PLAYER_CARD:
-    VALUE cardValue 0 pCardIdx
-    CALL ADD_CARD_TO_PLAYER_TOTAL
-    MATH pCardIdx + 1
-    GOTO SCORE_PLAYER_LOOP
+LABEL SCORE_P0_CARD:
+    VALUE cardValue 0 cardIdx
+    CALL ADD_TO_P0
+    MATH cardIdx + 1
+    GOTO SCORE_P0_LOOP
 
-LABEL ADD_CARD_TO_PLAYER_TOTAL:
-    COMPARE cardValue == J
-    GOTO PLAYER_FACE_CARD
+LABEL ADD_TO_P0:
+    COMPARE cardValue == "A"
+    GOTO P0_ADD_ACE
 
-    COMPARE cardValue == Q
-    GOTO PLAYER_FACE_CARD
+    COMPARE cardValue == "K"
+    GOTO P0_ADD_FACE
 
-    COMPARE cardValue == K
-    GOTO PLAYER_FACE_CARD
+    COMPARE cardValue == "Q"
+    GOTO P0_ADD_FACE
 
-    COMPARE cardValue == A
-    GOTO PLAYER_ACE_CARD
+    COMPARE cardValue == "J"
+    GOTO P0_ADD_FACE
 
-    GOTO PLAYER_NUMBER_CARD
+    GOTO P0_ADD_NUMBER
 
-LABEL PLAYER_FACE_CARD:
-    MATH playerTotal + 10
+LABEL P0_ADD_ACE:
+    MATH P0_SCORE + 11
     RETURN
 
-LABEL PLAYER_ACE_CARD:
-    MATH playerTotal + 11
+LABEL P0_ADD_FACE:
+    MATH P0_SCORE + 10
     RETURN
 
-LABEL PLAYER_NUMBER_CARD:
-    MATH playerTotal + cardValue
+LABEL P0_ADD_NUMBER:
+    MATH P0_SCORE + cardValue
     RETURN
 
-LABEL SCORE_DEALER:
-    VARG SET dealerTotal 0
-    VARG SET dCardIdx 0
-    GOTO SCORE_DEALER_LOOP
+LABEL SCORE_P1:
+    VARG SET P1_SCORE 0
+    VARG SET cardIdx 0
+    HANDLEN handLen 1
+    GOTO SCORE_P1_LOOP
 
-LABEL SCORE_DEALER_LOOP:
-    COMPARE dCardIdx < dCount
-    GOTO SCORE_DEALER_CARD
+LABEL SCORE_P1_LOOP:
+    COMPARE cardIdx < handLen
+    GOTO SCORE_P1_CARD
     RETURN
 
-LABEL SCORE_DEALER_CARD:
-    VALUE cardValue 1 dCardIdx
-    CALL ADD_CARD_TO_DEALER_TOTAL
-    MATH dCardIdx + 1
-    GOTO SCORE_DEALER_LOOP
+LABEL SCORE_P1_CARD:
+    VALUE cardValue 1 cardIdx
+    CALL ADD_TO_P1
+    MATH cardIdx + 1
+    GOTO SCORE_P1_LOOP
 
-LABEL ADD_CARD_TO_DEALER_TOTAL:
-    COMPARE cardValue == J
-    GOTO DEALER_FACE_CARD
+LABEL ADD_TO_P1:
+    COMPARE cardValue == "A"
+    GOTO P1_ADD_ACE
 
-    COMPARE cardValue == Q
-    GOTO DEALER_FACE_CARD
+    COMPARE cardValue == "K"
+    GOTO P1_ADD_FACE
 
-    COMPARE cardValue == K
-    GOTO DEALER_FACE_CARD
+    COMPARE cardValue == "Q"
+    GOTO P1_ADD_FACE
 
-    COMPARE cardValue == A
-    GOTO DEALER_ACE_CARD
+    COMPARE cardValue == "J"
+    GOTO P1_ADD_FACE
 
-    GOTO DEALER_NUMBER_CARD
+    GOTO P1_ADD_NUMBER
 
-LABEL DEALER_FACE_CARD:
-    MATH dealerTotal + 10
+LABEL P1_ADD_ACE:
+    MATH P1_SCORE + 11
     RETURN
 
-LABEL DEALER_ACE_CARD:
-    MATH dealerTotal + 11
+LABEL P1_ADD_FACE:
+    MATH P1_SCORE + 10
     RETURN
 
-LABEL DEALER_NUMBER_CARD:
-    MATH dealerTotal + cardValue
+LABEL P1_ADD_NUMBER:
+    MATH P1_SCORE + cardValue
     RETURN
 `);
 

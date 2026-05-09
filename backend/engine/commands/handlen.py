@@ -1,28 +1,22 @@
-from backend import BuildError
+from backend.BuildError import BuildError
 from backend.engine.classes.instruction import Instruction
-from backend.engine.classes.states import *
 from backend.engine.engine import GameEngine
-
-"""
-HANDLEN:
-    Stores hand length of player, 'p' in VAR
-"""
 
 VAR_NAME = 0
 PLAYER_IDX = 1
 
 
-# VALUE [VAR][p: int][c: int]
+# HANDLEN [VAR_NAME] [PLAYER_IDX]
 def execute(instruction: Instruction, engine: GameEngine):
     if len(instruction.args) != 2:
         raise BuildError("HANDLEN requires 2 args")
 
-    var_name = int(engine.gameState.resolve_variable(instruction.args[VAR_NAME]))
-    player_idx = int(engine.gameState.resolve_variable(instruction.args[PLAYER_IDX]))
+    var_name = instruction.args[VAR_NAME]
+    player_idx = engine.gameState.resolve_variable(instruction.args[PLAYER_IDX])
 
-    if player_idx >= len(engine.playerStates):
-        raise BuildError("Player Index out of Bounds for player states")
+    if player_idx < 0 or player_idx >= len(engine.playerStates):
+        raise BuildError("Player index out of bounds for HANDLEN")
 
     engine.gameState.variables[var_name] = len(
         engine.playerStates[player_idx].hand
-    )  # set the value
+    )

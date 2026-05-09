@@ -17,6 +17,8 @@
     opponent_names?: string[];
   };
 
+  let gameVars = $state<Record<string, unknown>>({});
+
   let gameId = $state(page.params.gameId || "");
   let playerId = $state("");
   let socket = $state<WebSocket | null>(null);
@@ -47,6 +49,7 @@
 
         if (message.type === "GAME_STATE" || message.type === "START_GAME") {
           playerState = message.playerState;
+          gameVars = message.gameVars ?? {};
         }
       };
     }
@@ -60,4 +63,4 @@
   }
 </script>
 
-<Game {playerState} {sendAction} />
+<Game {playerState} {gameVars} {sendAction} />
