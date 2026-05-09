@@ -6,12 +6,15 @@ from pydantic import BaseModel
 from backend.engine.engine import *
 from backend.compiler.compiler import *
 
+import random
+import string
+
 app = FastAPI()
 
 # the objects storing the different rules and games
 games = {}
 rules_store = {}
-
+lobby_codes = {}
 
 class CreateLobby(BaseModel):
     rule_id: str
@@ -25,6 +28,16 @@ class JoinLobby(BaseModel):
 class GetRules(BaseModel):
     source: str
 
+def create_code():
+    code = ""
+
+    for i in range(5):
+        code += random.choice("ABCDEFGHIJKLMNOPQRSTUVWQYZ1234567890")
+    
+    if code not in lobby_codes:
+        return code
+    else:
+        return create_code()
 
 @app.get("/")
 def root():
@@ -58,28 +71,38 @@ def start_game(request: CreateLobby):
         "players": {
             host_id : {"name": request.host_name}
         },
+        # TODO: figure out whats happening with state/engine?
         "state": {
             # figure out game state somehow maybe?
+        },
+        "engine": {
+            #GameEngine(rules_store[request.rule_id])
         }
     }
+
+    code = create_code()
+    lobby_codes[code] = game_id
 
     return {
         "ok": True,
         "gameId": game_id,
+        "lobbyCode": code,
         "playerId": host_id
     }
 
 # player joins lobby
 # make sure to open websocket on client if joined and then use the websocket to tell server we joined
-@app.post("/api/lobbies/{game_id}/join")
-def join_lobby(game_id: str, request: JoinLobby):
+@app.post("/api/lobbies/{lobby_code}/join")
+def join_lobby(lobby_code: str, request: JoinLobby):
     player_id = str(uuid4())
     # add player to game
+    game_id = lobby_codes[lobby_code]
     games[game_id]["players"][player_id] = {"name": request.name}
 
     return {
         "ok": True,
         "gameId": game_id,
+        "lobbyCode": lobby_code,
         "playerId": player_id
     }
 
@@ -117,7 +140,7 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
             pass
             # ======= game loop =======
             # run the action through engine, should take the rules and the players action
-            #backend.engine.engine.run_command(games[game_id]["rules"], action["type"])
+            games[game_id]["engine"].run_command(games[game_id]["rules"], action["type"])
 
             # get state and build player specific state to send to each player
 

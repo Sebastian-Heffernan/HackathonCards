@@ -1,16 +1,16 @@
 import os
 import importlib
-from backend.engine.commands import *
-import inspect
-from backend.engine.instruction import Instruction
+from commands import *
+from instruction import Instruction
+from backend.compiler.rules import Rules
 
 class BaseCommand:
     def execute(self, engine, args):
         raise NotImplementedError("No execute")
 
 class GameEngine:
-    def __init__(self, game_data):
-        self.rules = game_data
+    def __init__(self, rules : Rules):
+        self.rules = rules
         self.pointer = 0
         self.label = "START"
         self.state = {
@@ -22,6 +22,7 @@ class GameEngine:
     def run_script(self):
         while 1:
             instruction : Instruction = self.rules["labels"][self.label][self.pointer]
+            print(f"{self.pointer}: {instruction.name}")
             if instruction.name == "EXIT":
                 print("exiting")
                 break
@@ -33,13 +34,12 @@ class GameEngine:
         for filename in os.listdir(path):
             if filename.endswith(".py"):
                 module_name = f"commands.{filename[:-3]}" # remove extension
-                print(f"loaded {module_name}")
                 module = importlib.import_module(module_name)
-                # execute for each in file
-                for name, obj in inspect.getmembers(module):
-                    if inspect.isclass(obj):
-                        cmd_key = filename[:-3].upper()
-                        self.commandList[cmd_key] = module.execute(self, None)
+                # execute function in each file
+                if hasattr(module, "execute"):
+                    cmd_key = filename[:-3].upper()
+                    print(f"loaded {cmd_key}")
+                    self.commandList[cmd_key] = module.execute
 
     def _find_label(self, label_name):
         instructions = self.rules["scripts"]
@@ -49,6 +49,48 @@ class GameEngine:
         return len(instructions)
     
 if __name__ == "__main__":
+    rules = Rules()
+    rules.add_new_rule(1, "SETUP", [
+        Instruction("DECK", ["MAKE", "deck"]),
+        Instruction("GOTO", ["START"])
+    ])
+    rules.add_new_rule(0, "START", [
+        Instruction("DECK", ["SHUFFLE", "deck"]),
+        Instruction("MOVE_CARD", ["deck", "active"]),
+        Instruction("SET_VAR", ["score", "0"]),
+        Instruction("SET_VAR", ["status", "\"Game start\""]),
+        Instruction("END_TURN", None)
+    ])
+    rules.add_new_rule(0, "SWAP_CARD", [
+        Instruction("MOVE_CARD", ["active", "discard"]),
+        Instruction("MOVE_CARD", ["deck", "active"]),
+        Instruction("RETURN", None)
+    ])
+    rules.add_new_rule(0, "HIGHER", [
+        Instruction("CALL", ["SWAP_CARD"]),
+        Instruction("GET_ATTR", ["last_moved_card", "value", "next_val"]),
+        Instruction("COMPARE", ["next_val", ">", "current_val"]),
+        Instruction("GOTO", ["WIN"]),
+        Instruction("GOTO", ["LOSE"])
+    ])
+    rules.add_new_rule(0, "LOWER", [
+        Instruction("CALL", ["SWAP_CARD"]),
+        Instruction("GET_ATTR", ["last_moved_card", "value", "next_val"]),
+        Instruction("COMPARE", ["next_val", "<", "current_val"]),
+        Instruction("GOTO", ["WIN"]),
+        Instruction("GOTO", ["LOSE"])
+    ])
+    rules.add_new_rule(0, "WIN", [
+        Instruction("MATH", ["score", "+", "1"]),
+        Instruction("SET_VAR", ["current_val", "next_val"]),
+        Instruction("SET_VAR", ["status", "\"Correct\""]),
+        Instruction("GOTO", ["START"])
+    ])
+    rules.add_new_rule(0, "LOSE", [
+        Instruction("SET_VAR", ["score", "0"]),
+        Instruction("SET_VAR", ["status", "\"Wrong\""]),
+        Instruction("GOTO", ["START"])
+    ])
     game_data = {
         "labels": {
             "START": [
@@ -60,5 +102,5 @@ if __name__ == "__main__":
             ]
         }
     }
-    engine = GameEngine(game_data)
+    engine = GameEngine(rules)
     engine.run_script()
