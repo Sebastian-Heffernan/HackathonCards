@@ -10,6 +10,6 @@ export function load({ params }) {
     }
 
     return {
-        instruction: categoryData.items[item]
+        doc: categoryData.items[item]
     };
 }
