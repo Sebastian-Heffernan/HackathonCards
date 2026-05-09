@@ -1,4 +1,6 @@
-def execute(engine, args):
+from instruction import Instruction
+
+def execute(instruction : Instruction, engine):
     print("Arguments:")
-    for i in args:
-        print(f"{i}: {args[i]}")
+    for i in instruction.args:
+        print(f"{i}")

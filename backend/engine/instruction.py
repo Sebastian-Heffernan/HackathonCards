@@ -7,7 +7,7 @@ class Instruction:
     def run(self, engine):
         if self.name == "GOTO":
             print(f"going to {self.args[0]}")
-            engine.pointer = 0
+            engine.pointer = -1
             engine.label = self.args[0]
         elif self.name in engine.commandList:
             engine.commandList[self.name](self, engine)
