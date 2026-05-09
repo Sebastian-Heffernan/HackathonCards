@@ -37,7 +37,6 @@ LABEL SETUP:
 
     ASSERT HIT
     ASSERT STAND
-    ASSERT RESTART 0
 
     END_TURN 0
     
@@ -82,6 +81,7 @@ LABEL P0_BUST:
 
 LABEL P1_BUST:
     VARG SET status "Player_1_busts._Player_0_wins."
+    VARG SET $winner 0
     END_TURN
 
 LABEL FINAL_SCORE:
@@ -95,14 +95,17 @@ LABEL FINAL_SCORE:
 
 LABEL P0_WIN:
     VARG SET status "Player_0_wins."
+    VARG SET $winner 0
     END_TURN
 
 LABEL P1_WIN:
     VARG SET status "Player_1_wins."
+    VARG SET $winner 1
     END_TURN
 
 LABEL PUSH:
     VARG SET status "Push."
+    # push?
     END_TURN
 
 LABEL SCORE_P0:
