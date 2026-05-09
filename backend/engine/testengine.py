@@ -59,7 +59,10 @@ LABEL SETUP:
     DECK CLEAR discard
     ASSERT HIT
     ASSERT STAY
-    PRINT playerState
+    # PRINT gameState.variables[$turnPlayer]
+    VARG SET #e 0
+    PRINT gameState.variables[#e]
+    PRINT playerStates[#e]
     
 LABEL HIT:
     DRAW deck $turnPlayer
@@ -67,6 +70,17 @@ LABEL HIT:
 
 LABEL STAY:
     GOTO CALC
+
+LABEL TEST:
+    VARG SET a "hell"
+    VARG SET b "hello"
+    MATH b + 1
+    COMPARE a == b
+    END_TURN
+    GOTO EXIT
+
+LABEL EXIT:
+    END_TURN
 """
     commandList = GameEngine.load_commands()
     rules: Rules = Compiler.compile(black_jack, commandList)
@@ -75,6 +89,6 @@ LABEL STAY:
     engine.add_player(0)
     engine.add_player(1)
     engine.add_player(2)
-    engine.run_script("SETUP")
+    engine.run_script("TEST")
     # engine.gameState.variables["$selectedCardId"] = 1
     # engine.run_script("DISCARD")

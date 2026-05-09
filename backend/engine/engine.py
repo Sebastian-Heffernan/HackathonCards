@@ -114,8 +114,12 @@ class GameEngine:
                 try:
                     idx = int(index_str)
                     obj = obj[int(idx)]
-                except (ValueError, TypeError, IndexError):
+                except (ValueError, TypeError):
                     obj = obj[index_str] #treat as key for dictionary
+                except KeyError:
+                    obj = obj[str(index_str)]
+                except IndexError:
+                    raise BuildError(f"Index {index_str} out of bounds")
             else:
                 obj = getattr(obj, part)
         return obj
