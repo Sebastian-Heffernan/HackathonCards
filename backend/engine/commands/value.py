@@ -19,13 +19,19 @@ def execute(instruction: Instruction, engine: GameEngine):
         raise BuildError("VALUE requires 3 args")
 
     var_name = instruction.args[VAR_NAME]
-    player_idx = int(engine.gameState.resolve_variable(instruction.args[PLAYER_IDX]))
-    card_idx = int(engine.gameState.resolve_variable(instruction.args[CARD_IDX]))
+    try:
+        player_id = int(engine.gameState.resolve_variable(instruction.args[PLAYER_IDX]))
+        card_id = int(engine.gameState.resolve_variable(instruction.args[CARD_IDX]))
+    except (ValueError, TypeError):
+        raise BuildError(f"VALUE: Player ID and Card ID must be integers. "
+                         f"Got: {instruction.args[1]}, {instruction.args[2]}")
 
-    if player_idx >= len(engine.playerStates) or card_idx >= len(
-        engine.playerStates[player_idx].hand
-    ):
-        raise BuildError("Player Index out of Bounds for player states")
-
-    var_value = engine.playerStates[player_idx].hand[card_idx]["value"]
+    if not (0 <= player_id < len(engine.playerStates)):
+        raise BuildError(f"SUIT: Player index {player_id} out of range.")
+    target_player = engine.playerStates[player_id]
+    if not (0 <= card_id < len(target_player.hand)):
+        raise BuildError(f"SUIT: Card index {card_id} out of range for Player {player_id}.")
+    
+    card_obj = target_player.hand[card_id]
+    var_value = card_obj["value"]
     engine.gameState.variables[var_name] = var_value  # set the value

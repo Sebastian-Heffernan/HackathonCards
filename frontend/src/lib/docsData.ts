@@ -16,6 +16,28 @@ export const docsData = {
       example: "END_TURN # Same player plays the turn again"
     }
   },
+  "examples" : {
+    title: "Working examples",
+    content: "These are wroking examples made by the team that can be inserted into a lobby",
+    items: {
+      "Loops": {
+        name: "Fun with Loops",
+        description: "A showcase of how Cardssembly has built-in loop functionality.",
+        example: 'LABEL SETUP:\n DECK MAKE deck\n VARG SET i 0\n CALL LOOP\n END_TURN\n LABEL LOOP:\n DRAW deck 0 1\n REVEAL 0\n MATH i + 1\n COMPARE i < 10\n GOTO LOOP\n RETURN\n'
+      },
+      "Showdown": {
+        name: "Showdown",
+        description: "A tense, single-card elimination game for n players.\nPlayers take turns pressing the 'Showdown' button to flip their card.\nWhoever has the largest card value wins.",
+        example: 'LABEL SETUP:\n DECK MAKE deck\n DECK SHUFFLE deck\n \n VARG SET $winner -1\n VARG SET status "highest_card_waiting"\n VARG SET bestValue -1\n VARG SET bestPlayer -1\n VARG SET drawnCount 0\n \n SHOW_VAR status\n SHOW_VAR $winner\n SHOW_VAR bestValue\n SHOW_VAR bestPlayer\n SHOW_VAR drawnCount\n \n ASSERT SHOWDOWN\n END_TURN 0\n \n LABEL SHOWDOWN:\n DRAW deck $turnPlayer 1\n REVEAL $turnPlayer\n \n MATH drawnCount + 1\n \n COMPARE drawnCount < $playerCount\n GOTO NEXT_PLAYER\n GOTO SCORE_START\n \n LABEL NEXT_PLAYER:\n END_TURN $turnPlayer + 1\n \n LABEL SCORE_START:\n VARG SET i 0\n VARG SET bestValue -1\n VARG SET bestPlayer -1\n VARG SET status "scoring"\n GOTO SCORE_ALL\n \n LABEL SCORE_ALL:\n VALUE cardValue i 0\n CALL CARD_TO_VALUE\n \n COMPARE cardScore > bestValue\n GOTO NEW_BEST\n GOTO NEXT_SCORE\n \n LABEL NEW_BEST:\n VARG SET bestValue cardScore\n VARG SET bestPlayer i\n GOTO NEXT_SCORE\n \n LABEL NEXT_SCORE:\n MATH i + 1\n COMPARE i < $playerCount\n GOTO SCORE_ALL\n GOTO FINISH_GAME\n \n LABEL FINISH_GAME:\n VARG SET $winner bestPlayer\n VARG SET status "highest_card_winner"\n END_TURN\n \n LABEL CARD_TO_VALUE:\n COMPARE cardValue == "A"\n GOTO CARD_A\n \n COMPARE cardValue == "K"\n GOTO CARD_K\n \n COMPARE cardValue == "Q"\n GOTO CARD_Q\n \n COMPARE cardValue == "J"\n GOTO CARD_J\n \n GOTO CARD_NUMBER\n \n LABEL CARD_A:\n VARG SET cardScore 14\n RETURN\n \n LABEL CARD_K:\n VARG SET cardScore 13\n RETURN\n \n LABEL CARD_Q:\n VARG SET cardScore 12\n RETURN\n \n LABEL CARD_J:\n VARG SET cardScore 11\n RETURN\n \n LABEL CARD_NUMBER:\n VARG SET cardScore cardValue\n RETURN\n'
+      },
+      "2 Player Blackjack": {
+        name: "2 Player Blackjack",
+        description: "This Version of Blackjack will treat the host as the player, whereas the client (2nd player) is the dealer.\n",
+        example: 'LABEL SETUP:\n DECK MAKE deck\n DECK SHUFFLE deck\n DECK MAKE discard\n DECK CLEAR discard\n \n VARG SET P0_SCORE 0\n VARG SET P1_SCORE 0\n VARG SET P0_STOOD 0\n VARG SET P1_STOOD 0\n VARG SET status "game_playing"\n SHOW_VAR status\n \n DRAW deck 0 1\n REVEAL 0\n DRAW deck 1 1\n DRAW deck 0 1\n DRAW deck 1 1\n \n REVEAL 0\n REVEAL 1\n \n CALL SCORE_P0\n CALL SCORE_P1\n \n ASSERT HIT\n ASSERT STAND\n \n END_TURN 0\n \n LABEL HIT:\n COMPARE $turnPlayer == 0\n GOTO HIT_P0\n GOTO HIT_P1\n \n LABEL HIT_P0:\n DRAW deck 0 1\n REVEAL 0\n CALL SCORE_P0\n COMPARE P0_SCORE > 21\n GOTO P0_BUST\n END_TURN 0\n \n LABEL HIT_P1:\n DRAW deck 1 1\n REVEAL 1\n CALL SCORE_P1\n COMPARE P1_SCORE > 21\n GOTO P1_BUST\n END_TURN 1\n \n LABEL STAND:\n COMPARE $turnPlayer == 0\n GOTO STAND_P0\n GOTO STAND_P1\n \n LABEL STAND_P0:\n VARG SET P0_STOOD 1\n END_TURN 1\n \n LABEL STAND_P1:\n VARG SET P1_STOOD 1\n GOTO FINAL_SCORE\n \n LABEL P0_BUST:\n VARG SET status "Player_0_busts._Player_1_wins."\n VARG SET $winner 1\n END_TURN\n \n LABEL P1_BUST:\n VARG SET status "Player_1_busts._Player_0_wins."\n VARG SET $winner 0\n END_TURN\n \n LABEL FINAL_SCORE:\n COMPARE P0_SCORE > P1_SCORE\n GOTO P0_WIN\n \n COMPARE P1_SCORE > P0_SCORE\n GOTO P1_WIN\n \n GOTO PUSH\n \n LABEL P0_WIN:\n VARG SET status "Player_0_wins."\n VARG SET $winner 0\n END_TURN\n \n LABEL P1_WIN:\n VARG SET status "Player_1_wins."\n VARG SET $winner 1\n END_TURN\n \n LABEL PUSH:\n VARG SET status "Push."\n END_TURN\n \n LABEL SCORE_P0:\n VARG SET P0_SCORE 0\n VARG SET cardIdx 0\n HANDLEN handLen 0\n GOTO SCORE_P0_LOOP\n \n LABEL SCORE_P0_LOOP:\n COMPARE cardIdx < handLen\n GOTO SCORE_P0_CARD\n RETURN\n \n LABEL SCORE_P0_CARD:\n VALUE cardValue 0 cardIdx\n CALL ADD_TO_P0\n MATH cardIdx + 1\n GOTO SCORE_P0_LOOP\n \n LABEL ADD_TO_P0:\n COMPARE cardValue == "A"\n GOTO P0_ADD_ACE\n \n COMPARE cardValue == "K"\n GOTO P0_ADD_FACE\n \n COMPARE cardValue == "Q"\n GOTO P0_ADD_FACE\n \n COMPARE cardValue == "J"\n GOTO P0_ADD_FACE\n \n GOTO P0_ADD_NUMBER\n \n LABEL P0_ADD_ACE:\n MATH P0_SCORE + 11\n RETURN\n \n LABEL P0_ADD_FACE:\n MATH P0_SCORE + 10\n RETURN\n \n LABEL P0_ADD_NUMBER:\n MATH P0_SCORE + cardValue\n RETURN\n \n LABEL SCORE_P1:\n VARG SET P1_SCORE 0\n VARG SET cardIdx 0\n HANDLEN handLen 1\n GOTO SCORE_P1_LOOP\n \n LABEL SCORE_P1_LOOP:\n COMPARE cardIdx < handLen\n GOTO SCORE_P1_CARD\n RETURN\n \n LABEL SCORE_P1_CARD:\n VALUE cardValue 1 cardIdx\n CALL ADD_TO_P1\n MATH cardIdx + 1\n GOTO SCORE_P1_LOOP\n \n LABEL ADD_TO_P1:\n COMPARE cardValue == "A"\n GOTO P1_ADD_ACE\n \n COMPARE cardValue == "K"\n GOTO P1_ADD_FACE\n \n COMPARE cardValue == "Q"\n GOTO P1_ADD_FACE\n \n COMPARE cardValue == "J"\n GOTO P1_ADD_FACE\n \n GOTO P1_ADD_NUMBER\n \n LABEL P1_ADD_ACE:\n MATH P1_SCORE + 11\n RETURN\n \n LABEL P1_ADD_FACE:\n MATH P1_SCORE + 10\n RETURN\n \n LABEL P1_ADD_NUMBER:\n MATH P1_SCORE + cardValue\n RETURN\n'
+      }
+    }
+
+  },
   "instructions": {
     title: "Instruction Set",
     content: "A complete list of available opcodes.",
@@ -35,9 +57,13 @@ export const docsData = {
       }, 
       "COMPARE": {
         name: "COMPARE",
-        description: "Sets x = x + y for COMPARE x + y.\nOn true executes n+1. On false, n+2.\n Operators Include '==', '!=', '>', '<', '>=', '<='.",
-        usage: "COMPARE [x: int][operator: '==' | '!=' | '>' | '<' | '>=' | '<=' |][y: int]",
-        example: "COMPARE x + y"
+        description: "Sets x = x + y for COMPARE x + y.\nOn true executes n+1. On false, n+2.\n Operators Include '==', '!=', '>', '<', '>=', '<='. \nLexiographical comparison is performed when x and y are strings, whereas normal comparison is done for integers.",
+        usage: "COMPARE [x: int | str][operator: '==' | '!=' | '>' | '<' | '>=' | '<=' ][y: int | str]",
+        example: "VARG SET x 0\nVARG SET y 0\nCOMPARE x == y",
+         warning: {
+          about: "Ensure the same types (x = int, y = int, vice versa) are called",
+          code: "COMPARE 1 > 2 # good case.\nCOMPARE 1 > 'hello' # bad case.",
+        }
       },
       "DECK": {
         name: "DECK",
