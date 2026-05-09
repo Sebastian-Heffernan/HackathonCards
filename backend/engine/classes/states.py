@@ -31,7 +31,7 @@ class GameState:
 class PlayerState:
     def __init__(self, uuid):
         self.uuid = uuid
-        self.variables = []
+        self.variables = {}
         self.hand = []
         self.actions: list[str] = []
 
