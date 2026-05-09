@@ -131,10 +131,13 @@ LABEL SETUP:
 LABEL TEST:
     END_TURN
 LABEL FUNC:
-    PRINT decks[0].name
+    DRAW deck 0 1
+    REVEAL
+    PRINT playerStates[0].hand
     RETURN
 """
     rules: Rules = Compiler.compile(test)
     engine = GameEngine(rules)
+    engine.add_player(0)
     engine.run_script("SETUP")
-    # print(rules)
+    print(vars(engine.playerStates[0]))
