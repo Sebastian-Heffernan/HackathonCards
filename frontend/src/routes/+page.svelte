@@ -5,33 +5,45 @@
    // svelte-ignore non_reactive_update
    let textarea: HTMLTextAreaElement;
 
-  let rules = $state(
-`LABEL SETUP:
+  let rules = $state(`
+LABEL SETUP:
     DECK MAKE deck
     DECK SHUFFLE deck
     DECK MAKE discard
-    CALL FUNC
-    ASSERT DRAW_CARD 0
-    ASSERT REMOVE_CARD 0
+    DECK CLEAR discard
+
+    VARG SET i 0
+    GOTO SETUPPLAYERS
+# Will add 2 cards to each player
+# Game setup
+LABEL SETUPPLAYERS:
+    VARG SET j 0
+    CALL SETUPPLAYER
+    PRINT playerStates[i].hand
+    ASSERT DRAW i
+    ASSERT DISCARD i
+
+    MATH i + 1
+    COMPARE i < playerCount
+    GOTO SETUPPLAYERS
     END_TURN
-LABEL FUNC:
-    DRAW deck 0 2
-    DRAW deck 1 5
-   DRAW deck 2 3
-    REVEAL 0
-    PRINT playerStates[0].hand
+LABEL SETUPPLAYER:
+    DRAW deck i 1
+    MATH j + 1
+    COMPARE j < 2
+    GOTO SETUPPLAYER
     RETURN
-LABEL DRAW_CARD:
-    DRAW deck 0 1
-    REVEAL 0
-    END_TURN
-LABEL REMOVE_CARD:
-   COMPARE -1 < $selectedCardId
-   GOTO REMOVE_CARD_ACTION
-   END_TURN
-LABEL REMOVE_CARD_ACTION
-   MOVE discard 0 $selectedCardId
-   END_TURN`);
+LABEL CONTINUE:
+    # PRINT gameState.variables
+    END_TURN turnPlayer + 1
+# Turn logic
+LABEL DRAW:
+    DRAW deck turnPlayer 1
+    GOTO CONTINUE
+LABEL DISCARD:
+    MOVE discard turnPlayer $selectedCardId
+    GOTO CONTINUE
+    END_TURN`);
 
    let userName = $state("username");
    let joinLobbyCode = $state("");
