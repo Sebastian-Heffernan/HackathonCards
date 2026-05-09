@@ -1,13 +1,12 @@
+import random
+import string
 from uuid import uuid4
 
 from fastapi import FastAPI, WebSocket
 from pydantic import BaseModel
 
-from backend.engine.engine import *
 from backend.compiler.compiler import *
-
-import random
-import string
+from backend.engine.engine import *
 
 app = FastAPI()
 
