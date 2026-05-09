@@ -23,7 +23,7 @@ LABEL SETUPPLAYERS:
     ASSERT DISCARD i
 
     MATH i + 1
-    COMPARE i < playerCount
+    COMPARE i < $playerCount
     GOTO SETUPPLAYERS
     END_TURN
 LABEL SETUPPLAYER:
@@ -34,17 +34,17 @@ LABEL SETUPPLAYER:
     RETURN
 LABEL CONTINUE:
     # PRINT gameState.variables
-    END_TURN turnPlayer + 1
+    END_TURN $turnPlayer + 1
 # Turn logic
 LABEL DRAW:
-    DRAW deck turnPlayer 1
+    DRAW deck $turnPlayer 1
     GOTO CONTINUE
 LABEL DISCARD:
     COMPARE -1 < $selectedCardId
     GOTO MOVE
     END_TURN
 LABEL MOVE:
-    MOVE discard turnPlayer $selectedCardId
+    MOVE discard $turnPlayer $selectedCardId
     GOTO CONTINUE
 """
     commandList = GameEngine.load_commands()
