@@ -17,11 +17,11 @@ def execute(instruction: Instruction, engine: GameEngine):
     arg_count = len(instruction.args)
     
     if arg_count < 1:
-        raise BuildError("ASSERT requires at least 1 argument: [label]")
+        raise BuildError("ASSERT: [label] (Usage)")
     
     label = engine.gameState.resolve_variable(instruction.args[LABEL])
     if label not in engine.rules.labels:
-        raise BuildError(f"ASSERT Error: Label '{label}' not found in rules.")
+        raise BuildError(f"ASSERT: Label '{label}' not found in rules.")
     
     # if no player then assert to all
     if arg_count == 1:
@@ -32,7 +32,7 @@ def execute(instruction: Instruction, engine: GameEngine):
     player_idx = engine.gameState.resolve_variable(instruction.args[PLAYER])
 
     if not (0 <= player_idx < len(engine.playerStates)):
-        raise BuildError(f"ASSERT Error: Player index {player_idx} out of range.")
+        raise BuildError(f"ASSERT: Player index {player_idx} out of range.")
 
     playerState: PlayerState = engine.playerStates[player_idx]
     playerState.actions.append(label)

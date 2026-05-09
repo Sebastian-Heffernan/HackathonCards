@@ -18,6 +18,7 @@ class BaseCommand:
 
 class GameEngine:
     def __init__(self, rules: Rules, commandList: dict):
+        self.debug = True
         self.rules = rules
         self.decks = []
         self.stack = []  # for CALL pointer
