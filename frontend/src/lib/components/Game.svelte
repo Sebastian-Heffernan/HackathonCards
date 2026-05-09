@@ -48,10 +48,10 @@
   <pre>{JSON.stringify(playerState, null, 2)}</pre>
 </div> -->
 <div class="relative w-screen h-screen p-4 bg-green-500">
-  <div class="nes-container with-title absolute t-0 l-0 w-40 h-full is-dark">
+  <!-- <div class="nes-container with-title absolute t-0 l-0 w-40 h-full is-dark">
     <p class="title">Decks</p>
     <Deck />
-  </div>
+  </div> -->
 
   <div class="absolute top-4 left-1/2 -translate-x-1/2 flex gap-8">
     {#each playerState.opponent_hand ?? [] as opponentCards, opponentIdx}
