@@ -139,7 +139,7 @@ export const docsData = {
       },
       "$selectedCardId": {
         name: "Selected Card Register",
-        description: "Tracks the currently selected card.\n On Default, value is -1 if nothing is selected",
+        description: "Tracks the currently selected card index.\n On Default, value is -1 if nothing is selected",
       },
       "$playerCount": {
         name: "Player Count Register",
@@ -151,7 +151,7 @@ export const docsData = {
       },
       "$winner": {
         name: "Winner Flag Register",
-        description: "Simple Flag which checks if there is a Winner.\n Initially starts off at -1 to declare that there are no winners.\n Call a value of 1 to declare a winner"
+        description: "Simple Flag which checks if there is a Winner.\n Initially starts off at -1 to declare that there are no winners.\n Set $winner to the winning players index"
       }
     }
   }
