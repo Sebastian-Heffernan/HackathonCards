@@ -9,6 +9,7 @@
   let ruleId = "";
   let gameId = "";
   let playerId = "";
+  let lobbyCode = "";
 
   // @ts-ignore
   /**
@@ -55,6 +56,7 @@
 
     gameId = data.gameId;
     playerId = data.playerId;
+    lobbyCode = data.lobbyCode;
     output = JSON.stringify(data, null, 2);
 
     // connect web socket, same call as if joining lobby
@@ -63,7 +65,7 @@
 
   // host doesn't join own lobby since already joined when created
   async function joinLobby() {
-    const response = await fetch(`/api/lobbies/${gameId}/join`, {
+    const response = await fetch(`/api/lobbies/${lobbyCode}/join`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -77,6 +79,7 @@
 
     gameId = data.gameId;
     playerId = data.playerId;
+    lobbyCode = data.lobbyCode;
     output = JSON.stringify(data, null, 2);
 
     // connect web socket, same call as if joining lobby
@@ -134,8 +137,8 @@
     <br />
 
     <h3>Join Lobby</h3>
-    <p>gameId: </p>
-    <textarea bind:value={gameId}></textarea>
+    <p>gameId: {gameId || "none"}</p>
+    <input bind:value={lobbyCode} placeholder="Code" />
     <button on:click={joinLobby}>
       Join Lobby
     </button>

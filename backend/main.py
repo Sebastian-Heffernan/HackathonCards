@@ -6,12 +6,15 @@ from pydantic import BaseModel
 from backend.engine.engine import *
 from backend.compiler.compiler import *
 
+import random
+import string
+
 app = FastAPI()
 
 # the objects storing the different rules and games
 games = {}
 rules_store = {}
-
+lobby_codes = {}
 
 class CreateLobby(BaseModel):
     rule_id: str
@@ -25,6 +28,16 @@ class JoinLobby(BaseModel):
 class GetRules(BaseModel):
     source: str
 
+def create_code():
+    code = ""
+
+    for i in range(5):
+        code += random.choice("ABCDEFGHIJKLMNOPQRSTUVWQYZ1234567890")
+    
+    if code not in lobby_codes:
+        return code
+    else:
+        return create_code()
 
 @app.get("/")
 def root():
@@ -67,23 +80,29 @@ def start_game(request: CreateLobby):
         }
     }
 
+    code = create_code()
+    lobby_codes[code] = game_id
+
     return {
         "ok": True,
         "gameId": game_id,
+        "lobbyCode": code,
         "playerId": host_id
     }
 
 # player joins lobby
 # make sure to open websocket on client if joined and then use the websocket to tell server we joined
-@app.post("/api/lobbies/{game_id}/join")
-def join_lobby(game_id: str, request: JoinLobby):
+@app.post("/api/lobbies/{lobby_code}/join")
+def join_lobby(lobby_code: str, request: JoinLobby):
     player_id = str(uuid4())
     # add player to game
+    game_id = lobby_codes[lobby_code]
     games[game_id]["players"][player_id] = {"name": request.name}
 
     return {
         "ok": True,
         "gameId": game_id,
+        "lobbyCode": lobby_code,
         "playerId": player_id
     }
 
