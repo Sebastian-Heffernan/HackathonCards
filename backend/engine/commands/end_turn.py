@@ -10,23 +10,30 @@ END_TURN:
 
 # END_TURN [next player index / None]
 def execute(instruction: Instruction, engine: GameEngine):
-    print("ending turn")
+    if engine.debug:
+        print("[ENDING TURN]")
     gameState: GameState = engine.gameState
+    player_count = int(gameState.variables.get("$playerCount", 1))
+
     if len(instruction.args) == 0:
         return "break"
     elif len(instruction.args) == 1:
-        gameState.variables["$turnPlayer"] = engine.gameState.resolve_variable(
-            instruction.args[0]
-        )
+        val = engine.gameState.resolve_variable(instruction.args[0])
+        gameState.variables["$turnPlayer"] = int(val) % player_count
     elif len(instruction.args) == 3:
-        left = engine.gameState.resolve_variable(instruction.args[0])
-        right = engine.gameState.resolve_variable(instruction.args[2])
-        operator = instruction.args[1]
-        if operator == "+":
-            gameState.variables["$turnPlayer"] = (left + right) % gameState.variables["$playerCount"]
-        elif operator == "-":
-            gameState.variables["$turnPlayer"] = (left - right) % gameState.variables["$playerCount"]
-        else:
-            gameState.variables["$turnPlayer"] = left % gameState.variables["$playerCount"] # pick as default
+        try:
+            left = engine.gameState.resolve_variable(instruction.args[0])
+            right = engine.gameState.resolve_variable(instruction.args[2])
+            operator = instruction.args[1]
+            if operator == "+":
+                res = left + right
+            elif operator == "-":
+                res = left - right
+            else:
+                res = left # Fallback
+            gameState.variables["$turnPlayer"] = res % player_count
+        except (ValueError, TypeError):
+                # If math fails, don't crash the engine, just break the turn
+                print(f"ERROR: END_TURN math failed with args {instruction.args}")
     return "break"
 

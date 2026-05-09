@@ -13,7 +13,7 @@ COMPARE:
 
 def execute(instruction: Instruction, engine: GameEngine):
     if len(instruction.args) < 3:
-        raise BuildError()
+        raise BuildError("COMPARE: [x][operator][y] (Usage)")
     left = engine.gameState.resolve_variable(instruction.args[0])
     right = engine.gameState.resolve_variable(instruction.args[2])
     operator = instruction.args[1]
@@ -31,6 +31,6 @@ def execute(instruction: Instruction, engine: GameEngine):
     elif operator == "<=":
         condition_met = left <= right
     else:
-        raise BuildError()
+        raise BuildError("COMPARE: [operator]: == | != | > | < | >= | <=")
     if not condition_met:
         engine.pointer += 1  # skip a step on false

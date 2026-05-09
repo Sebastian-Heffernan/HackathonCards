@@ -7,7 +7,8 @@ class Instruction:
 
     def run(self, engine):
         if self.name in engine.commandList:
-            print(f"[RUNNING] {self.name} {self.args}")
+            if engine.debug:
+                print(f"[RUNNING] {self.name} {self.args}")
             return engine.commandList[self.name](self, engine)
         else:
             raise BuildError("Unrecognised command")
