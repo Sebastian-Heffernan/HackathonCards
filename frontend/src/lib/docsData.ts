@@ -106,5 +106,31 @@ export const docsData = {
         example: "VARP 2 TOTAL 5 # Player 2 has a TOTAL of 5"
       },
     }
+  },
+  "registry": {
+    title: "Registeries",
+    content: "The regisiters in the game engine",
+    items: {
+      "$turnPlayer": {
+        name: "Turn Player Register",
+        description: ""
+      },
+      "$selectedCardId": {
+        name: "Selected Card",
+        description: "-1 if nothing is selected",
+      },
+      "$playerCount": {
+        name: "Player Count",
+        description: "The player counts in the game (-> playerState)"
+      },
+      "$turnCount": {
+        name: "Turn Count",
+        description: "The turn count "
+      },
+      "$winner": {
+        name: "Winner",
+        description: ""
+      }
+    }
   }
 };
