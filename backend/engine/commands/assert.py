@@ -6,6 +6,11 @@ from backend.engine.engine import GameEngine
 LABEL = 0
 PLAYER = 1
 
+"""
+ASSERT:
+    makes a label into the player action
+"""
+
 
 # ASSERT [label: str][player: int]
 def execute(instruction: Instruction, engine: GameEngine):

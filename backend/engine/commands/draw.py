@@ -4,6 +4,12 @@ from backend.engine.classes.instruction import Instruction
 from backend.engine.classes.states import PlayerState
 from backend.engine.engine import GameEngine
 
+"""
+DRAW:
+    Takes a card from deck name to a 
+    players hand by number of times
+"""
+
 
 # DRAW [Deck Name][Player ID][Number]
 def execute(instruction: Instruction, engine: GameEngine):
@@ -29,4 +35,3 @@ def execute(instruction: Instruction, engine: GameEngine):
             target_player.hand.append(card)
             engine.gameState.global_revealed[player_i].append(False)
         # TODO add when deck is empty check
-
