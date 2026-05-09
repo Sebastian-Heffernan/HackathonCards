@@ -10,3 +10,4 @@ def execute(instruction : Instruction, engine: GameEngine):
     left = engine.gameState.resolve_variable(instruction.args[0])
     right = engine.gameState.resolve_variable(instruction.args[3])
     operator = instruction.args[1]
+    engine.gameState.variables
