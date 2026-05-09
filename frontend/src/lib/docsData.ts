@@ -58,8 +58,8 @@ export const docsData = {
       "COMPARE": {
         name: "COMPARE",
         description: "Sets x = x + y for COMPARE x + y.\nOn true executes n+1. On false, n+2.\n Operators Include '==', '!=', '>', '<', '>=', '<='. \nLexiographical comparison is performed when x and y are strings, whereas normal comparison is done for integers.",
-        usage: "COMPARE [x: int | str][operator: '==' | '!=' | '>' | '<' | '>=' | '<=' |][y: int | str]",
-        example: "COMPARE x + y",
+        usage: "COMPARE [x: int | str][operator: '==' | '!=' | '>' | '<' | '>=' | '<=' ][y: int | str]",
+        example: "VARG SET x 0\nVARG SET y 0\nCOMPARE x == y",
          warning: {
           about: "Ensure the same types (x = int, y = int, vice versa) are called",
           code: "COMPARE 1 > 2 # good case.\nCOMPARE 1 > 'hello' # bad case.",
