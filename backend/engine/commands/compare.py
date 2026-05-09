@@ -6,10 +6,11 @@ from backend.engine.engine import GameEngine
 COMPARE: 
     Sets x = x + y for COMPARE x + y
     On true executes n+1. On false, n+2
+    COMPARE x + y
+    GOTO TRUE
+    GOTO FALSE
 """
 
-
-# COMPARE [x][operator][y]
 def execute(instruction: Instruction, engine: GameEngine):
     if len(instruction.args) < 3:
         raise BuildError()

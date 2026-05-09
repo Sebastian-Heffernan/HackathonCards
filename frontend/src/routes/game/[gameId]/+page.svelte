@@ -48,10 +48,10 @@
     }
   });
 
-  function sendAction(action: string, cards: Card[]) {
+  function sendAction(action: string, selectedCardId: number | null) {
     socket?.send(JSON.stringify({
       type: action,
-      cards
+      selectedCardId: selectedCardId
     }));
   }
 </script>

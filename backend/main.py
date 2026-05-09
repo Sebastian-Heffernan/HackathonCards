@@ -158,6 +158,7 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
             if player_id == games[game_id]["engine"].get_current_player_uuid():
                 # get state and build player specific state to send to each player
                 # check if valid in near future
+                games[game_id]["engine"].gameState.variables["$selectedCardId"] = action["selectedCardId"]
                 games[game_id]["engine"].run_script(action["type"])
                 # send state to each player
 

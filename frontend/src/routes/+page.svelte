@@ -9,8 +9,10 @@
 `LABEL SETUP:
     DECK MAKE deck
     DECK SHUFFLE deck
+    DECK MAKE discard
     CALL FUNC
     ASSERT DRAW_CARD 0
+    ASSERT REMOVE_CARD 0
     GOTO TEST
 LABEL TEST:
     END_TURN
@@ -22,7 +24,14 @@ LABEL FUNC:
 LABEL DRAW_CARD:
     DRAW deck 0 1
     REVEAL 0
-    END_TURN`);
+    END_TURN
+LABEL REMOVE_CARD:
+   COMPARE -1 < $selectedCardId
+   GOTO REMOVE_CARD_ACTION
+   END_TURN
+LABEL REMOVE_CARD_ACTION
+   MOVE discard 0 $selectedCardId
+   END_TURN`);
 
    let userName = $state("username");
    let joinLobbyCode = $state("");

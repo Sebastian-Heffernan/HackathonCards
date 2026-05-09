@@ -1,0 +1,19 @@
+LABEL SETUP:
+  DECK MAKE deck
+  DECK SHUFFLE deck
+  DRAW deck 0 2
+  REVEAL 0
+  DRAW deck 1 2
+  REVEAL 1
+  ASSERT HIT
+  ASSERT STAND
+  VARG SET p0state 0
+  VARG SET p1state 0
+LABEL HIT:
+  DRAW deck $TURN 1
+  REVEAL $TURN
+  GOTO CHECK
+LABEL CHECK:
+  # check player zero
+  IF $TURN = 0: 
+
