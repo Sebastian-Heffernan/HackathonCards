@@ -121,9 +121,10 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                             "type": "START_GAME",
                             "players": games[game_id]["players"],
                             # state of the game for every player
-                            "state": games[game_id]["engine"].get_player_state(
+                            "playerState": games[game_id]["engine"].get_player_state(
                                 connected_player_id
                             ),
+                            "gameState": games[game_id]["engien"].get_game_state(),
                         }
                     )
             # if a new player joins, send the playerlist to the client if not started
@@ -146,8 +147,9 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                         {
                             "type": "UPDATE_PLAYERS",
                             "players": games[game_id]["players"],
-                            "state": games[game_id]["engine"].get_player_state(
+                            "playerState": games[game_id]["engine"].get_player_state(
                                 connected_player_id
                             ),
+                            "gameState": games[game_id]["engien"].get_game_state(),
                         }
                     )
