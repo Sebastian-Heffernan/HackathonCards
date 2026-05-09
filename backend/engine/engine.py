@@ -1,8 +1,10 @@
 import os
 import importlib
 from backend.engine.commands import *
-from backend.engine.instruction import Instruction
+from backend.engine.classes.instruction import Instruction
 from backend.compiler.rules import Rules
+from backend.engine.classes.states import *
+import json
 
 class BaseCommand:
     def execute(self, engine, args):
@@ -11,24 +13,27 @@ class BaseCommand:
 class GameEngine:
     def __init__(self, rules : Rules):
         self.rules = rules
+        self.decks = []
         self.pointer = 0
-        self.label = "START"
-        self.state = {
 
-        }
+        self.label = "SETUP"
+        self.playerStates = []
+
+        self.gameState = GameState()
         self.commandList = {}
         self._load_commands()
 
     def run_script(self):
         while 1:
-            instruction : Instruction = self.rules["labels"][self.label][self.pointer]
-            print(f"{self.pointer}: {instruction.name}")
+            instruction : Instruction = self.rules.labels[self.label][self.pointer]
+            # print(f"{self.pointer}: {instruction.name}")
             if instruction.name == "EXIT":
                 print("exiting")
                 break
             instruction.run(self)
             self.pointer += 1
 
+    # Loads availabe commands into array
     def _load_commands(self):
         path = os.path.join(os.path.dirname(__file__), "commands")
         for filename in os.listdir(path):
@@ -38,16 +43,24 @@ class GameEngine:
                 # execute function in each file
                 if hasattr(module, "execute"):
                     cmd_key = filename[:-3].upper()
-                    print(f"loaded {cmd_key}")
                     self.commandList[cmd_key] = module.execute
-
-    def _find_label(self, label_name):
-        instructions = self.rules["scripts"]
-        for i, instruction in enumerate(instructions):
-            if instruction.command_name == "LABEL" and instruction.args[0] == label_name:
-                return i
-        return len(instructions)
     
+    # Getters/setters
+    def add_player(self, uuid):
+        player = PlayerState(uuid)
+        self.playerStates.append(player)
+        self.gameState.playerCount += 1
+    def get_current_player_uuid(self):
+        return self.playerStates[self.gameState.turnPlayer].uuid
+    def get_player_state(self, uuid):
+        for player in self.playerStates:
+            if player.uuid == uuid:
+                return vars(player)
+    def get_game_state(self):
+        return vars(self.gameState)
+
+
+
 if __name__ == "__main__":
     rules = Rules()
     rules.add_new_rule(1, "SETUP", [
@@ -91,5 +104,14 @@ if __name__ == "__main__":
         Instruction("SET_VAR", ["status", "\"Wrong\""]),
         Instruction("GOTO", ["START"])
     ])
-    # engine = GameEngine(rules)
-    # engine.run_script()
+    rules2 = Rules()
+    rules2.add_new_rule(0, "SETUP", [
+        Instruction("PRINT", ["Test print"]),
+        Instruction("GOTO", ["TEST"])
+    ])
+    rules2.add_new_rule(0, "TEST", [
+        Instruction("PRINT", ["Test print 2"]),
+        Instruction("EXIT", None)
+    ])
+    engine = GameEngine(rules2)
+    engine.run_script()
