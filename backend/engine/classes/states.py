@@ -1,11 +1,11 @@
 class GameState:
     def __init__(self):
         self.variables = {
-            "turnPlayer": 0,
+            "$turnPlayer": 0,
             "$selectedCardId": -1,
-            "playerCount": 0,
-            "turnCount": 0,
-            "winner": -1
+            "$playerCount": 0,
+            "$turnCount": 0,
+            "$winner": -1
         } # {name: value}
         self.global_revealed = [[]] # [[{suit: 'suit', value: 'value'}], []]
 

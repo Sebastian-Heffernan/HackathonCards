@@ -34,7 +34,7 @@ class GameEngine:
         self.label = label
         self.pointer = 0
 
-        self.gameState.variables["turnCount"] += 1
+        self.gameState.variables["$turnCount"] += 1
         while True:
             # check if label exits
             if self.label not in self.rules.labels:
@@ -79,10 +79,10 @@ class GameEngine:
         player = PlayerState(uuid)
         self.playerStates.append(player)
         self.gameState.global_revealed.append([])  # new player means no hand
-        self.gameState.variables["playerCount"] += 1
+        self.gameState.variables["$playerCount"] += 1
 
     def get_current_player_uuid(self):
-        return self.playerStates[self.gameState.variables["turnPlayer"]].uuid
+        return self.playerStates[self.gameState.variables["$turnPlayer"]].uuid
 
     def get_player_state(self, uuid):
         for player in self.playerStates:
