@@ -10,4 +10,5 @@ def execute(instruction: Instruction, engine: GameEngine):
         raise BuildError("SHOW_VAR [NAME] (Usage)")
     if instruction.args[0] not in engine.gameState.variables:
         raise BuildError("SHOW_VAR Requires valid variable")
-    engine.gameState.showVars.append(instruction.args[0])
+    if instruction.args[0] not in engine.gameState.showVars:
+        engine.gameState.showVars.append(instruction.args[0])
