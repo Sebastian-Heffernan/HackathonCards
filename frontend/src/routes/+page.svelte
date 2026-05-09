@@ -14,41 +14,176 @@ LABEL SETUP:
     DECK MAKE discard
     DECK CLEAR discard
 
-    VARG SET i 0
-    GOTO SETUPPLAYERS
-# Will add 2 cards to each player
-# Game setup
-LABEL SETUPPLAYERS:
-    VARG SET j 0
-    CALL SETUPPLAYER
-    PRINT playerStates[i].hand
-    ASSERT DRAW i
-    ASSERT DISCARD i
+    VARG SET pCount 0
+    VARG SET dCount 0
+    VARG SET playerTotal 0
+    VARG SET dealerTotal 0
+    VARG SET status "Blackjack start"
 
-    MATH i + 1
-    COMPARE i < $playerCount
-    GOTO SETUPPLAYERS
-    END_TURN
-LABEL SETUPPLAYER:
-    DRAW deck i 1
-    MATH j + 1
-    COMPARE j < 2
-    GOTO SETUPPLAYER
+    DRAW deck 0 1
+    REVEAL 0
+    MATH pCount + 1
+
+    DRAW deck 1 1
+    REVEAL 1
+    MATH dCount + 1
+
+    DRAW deck 0 1
+    REVEAL 0
+    MATH pCount + 1
+
+    DRAW deck 1 1
+    MATH dCount + 1
+
+    ASSERT HIT 0
+    ASSERT STAND 0
+
+    CALL SCORE_PLAYER
+    CALL SCORE_DEALER
+
+    END_TURN 0
+
+LABEL HIT:
+    DRAW deck 0 1
+    REVEAL 0
+    MATH pCount + 1
+
+    CALL SCORE_PLAYER
+
+    COMPARE playerTotal > 21
+    GOTO PLAYER_BUST
+    END_TURN 0
+
+LABEL STAND:
+    GOTO DEALER_TURN
+
+LABEL DEALER_TURN:
+    CALL SCORE_DEALER
+
+    COMPARE dealerTotal < 17
+    GOTO DEALER_HIT
+    GOTO COMPARE_WINNER
+
+LABEL DEALER_HIT:
+    DRAW deck 1 1
+    REVEAL 1
+    MATH dCount + 1
+
+    GOTO DEALER_TURN
+
+LABEL COMPARE_WINNER:
+    COMPARE dealerTotal > 21
+    GOTO PLAYER_WIN
+
+    COMPARE playerTotal > dealerTotal
+    GOTO PLAYER_WIN
+
+    COMPARE playerTotal == dealerTotal
+    GOTO PUSH
+
+    GOTO DEALER_WIN
+
+LABEL PLAYER_BUST:
+    VARG SET status "Player busts"
+    END_TURN 0
+
+LABEL PLAYER_WIN:
+    VARG SET status "Player wins"
+    END_TURN 0
+
+LABEL DEALER_WIN:
+    VARG SET status "Dealer wins"
+    END_TURN 0
+
+LABEL PUSH:
+    VARG SET status "Push"
+    END_TURN 0
+
+LABEL SCORE_PLAYER:
+    VARG SET playerTotal 0
+    VARG SET pCardIdx 0
+    GOTO SCORE_PLAYER_LOOP
+
+LABEL SCORE_PLAYER_LOOP:
+    COMPARE pCardIdx < pCount
+    GOTO SCORE_PLAYER_CARD
     RETURN
-LABEL CONTINUE:
-    # PRINT gameState.variables
-    END_TURN $turnPlayer + 1
-# Turn logic
-LABEL DRAW:
-    DRAW deck $turnPlayer 1
-    GOTO CONTINUE
-LABEL DISCARD:
-    COMPARE -1 < $selectedCardId
-    GOTO MOVE
-    END_TURN
-LABEL MOVE:
-    MOVE discard $turnPlayer $selectedCardId
-    GOTO CONTINUE
+
+LABEL SCORE_PLAYER_CARD:
+    VALUE cardValue 0 pCardIdx
+    CALL ADD_CARD_TO_PLAYER_TOTAL
+    MATH pCardIdx + 1
+    GOTO SCORE_PLAYER_LOOP
+
+LABEL ADD_CARD_TO_PLAYER_TOTAL:
+    COMPARE cardValue == J
+    GOTO PLAYER_FACE_CARD
+
+    COMPARE cardValue == Q
+    GOTO PLAYER_FACE_CARD
+
+    COMPARE cardValue == K
+    GOTO PLAYER_FACE_CARD
+
+    COMPARE cardValue == A
+    GOTO PLAYER_ACE_CARD
+
+    GOTO PLAYER_NUMBER_CARD
+
+LABEL PLAYER_FACE_CARD:
+    MATH playerTotal + 10
+    RETURN
+
+LABEL PLAYER_ACE_CARD:
+    MATH playerTotal + 11
+    RETURN
+
+LABEL PLAYER_NUMBER_CARD:
+    MATH playerTotal + cardValue
+    RETURN
+
+LABEL SCORE_DEALER:
+    VARG SET dealerTotal 0
+    VARG SET dCardIdx 0
+    GOTO SCORE_DEALER_LOOP
+
+LABEL SCORE_DEALER_LOOP:
+    COMPARE dCardIdx < dCount
+    GOTO SCORE_DEALER_CARD
+    RETURN
+
+LABEL SCORE_DEALER_CARD:
+    VALUE cardValue 1 dCardIdx
+    CALL ADD_CARD_TO_DEALER_TOTAL
+    MATH dCardIdx + 1
+    GOTO SCORE_DEALER_LOOP
+
+LABEL ADD_CARD_TO_DEALER_TOTAL:
+    COMPARE cardValue == J
+    GOTO DEALER_FACE_CARD
+
+    COMPARE cardValue == Q
+    GOTO DEALER_FACE_CARD
+
+    COMPARE cardValue == K
+    GOTO DEALER_FACE_CARD
+
+    COMPARE cardValue == A
+    GOTO DEALER_ACE_CARD
+
+    GOTO DEALER_NUMBER_CARD
+
+LABEL DEALER_FACE_CARD:
+    MATH dealerTotal + 10
+    RETURN
+
+LABEL DEALER_ACE_CARD:
+    MATH dealerTotal + 11
+    RETURN
+
+LABEL DEALER_NUMBER_CARD:
+    MATH dealerTotal + cardValue
+    RETURN
 `);
 
    let userName = $state("username");

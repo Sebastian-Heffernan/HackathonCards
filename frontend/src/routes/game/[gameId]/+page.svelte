@@ -14,6 +14,7 @@
     hand: Card[];
     actions: string[];
     opponent_hand?: Card[][];
+    opponent_names?: string[];
   };
 
   let gameId = $state(page.params.gameId || "");
@@ -25,7 +26,8 @@
     variables: [],
     hand: [],
     actions: [],
-    opponent_hand: []
+    opponent_hand: [],
+    opponent_names: []
   });
 
   onMount(() => {

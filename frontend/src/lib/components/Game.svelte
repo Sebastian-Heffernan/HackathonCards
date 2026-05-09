@@ -13,6 +13,7 @@
     hand: Card[];
     actions: string[];
     opponent_hand?: Card[][];
+    opponent_names?: string[];
   };
 
   let {
@@ -56,7 +57,7 @@
     {#each playerState.opponent_hand ?? [] as opponentCards, opponentIdx}
       <div class="flex flex-col items-center gap-2">
         <p class="bg-white text-black px-2 py-1 rounded text-sm">
-          Player {opponentIdx + 1}
+          {playerState.opponent_names?.[opponentIdx] ?? `Player ${opponentIdx + 1}`}
         </p>
 
         <Hand
