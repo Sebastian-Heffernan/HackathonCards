@@ -57,25 +57,65 @@ LABEL SETUP:
     DECK SHUFFLE deck
     DECK MAKE discard
     DECK CLEAR discard
-    ASSERT HIT
-    ASSERT STAY
+    ASSERT HIGHER
+    ASSERT LOWER
+    VARG SET i 0
+    GOTO SETUP_PLAYERS
+
+####### Deal cards
+LABEL SETUP_PLAYERS:
+    # VARG SET j 0
+    # CALL DEAL_TO_PLAYER
+
+    VARP SET $currentPlayer score 0
+    VARP SET $currentPlayer isHigher 0
+
+    MATH i + 1
+    COMPARE i < $playerCount
+    GOTO SETUP_PLAYERS
+    END_TURN
+
+LABEL DEAL_TO_PLAYER:
+    DRAW deck i 1
+    MATH j + 1
+    COMPARE j < 2
+    GOTO DEAL_TO_PLAYER
+    RETURN
     
 LABEL HIGHER:
-    DRAW deck $turnPlayer
-    GOTO CALC
+    VARP SET $turnPlayer isHigher 1
+    GOTO EXIT
 
 LABEL LOWER:
-    GOTO CALC
-
-LABEL CALC:
-    VARP SET $turnPlayer temp 2
-
-LABEL TEST:
-    VARP SET $turnPlayer test 2
+    VARP SET $turnPlayer isHigher 0
     GOTO EXIT
 
 LABEL EXIT:
+    COMPARE $turnPlayer = $playerCount
+    CALL CALCULATE
     END_TURN
+
+LABEL DRAW_CARD:
+# Treat player 0 as dealer
+    HANDLEN drawnInt 0
+    DRAW deck 0 1
+    REVEAL 0
+    RETURN
+
+LABEL CALCULATE_START:
+    VARG SET i 0
+    
+    CALL DRAW_CARD
+    GOTO CALCULATE
+
+LABEL CALCULATE:
+    VALUE drawn 0 drawnInt
+
+
+    MATH i + 1
+    COMPARE i < $playerCount
+    GOTO CALCULATE
+    RETURN
 """
     commandList = GameEngine.load_commands()
     rules: Rules = Compiler.compile(black_jack, commandList)
