@@ -22,7 +22,9 @@ def execute(instruction: Instruction, engine: GameEngine):
     player_idx = instruction.args[PLAYER_IDX]
     card_idx = instruction.args[CARD_IDX]
 
-    if player_idx >= len(engine.playerStates):
+    if player_idx >= len(engine.playerStates) or card_idx >= len(
+        engine.playerStates[player_idx].hand
+    ):
         raise BuildError("Player Index out of Bounds for player states")
 
     var_value = engine.playerStates[player_idx].hand[card_idx].value
