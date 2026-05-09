@@ -1,4 +1,4 @@
 class Deck:
-    def __init__(self):
-        self.name = None
+    def __init__(self, name):
+        self.name = name
         self.cards = []
