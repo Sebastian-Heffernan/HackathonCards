@@ -2,7 +2,19 @@
 export const docsData = {
   "overview": {
     title: "Overview",
-    content: "An introduction to the language syntax."
+    content: "An introduction to the language syntax. How to read the notation",
+  },
+  "commenting": {
+    title: "Commenting",
+    content: "How to comment files",
+    examples: [
+      "# Commenting line\nASSERT label",
+      ""
+    ],
+    warning: {
+      about: "If you put comments at the end of your line, if improperly set they can leak through into your arguments for the respective command",
+      example: "END_TURN # Same player plays the turn again"
+    }
   },
   "instructions": {
     title: "Instruction Set",
@@ -42,8 +54,8 @@ export const docsData = {
       "END_TURN": {
         name: "END_TURN",
         description: "Finishes the player's turn through finishing a label execution initiated by an action. Can break a loop",
-        usage: "END_TURN [next_index(Next Pointer)/None]",
-        example: "END_TURN 1 # Finishes up the current player's turn, go to pointer 1"
+        usage: "END_TURN [] | [next_index: int] | [VAR1][+ | -][VAR2 | i: int]",
+        example: "END_TURN 1"
       },
       "GOTO": {
         name: "GOTO",
@@ -65,15 +77,15 @@ export const docsData = {
       },
       "MOVE": {
         name: "MOVE",
-        description: "Moves a card from a player's hand and then move it to a specified deck.\n Also resets its global visibility flag.",
-        usage: "MOVE [Deck: str][PlayerID: int][CardID: int]",
-        example: "MOVE DISCARD 1 2 # Move a card to the discard pile from player 1, card 2"
+        description: "Moves a card from a player's hand and then move it to a specified deck",
+        usage: "MOVE [DECK][p: int][c: int]",
+        example: "MOVE DISCARD 1 2"
       },
       "REVEAL": {
         name: "REVEAL",
         description: "Specify a player's most recently drawn card (Lastmost Index).\n Sets its global visibility flag to TRUE for everybody.",
-        usage: "REVEAL [PlayerID: int]",
-        example: "REVEAL 2 # Show Player 2's Last Card"
+        usage: "REVEAL [p: int: int]",
+        example: "REVEAL 2"
       },
       "SUIT": {
         name: "SUIT",
@@ -90,8 +102,8 @@ export const docsData = {
       "VARG": {
         name: "VARG",
         description: "Declares a 'Game State' Variable. Server-Sided/Global Variable",
-        usage: "VARG [SET][name: str][value: int/str]",
-        example: "VARG TOTAL 5 # Everyone can access this value"
+        usage: "VARG [SET][VAR][v: str | int]",
+        example: "VARG TOTAL 5"
       },
       "VARP": {
         name: "VARP",
@@ -101,9 +113,13 @@ export const docsData = {
       },
       "SHOWVAR": {
         name: "SHOWVAR",
-        description: "Adds a variable to showVars array, a global visibility array, to then be shown to every client",
-        usage: "SHOWVAR [name: str]",
-        example: "VARP 2 TOTAL 5 # Player 2 has a TOTAL of 5"
+        description: "Adds a variable to showVars array, to then be shown to every client",
+        usage: "SHOWVAR [NAME]",
+        example: "VARP 2 TOTAL 5",
+        warning: {
+          about: "Be careful about when you do SHOWVAR because you can logically get away with setting SHOWVAR after a VARG",
+          code: "SHOWVAR variable\nVARG variable 1",
+        }
       },
       "RETURN": {
         name: "RETURN",
