@@ -1,5 +1,5 @@
 from backend.compiler.rules import Rules
-from backend.engine.instruction import Instruction
+from backend.engine.classes.instruction import Instruction
 
 
 class Compiler:
