@@ -9,6 +9,12 @@
     connected?: boolean;
   };
 
+  let gameState = $state({
+    actions: [],
+    cards: [],
+    masked_cards: []
+  });
+
   let lobbyCode = $state(page.params.lobbyId || "");
   let userName = $state("username");
 
@@ -75,12 +81,10 @@
         });
       }
 
-        if (message.type === "START_GAME") {
-          sessionStorage.setItem("initialPlayerState", JSON.stringify(message.playerState));
-          sessionStorage.setItem("initialGameState", JSON.stringify(message.gameState));
-
-          goto(`/game/${gameId}`);
-        }
+      if (message.type === "START_GAME") {
+        sessionStorage.setItem("initialPlayerState", JSON.stringify(message.playerState));
+        goto(`/game/${gameId}`);
+      }
     };
   }
 

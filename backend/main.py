@@ -94,22 +94,6 @@ def join_lobby(lobby_code: str, request: JoinLobby):
         "playerId": player_id,
     }
 
-# build the frontend state from the player's state
-def build_frontend_state(engine : GameEngine, player_id):
-    player_state = engine.get_player_state(player_id)
-    other_hands = []
-    for other_player in engine.playerStates:
-        if other_player.uuid != player_id:
-            other_hands.append([
-                {"suit": "spades", "value": "UNKNOWN"}
-                for _ in other_player.hand
-            ])
-    return {
-        "actions": ["Hit", "Stand"],  # later from compiled rules/buttons
-        "cards": player_state["hand"],
-        "masked_cards": engine.get_game_state()["revealed"],
-    }
-
 # socket for game
 @app.websocket("/ws/{game_id}/{player_id}")
 async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str):
@@ -127,21 +111,21 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
             if player_id == games[game_id]["hostId"] and action["type"] == "START_GAME":
                 games[game_id]["started"] = True
                 # add each player to the gamestate playerlist
-                for connected_player_id, player_socket in games[game_id][
-                    "connections"
-                ].items():
+                for connected_player_id in games[game_id]["connections"].keys():
                     games[game_id]["engine"].add_player(connected_player_id)
-                    await player_socket.send_json(
-                        {
-                            "type": "START_GAME",
-                            "players": games[game_id]["players"],
-                            # state of the game for every player
-                            "playerState": games[game_id]["engine"].get_player_state(
-                                connected_player_id
-                            ),
-                            "gameState": games[game_id]["engine"].get_game_state(),
-                        }
-                    )
+
+                # run setup so cards actually get drawn/dealt
+                games[game_id]["engine"].run_script("SETUP")
+
+                # now send updated state to every player
+                for connected_player_id, player_socket in games[game_id]["connections"].items():
+                    await player_socket.send_json({
+                        "type": "START_GAME",
+                        "players": games[game_id]["players"],
+                        "playerState": games[game_id]["engine"].get_player_state(
+                            connected_player_id
+                        ),
+                    })
             # if a new player joins, send the playerlist to the client if not started
             elif action["type"] == "JOIN_GAME":
                 for player_socket in games[game_id]["connections"].values():
@@ -149,10 +133,13 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                         {"type": "UPDATE_PLAYERS", "players": games[game_id]["players"]}
                     )
         else:
+            if action["type"] == "START_GAME": 
+                continue
             # ======= game loop =======
             # run the action through engine, should take the rules and the players action
             if player_id == games[game_id]["engine"].get_current_player_uuid():
                 # get state and build player specific state to send to each player
+                # check if valid in near future
                 games[game_id]["engine"].run_script(action["type"])
                 # send state to each player
                 for connected_player_id, player_socket in games[game_id][
@@ -160,8 +147,5 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                 ].items():
                     await player_socket.send_json({
                         "type": "GAME_STATE",
-                        "gameState": build_frontend_state(
-                            games[game_id]["engine"],
-                            connected_player_id
-                        )
+                        "playerState": games[game_id]["engine"].get_player_state(connected_player_id),
                     })

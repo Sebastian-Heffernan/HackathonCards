@@ -1,5 +1,3 @@
-<!-- This is a demo of blackjack -->
-
 <script lang="ts">
   import Hand from "./Hand.svelte";
   import Deck from "./Deck.svelte";
@@ -9,25 +7,26 @@
     value: string;
   };
 
-  type GameState = {
+  type PlayerState = {
+    uuid: string | number;
+    variables: unknown[] | Record<string, unknown>;
+    hand: Card[];
     actions: string[];
-    masked_cards: Card[][];
-    cards: Card[];
   };
 
   let {
-    gameState,
+    playerState,
     sendAction
   } = $props<{
-    gameState: GameState;
+    playerState: PlayerState;
     sendAction: (action: string, cards: Card[]) => void;
   }>();
 
   let selected = $state<boolean[]>([]);
 
   $effect(() => {
-    selected = gameState?.cards?.length
-      ? new Array(gameState.cards.length).fill(false)
+    selected = playerState?.hand?.length
+      ? new Array(playerState.hand.length).fill(false)
       : [];
   });
 
@@ -36,8 +35,8 @@
   };
 
   const playAction = (actionIdx: number) => {
-    const action = gameState.actions[actionIdx];
-    const chosenCards = gameState.cards.filter((_, i) => selected[i]);
+    const action = playerState.actions[actionIdx];
+    const chosenCards = playerState.hand.filter((_, i) => selected[i]);
 
     sendAction(action, chosenCards);
   };
@@ -51,22 +50,11 @@
 
   <div class="absolute bottom-4 left-1/2 -translate-x-1/2">
     <Hand
-      actions={gameState.actions}
-      cards={gameState.cards}
+      actions={playerState.actions}
+      cards={playerState.hand}
       onCardClick={toggleCard}
       {selected}
       {playAction}
     />
   </div>
-
-  {#each gameState.masked_cards as opponent_cards}
-    <div class="absolute top-4 left-1/2 -translate-x-1/2">
-      <Hand
-        actions={[]}
-        cards={opponent_cards}
-        isOpponent={true}
-        selected={[]}
-      />
-    </div>
-  {/each}
 </div>

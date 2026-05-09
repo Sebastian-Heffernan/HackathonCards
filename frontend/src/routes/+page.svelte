@@ -2,47 +2,22 @@
   import { goto } from "$app/navigation";
   import { tick } from "svelte";
 
+  // svelte-ignore non_reactive_update
   let textarea: HTMLTextAreaElement;
 
   let rules = $state(`
-ACTION START BUTTON "Start Game":
+LABEL SETUP:
     DECK MAKE deck
     DECK SHUFFLE deck
-    MOVE_CARD deck active
-    GET_ATTR last_moved_card value current_val
-    SET_VAR score 0
-    SET_VAR status "Guess higher or lower"
+    CALL FUNC
+    GOTO TEST
+LABEL TEST:
     END_TURN
-
-ACTION HIGHER BUTTON "Higher":
-    CALL SWAP_CARD
-    GET_ATTR last_moved_card value next_val
-    COMPARE next_val > current_val
-    GOTO WIN
-    GOTO LOSE
-
-ACTION LOWER BUTTON "Lower":
-    CALL SWAP_CARD
-    GET_ATTR last_moved_card value next_val
-    COMPARE next_val < current_val
-    GOTO WIN
-    GOTO LOSE
-
-LABEL SWAP_CARD:
-    MOVE_CARD active discard
-    MOVE_CARD deck active
+LABEL FUNC:
+    DRAW deck 0 2
+    REVEAL 0
+    PRINT playerStates[0].hand
     RETURN
-
-LABEL WIN:
-    MATH score + 1
-    SET_VAR current_val next_val
-    SET_VAR status "Correct"
-    END_TURN
-
-LABEL LOSE:
-    SET_VAR score 0
-    SET_VAR status "Wrong"
-    END_TURN
   `);
 
   let userName = $state("username");

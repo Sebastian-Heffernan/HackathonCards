@@ -44,11 +44,7 @@
   {#if !isOpponent}
     <div class="flex gap-4">
       {#each actions as action, actionIdx}
-        <button
-          onclick={() => playAction(actionIdx)}
-          type="button"
-          class="nes-btn is-primary"
-        >
+        <button onclick={() => { playAction(actionIdx) }} type="button" class="nes-btn is-primary">
           {action}
         </button>
       {/each}
