@@ -4,4 +4,4 @@
 </script>
 
 <!-- Pass the instruction data down -->
-<InstructionViewer instruction={data.instruction} />
+<InstructionViewer instruction={data.doc} />
