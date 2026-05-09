@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import { tick } from "svelte";
+   import { goto } from "$app/navigation";
+   import { tick } from "svelte";
 
-  // svelte-ignore non_reactive_update
-  let textarea: HTMLTextAreaElement;
+   // svelte-ignore non_reactive_update
+   let textarea: HTMLTextAreaElement;
 
-  let rules = $state(`
+   let rules = $state(`
 LABEL SETUP:
     DECK MAKE deck
     DECK SHUFFLE deck
@@ -20,97 +20,104 @@ LABEL FUNC:
     RETURN
   `);
 
-  let userName = $state("username");
+   let userName = $state("username");
    let joinLobbyCode = $state("");
-  let showCreateLobbyModal = $state(false);
+   let showCreateLobbyModal = $state(false);
 
-  type Lobby = {
-    id: string;
-    name: string;
-    playerCount: number;
-  };
+   type Lobby = {
+      id: string;
+      name: string;
+      playerCount: number;
+   };
 
-  let lobbies: Lobby[] = [
-    { id: "1", name: "ABC123", playerCount: 2 },
-    { id: "2", name: "XYZ789", playerCount: 3 },
-    { id: "3", name: "LMN456", playerCount: 1 },
-  ];
+   let lobbies: Lobby[] = [
+      { id: "1", name: "ABC123", playerCount: 2 },
+      { id: "2", name: "XYZ789", playerCount: 3 },
+      { id: "3", name: "LMN456", playerCount: 1 },
+   ];
 
-  async function openModal() {
-    showCreateLobbyModal = true;
-    await tick();
-    textarea?.focus();
-  }
+   async function openModal() {
+      showCreateLobbyModal = true;
+      await tick();
+      textarea?.focus();
+   }
 
-  async function sendRules() {
-    const response = await fetch("/api/rules", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        source: rules
-      })
-    });
+   async function sendRules() {
+      const response = await fetch("/api/rules", {
+         method: "POST",
+         headers: {
+            "Content-Type": "application/json",
+         },
+         body: JSON.stringify({
+            source: rules,
+         }),
+      });
 
-    const data = await response.json();
-    return data.ruleId;
-  }
+      const data = await response.json();
+      return data.ruleId;
+   }
 
-  async function createLobby() {
-    const ruleId = await sendRules();
+   async function createLobby() {
+      const ruleId = await sendRules();
 
-    const response = await fetch("/api/lobbies", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        rule_id: ruleId,
-        host_name: userName
-      })
-    });
+      const response = await fetch("/api/lobbies", {
+         method: "POST",
+         headers: {
+            "Content-Type": "application/json",
+         },
+         body: JSON.stringify({
+            rule_id: ruleId,
+            host_name: userName,
+         }),
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    sessionStorage.setItem("gameId", data.gameId);
-    sessionStorage.setItem("playerId", data.playerId);
-    sessionStorage.setItem("lobbyCode", data.lobbyCode);
+      sessionStorage.setItem("gameId", data.gameId);
+      sessionStorage.setItem("playerId", data.playerId);
+      sessionStorage.setItem("lobbyCode", data.lobbyCode);
 
-    goto(`/lobby/${data.lobbyCode}`);
-  }
+      goto(`/lobby/${data.lobbyCode}`);
+   }
 
-  async function joinLobby(lobbyCode: string) {
-    const response = await fetch(`/api/lobbies/${lobbyCode}/join`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        name: userName
-      })
-    });
+   async function joinLobby(lobbyCode: string) {
+      const response = await fetch(`/api/lobbies/${lobbyCode}/join`, {
+         method: "POST",
+         headers: {
+            "Content-Type": "application/json",
+         },
+         body: JSON.stringify({
+            name: userName,
+         }),
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    sessionStorage.setItem("gameId", data.gameId);
-    sessionStorage.setItem("playerId", data.playerId);
-    sessionStorage.setItem("lobbyCode", data.lobbyCode);
+      sessionStorage.setItem("gameId", data.gameId);
+      sessionStorage.setItem("playerId", data.playerId);
+      sessionStorage.setItem("lobbyCode", data.lobbyCode);
 
-    goto(`/lobby/${data.lobbyCode}`);
-  }
+      goto(`/lobby/${data.lobbyCode}`);
+   }
 </script>
 
 <!-- Page Wrapped -->
 <div class="min-h-screen bg-gray-100 flex flex-col">
    <!-- Header -->
    <header class="flex items-center justify-center p-4 bg-white shadow">
+      <!-- Left button -->
+      <button
+         class="absolute left-4 text-sm font-semibold px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-800"
+         onclick={() => goto("/docs/getting-started")}
+      >
+         How to Play
+      </button>
       <!-- Title - Cardssembly -->
       <h1 class="text-2xl font-bold text-center">Cardssembly</h1>
 
       <!-- Create Lobby Button -->
-      <button  
-         class="absolute right-4 text-3xl font-bold px-3 py-1 bg-blue-500 text-white rounded"
+      <button
+         class="absolute right-4 text-3xl font-bold px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-800"
          onclick={openModal}
       >
          +
@@ -144,13 +151,15 @@ LABEL FUNC:
                <!-- ROWS -->
                <div class="flex-1">
                   {#each lobbies as lobby, i}
-                        <!-- svelte-ignore a11y_click_events_have_key_events -->
-                        <!-- svelte-ignore a11y_no_static_element_interactions -->
-                        <div
+                     <!-- svelte-ignore a11y_click_events_have_key_events -->
+                     <!-- svelte-ignore a11y_no_static_element_interactions -->
+                     <div
                         class="grid grid-cols-[3fr_1fr] divide-x divide-black items-stretch border-t p-3 hover:bg-gray-50 cursor-pointer
-                        {i === lobbies.length - 1 ? 'border-b-2 border-black' : ''}"
+                        {i === lobbies.length - 1
+                           ? 'border-b-2 border-black'
+                           : ''}"
                         onclick={() => joinLobby(lobby.name)}
-                        >
+                     >
                         <div
                            class="pr-4 font-bold text-gray-900 text-center text-sm"
                         >
@@ -186,7 +195,7 @@ LABEL FUNC:
             />
 
             <button
-               class="px-4 py-2 bg-blue-500 text-white rounded"
+               class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-800"
                onclick={() => joinLobby(joinLobbyCode)}
                disabled={!joinLobbyCode || !userName}
             >
@@ -201,30 +210,35 @@ LABEL FUNC:
          class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
       >
          <!-- MODAL -->
-         <div class="bg-white rounded-lg shadow-lg w-[90vw] max-w-5xl h-[85vh] p-6 flex flex-col">
+         <div
+            class="bg-white rounded-lg shadow-lg w-[90vw] max-w-5xl h-[85vh] p-6 flex flex-col"
+         >
             <!-- TITLE -->
             <h2 class="text-xl font-bold mb-4 text-center">Create Lobby</h2>
             <div class="flex-1 flex flex-col">
-            <!-- INPUT -->
-            <textarea
-               bind:this={textarea}
-               bind:value={rules}
-               placeholder="Enter lobby rules..."
-               class="w-full h-128 border border-gray-300 rounded p-4 text-lg text-left resize-none leading-normal">
+               <!-- INPUT -->
+               <textarea
+                  bind:this={textarea}
+                  bind:value={rules}
+                  placeholder="Enter lobby rules..."
+                  class="w-full h-128 border border-gray-300 rounded p-4 text-lg text-left resize-none leading-normal"
+               >
                </textarea>
-               </div>
+            </div>
 
             <!-- BUTTONS -->
             <div class="flex justify-center gap-2">
                <button
-                  class="px-4 py-2 bg-gray-300 rounded"
+                  class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
                   onclick={() => (showCreateLobbyModal = false)}
                >
                   Cancel
                </button>
 
-               <button class="px-4 py-2 bg-blue-500 text-white rounded"
-               onclick={createLobby}>
+               <button
+                  class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-800"
+                  onclick={createLobby}
+               >
                   Create
                </button>
             </div>
