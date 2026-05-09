@@ -1,9 +1,9 @@
 import os
 import importlib
 from backend.engine.commands import *
-from backend.engine.instruction import Instruction
+from backend.engine.classes.instruction import Instruction
 from backend.compiler.rules import Rules
-from backend.engine.states import *
+from backend.engine.classes.states import *
 import json
 
 class BaseCommand:
@@ -13,8 +13,9 @@ class BaseCommand:
 class GameEngine:
     def __init__(self, rules : Rules):
         self.rules = rules
+        self.decks = {}
         self.pointer = 0
-        
+
         self.label = "SETUP"
         self.playerStates = []
 
@@ -63,6 +64,7 @@ class GameEngine:
                 return vars(player)
     def get_game_state(self):
         return vars(self.gameState)
+
 
 
 if __name__ == "__main__":
