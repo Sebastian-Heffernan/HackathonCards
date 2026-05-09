@@ -7,6 +7,7 @@ from backend.engine.classes.states import *
 from backend.engine.classes.deck import *
 from backend.BuildError import BuildError
 import json
+import re
 
 class BaseCommand:
     def execute(self, engine, args):
@@ -65,6 +66,19 @@ class GameEngine:
             if deck.name == name:
                 return deck
         return None
+    
+    # gets the final object of a path like decks[0].name
+    def resolve_path(self, obj, path):
+        parts = path.split('.')
+        for part in parts:
+            match = re.match(r"(\w+)\[(\d+)\]", part) #array management
+            if match:
+                attr_name, index = match.groups()
+                obj = getattr(obj, attr_name)
+                obj = obj[int(index)]
+            else:
+                obj = getattr(obj, part)
+        return obj
 
 
 
@@ -76,7 +90,6 @@ if __name__ == "__main__":
     ])
     rules.add_new_rule(0, "START", [
         Instruction("DECK", ["SHUFFLE", "deck"]),
-        Instruction("END_TURN", None),
         Instruction("MOVE_CARD", ["deck", "active"]),
         Instruction("SET_VAR", ["score", "0"]),
         Instruction("SET_VAR", ["status", "\"Game start\""]),
@@ -114,12 +127,13 @@ if __name__ == "__main__":
     ])
     rules2 = Rules()
     rules2.add_new_rule(0, "SETUP", [
-        Instruction("PRINT", ["Test print"]),
+        Instruction("DECK", ["MAKE", "deck"]),
+        Instruction("DECK", ["SHUFFLE", "deck"]),
+        Instruction("PRINT", ["decks[0].name"]),
         Instruction("GOTO", ["TEST"])
     ])
     rules2.add_new_rule(0, "TEST", [
-        Instruction("PRINT", ["Test print 2"]),
         Instruction("END_TURN", [0])
     ])
-    engine = GameEngine(rules)
+    engine = GameEngine(rules2)
     engine.run_script()
