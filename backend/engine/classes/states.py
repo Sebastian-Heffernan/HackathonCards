@@ -1,8 +1,10 @@
 class GameState:
     def __init__(self):
-        self.turnPlayer = 0
-        self.playerCount = 0
-        self.variables = [] # {name: value}
+        self.variables = {
+            "turnPlayer": 0,
+            "playerCount": 0,
+            "turnCount": 0
+        } # {name: value}
         self.global_revealed = [[]] # [[{suit: 'suit', value: 'value'}], []]
 
     # returns value of variable if found, else returns value

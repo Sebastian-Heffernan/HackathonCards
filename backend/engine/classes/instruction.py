@@ -1,3 +1,4 @@
+from backend import BuildError
 
 class Instruction:
     def __init__(self, name, args: list[str]):
@@ -9,5 +10,5 @@ class Instruction:
             print(f"Running {self.name} {self.args}")
             return engine.commandList[self.name](self, engine)
         else:
-            print("Unrecognised command")
+            raise BuildError("Unrecognised command")
             return True

@@ -32,6 +32,7 @@ class GameEngine:
         self.label = label
         self.pointer = 0
 
+        self.gameState.variables["turnCount"] += 1
         while True:
             instruction = self.rules.labels[self.label][self.pointer]
             # print(instruction.name)
@@ -59,7 +60,7 @@ class GameEngine:
     def add_player(self, uuid):
         player = PlayerState(uuid)
         self.playerStates.append(player)
-        self.gameState.playerCount += 1
+        self.gameState.variables["playerCount"] += 1
     def get_current_player_uuid(self):
         return self.playerStates[self.gameState.turnPlayer].uuid
     def get_player_state(self, uuid):
@@ -131,13 +132,13 @@ LABEL SETUP:
 LABEL TEST:
     END_TURN
 LABEL FUNC:
-    DRAW deck 0 1
-    REVEAL
-    PRINT playerStates[0].hand
+    DRAW deck 0 3
+    REVEAL 0
+    PRINT gameState.variables
+    PRINT gameState.global_revealed
     RETURN
 """
     rules: Rules = Compiler.compile(test)
     engine = GameEngine(rules)
     engine.add_player(0)
     engine.run_script("SETUP")
-    print(vars(engine.playerStates[0]))
