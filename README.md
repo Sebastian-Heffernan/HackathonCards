@@ -1,6 +1,18 @@
-# HackathonCards
+# Cardssembly
 
-UQ Game Jam hackathon project.
+UQ Game Jam 2026 Hackathon project
+
+Cardssembly is a multiplayer platform, which connects players to new card games through custom byte-code (*Cardssembly*)
+To Get Started as a Player:
+You can go to the base url, and join a lobby
+The player will read the *Cardssembly* byte-code of the lobby
+All of the players will play following the new byte-code
+
+To Get Started as a Host: 
+A host can press the *plus* icon on base url, and see a modal
+On the modal, the user will copy and paste their code and the server will parse it
+From there, the host will wait for the players to join
+If theres enough players, the game will start with the players and host
 
 ## Styling / Assets
 
