@@ -131,7 +131,7 @@ LABEL SETUP:
 LABEL TEST:
     END_TURN
 LABEL FUNC:
-    PRINT decks[0].name
+    DRAW deck 0 1
     RETURN
 """
     rules: Rules = Compiler.compile(test)
