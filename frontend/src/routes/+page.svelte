@@ -77,48 +77,51 @@
   }
 </script>
 
-<main>
-  <h1>Hackathon Cards Test</h1>
+<main class="flex items-center justify-center min-h-screen w-screen">
+  <div class="w-96 flex items-center flex-col m-auto">
+    <h1>Hackathon Cards Test</h1>
 
-  <section>
-    <h2>Rules</h2>
+    <section class="flex items-center justify-center">
+      <h2>Rules</h2>
 
-    <textarea bind:value={rulesText}></textarea>
+      <textarea bind:value={rulesText}></textarea>
 
-    <br />
+      <br />
 
-    <button on:click={sendRules}>
-      Send Rules
-    </button>
-  </section>
+      <button on:click={sendRules} type="button" class="nes-btn is-primary">
+        Send Rules
+      </button>
+    </section>
 
-  <section>
-    <h2>Create Lobby</h2>
+    <section>
+      <h2>Create Lobby</h2>
 
-    <input bind:value={hostName} placeholder="Host name" />
+      <input bind:value={hostName} placeholder="Host name" />
 
-    <br />
+      <br />
 
-    <button on:click={createLobby} disabled={!ruleId}>
-      Create Lobby
-    </button>
-  </section>
+      <button on:click={createLobby} disabled={!ruleId} type="button" class="nes-btn is-primary">
+        Create Lobby
+      </button>
+    </section>
 
-  <section>
-    <h2>Current IDs</h2>
+    <section>
+      <h2 class="">Current IDs</h2>
 
-    <p><strong>Rule ID:</strong> {ruleId || "none"}</p>
-    <p><strong>Game ID:</strong> {gameId || "none"}</p>
-    <p><strong>Player ID:</strong> {playerId || "none"}</p>
-    {#each players as player}
-      {player.name}
-    {/each}
+      <p><strong>Rule ID:</strong> {ruleId || "none"}</p>
+      <p><strong>Game ID:</strong> {gameId || "none"}</p>
+      <p><strong>Player ID:</strong> {playerId || "none"}</p>
+      {#each players as player}
+        {player.name}
+      {/each}
 
-  </section>
+    </section>
 
-  <section>
-    <h2>Response</h2>
-    <pre>{output}</pre>
-  </section>
+    <section>
+      <h2>Response</h2>
+      <pre>{output}</pre>
+    </section>
+  </div>
+
 </main>
 
