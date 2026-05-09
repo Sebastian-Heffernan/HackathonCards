@@ -27,16 +27,18 @@ class GameEngine:
         self.commandList = {}
         self._load_commands()
 
-    def run_script(self):
-        while 1:
-            instruction : Instruction = self.rules.labels[self.label][self.pointer]
-            # print(f"{self.pointer}: {instruction.name}")
+    def run_script(self, label="SETUP"):
+        self.label = label
+        self.pointer = 0
+
+        while True:
+            instruction = self.rules.labels[self.label][self.pointer]
             result = instruction.run(self)
-            if result  == "break":
-                print("Exiting game")
+
+            if result == "Break":
                 break
-            elif result != "jump":
-                self.pointer += 1
+
+            self.pointer += 1
 
     # Loads availabe commands into array
     def _load_commands(self):
