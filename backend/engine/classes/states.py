@@ -3,6 +3,7 @@ class GameState:
         self.turnPlayer = 0
         self.playerCount = 0
         self.variables = []
+        self.global_revealed = [[]]
 
     def resolve_variable(self, value):
         if value in self.variables:
