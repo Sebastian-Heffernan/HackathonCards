@@ -3,6 +3,7 @@ import importlib
 from backend.engine.commands import *
 from backend.engine.instruction import Instruction
 from backend.compiler.rules import Rules
+from backend.engine.states import *
 
 class BaseCommand:
     def execute(self, engine, args):
@@ -16,12 +17,14 @@ class GameEngine:
         self.state = {
 
         }
+        self.playerStates = []
+        self.gameState = GameState()
         self.commandList = {}
         self._load_commands()
 
     def run_script(self):
         while 1:
-            instruction : Instruction = self.rules["labels"][self.label][self.pointer]
+            instruction : Instruction = self.rules.labels[self.label][self.pointer]
             print(f"{self.pointer}: {instruction.name}")
             if instruction.name == "EXIT":
                 print("exiting")
@@ -47,6 +50,14 @@ class GameEngine:
             if instruction.command_name == "LABEL" and instruction.args[0] == label_name:
                 return i
         return len(instructions)
+    
+    def add_player(self, uid):
+        player = PlayerState(uid)
+        self.playerStates.append(player)
+        self.gameState.playerCount += 1
+    # def get_current_player()
+
+
     
 if __name__ == "__main__":
     rules = Rules()
