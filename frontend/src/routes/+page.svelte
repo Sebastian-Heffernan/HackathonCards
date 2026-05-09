@@ -387,7 +387,7 @@ LABEL P1_ADD_NUMBER:
             <h2 class="text-xl font-bold mb-4 text-center">Create Lobby</h2>
             <div class="flex-1 flex flex-col min-h-0">
                <!-- INPUT -->
-               <RuleEditor bind:value={rules} bind:this={editorRef} />
+               <RuleEditor bind:value={rules} editable={true} />
             </div>
 
             <!-- BUTTONS -->

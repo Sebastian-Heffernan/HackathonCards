@@ -11,10 +11,8 @@
     let theme = $state<"light" | "dark">("dark");
     const themeCompartment = new Compartment();
     const highLightCompartment = new Compartment();
+    const editableCompartment = new Compartment();
 
-    export function focus() {
-        view?.focus();
-    }
     // Sets words from docsData as keywords to be autocompleted in the editor
     const keywords = Object.keys(docsData.instructions.items);
     const completions = keywords.map((k) => ({
@@ -76,6 +74,7 @@
                 extensions: [
                     basicSetup,
                     dslHighlight,
+                    editableCompartment.of(EditorView.editable.of(editable)),
                     themeCompartment.of(darkTheme),
                     highLightCompartment.of(syntaxHighlighting(darkHighlight)),
                     EditorView.updateListener.of((v) => {
@@ -94,6 +93,20 @@
             view.destroy();
         };
     });
+
+    $effect(() => {
+        if (!view) return;
+
+        view.dispatch({
+            effects: editableCompartment.reconfigure(
+                EditorView.editable.of(editable)
+            )
+        });
+    });
+
+    export function focus() {
+        view?.focus();
+    }
 
     function updateTheme() {
         if (!view) return;
