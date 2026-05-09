@@ -17,7 +17,7 @@ def execute(instruction: Instruction, engine: GameEngine):
     if len(instruction.args) != 1:
         raise BuildError()
 
-    player_index = int(instruction.args[0])
+    player_index = engine.gameState.resolve_variable(instruction.args[0])
 
     if player_index < 0 or player_index >= len(engine.playerStates):
         raise BuildError()
