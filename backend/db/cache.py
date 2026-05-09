@@ -35,10 +35,7 @@ LABEL LOSE:
     GOTO START
 """
 
-rules: Rules = Compiler.compile(raw_text)
-engine = GameEngine(rules)
 
-
-lobby_codes = {"hi": "hi"}
-games = {"hi": engine}
+lobby_codes = {}
+games = {}
 rules_store = {}

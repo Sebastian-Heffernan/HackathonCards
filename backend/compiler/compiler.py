@@ -1,5 +1,18 @@
 from backend.compiler.rules import Rules
 from backend.engine.classes.instruction import Instruction
+from backend.engine.engine import GameEngine
+
+
+class CompilationError(Exception):
+    """Exception raised for custom error scenarios.
+
+    Attributes:
+        message -- explanation of the error
+    """
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
 
 
 class Compiler:
@@ -13,7 +26,7 @@ class Compiler:
         )
 
     @staticmethod
-    def compile(text_rules: str):
+    def compile(text_rules: str, command_list: dict):
         rules: Rules = Rules()
 
         text_rules.strip()
@@ -45,6 +58,11 @@ class Compiler:
                     line_idx += 1
                     continue
 
+                if tokenized_line[0] not in command_list:
+                    raise CompilationError(
+                        f"Command ({tokenized_line[0]}) does not exist at line {line_idx}"
+                    )
+
                 # Check if this line is the start of a NEW rule
                 if tokenized_line[0] == "LABEL":
                     break  # Stop inner loop, don't increment line_idx yet
@@ -67,5 +85,9 @@ if __name__ == "__main__":
         END_TURN
 """
 
-    rules: Rules = Compiler.compile(raw_text)
+    command_list: dict = GameEngine.load_commands()
+
+    print(command_list)
+
+    rules: Rules = Compiler.compile(raw_text, command_list)
     print(rules)
