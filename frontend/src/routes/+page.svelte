@@ -85,7 +85,7 @@
   }
 
   function createWebsocket() {
-    const socket = new WebSocket(`ws://localhost:8000/ws/${gameId}/${playerId}`)
+    const socket = new WebSocket(`/ws/${gameId}/${playerId}`)
     // @ts-ignore
     socket.onopen = (ev) => {
       socket.send(JSON.stringify({
