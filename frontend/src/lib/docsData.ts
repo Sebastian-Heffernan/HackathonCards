@@ -99,6 +99,12 @@ export const docsData = {
         usage: "VARP [SET][playerID][name][value]",
         example: "VARP 2 TOTAL 5 # Player 2 has a TOTAL of 5"
       },
+      "SHOWVAR": {
+        name: "SHOWVAR",
+        description: "Adds a variable to showVars array, to then be shown to every client",
+        usage: "SHOWVAR [NAME]",
+        example: "VARP 2 TOTAL 5 # Player 2 has a TOTAL of 5"
+      },
       "RETURN": {
         name: "RETURN",
         description: "Returns back to the last CALL on the stack trace",
@@ -113,23 +119,23 @@ export const docsData = {
     items: {
       "$turnPlayer": {
         name: "Turn Player Register",
-        description: ""
+        description: "Tracks the current player's turn. \n Starts with a value of 0 for the first player"
       },
       "$selectedCardId": {
-        name: "Selected Card",
-        description: "-1 if nothing is selected",
+        name: "Selected Card Register",
+        description: "Tracks the currently selected card.\n On Default, value is -1 if nothing is selected",
       },
       "$playerCount": {
-        name: "Player Count",
-        description: "The player counts in the game (-> playerState)"
+        name: "Player Count Register",
+        description: "Tracks how many players are in the current game session.\n Checks game state. "
       },
       "$turnCount": {
-        name: "Turn Count",
-        description: "The turn count "
+        name: "Turn Count Register",
+        description: "Tracks the count of turns performed by every player each game.\n Initially Starts off at 0 turns for the first turn."
       },
       "$winner": {
-        name: "Winner",
-        description: ""
+        name: "Winner Flag Register",
+        description: "Simple Flag which checks if there is a Winner.\n Initially starts off at -1 to declare that there are no winners.\n Call a value of 1 to declare a winner"
       }
     }
   }
