@@ -15,5 +15,8 @@ def execute(instruction: Instruction, engine: GameEngine):
     label = instruction.arg[LABEL]
     player_idx = instruction.arg[PLAYER]
 
+    if label not in engine.rules.labels:
+        raise BuildError()
+
     playerState: PlayerState = engine.playerStates[player_idx]
     playerState.actions.append(label)

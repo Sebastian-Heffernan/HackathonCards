@@ -31,8 +31,8 @@ class Compiler:
                 continue
 
             # Identify the rule (ACTION/LABEL)
-            raw_new_rule = tokenized_line[1]
-            clean_new_rule = raw_new_rule.rstrip(":")
+            raw_new_label = tokenized_line[1]
+            clean_new_label = raw_new_label.rstrip(":")
             line_idx += 1
             nodes = []
 
@@ -46,7 +46,7 @@ class Compiler:
                     continue
 
                 # Check if this line is the start of a NEW rule
-                if tokenized_line[0] in ["ACTION", "LABEL"]:
+                if tokenized_line[0] == "ACTION":
                     break  # Stop inner loop, don't increment line_idx yet
 
                 new_node = Instruction(tokenized_line[0], tokenized_line[1:])
@@ -54,7 +54,7 @@ class Compiler:
                 line_idx += 1
 
             # Save the rule before the outer loop starts the next one
-            rules.add_new_rule(curr_line.startswith("ACTION"), clean_new_rule, nodes)
+            rules.add_new_rule(clean_new_label, nodes)
 
         return rules
 
