@@ -1,6 +1,8 @@
 <script lang="ts">
+   import RuleEditor from "$lib/components/RuleEditor.svelte";
    import { goto } from "$app/navigation";
    import { tick } from "svelte";
+   let editorRef: any;
 
    // svelte-ignore non_reactive_update
    let textarea: HTMLTextAreaElement;
@@ -52,7 +54,6 @@ LABEL REMOVE_CARD_ACTION
    async function openModal() {
       showCreateLobbyModal = true;
       await tick();
-      textarea?.focus();
    }
 
    async function sendRules() {
@@ -230,13 +231,7 @@ LABEL REMOVE_CARD_ACTION
             <h2 class="text-xl font-bold mb-4 text-center">Create Lobby</h2>
             <div class="flex-1 flex flex-col">
                <!-- INPUT -->
-               <textarea
-                  bind:this={textarea}
-                  bind:value={rules}
-                  placeholder="Enter lobby rules..."
-                  class="w-full h-128 border border-gray-300 rounded p-4 text-lg text-left resize-none leading-normal"
-               >
-               </textarea>
+               <RuleEditor bind:value={rules} bind:this={editorRef} />
             </div>
 
             <!-- BUTTONS -->
