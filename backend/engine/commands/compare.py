@@ -26,4 +26,5 @@ def execute(instruction : Instruction, engine: GameEngine):
         condition_met = (left <= right)
     else:
         raise BuildError()
-    
+    if not condition_met:
+        engine.pointer += 1 #skip a step on false
