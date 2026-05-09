@@ -86,48 +86,6 @@ class GameEngine:
 
 
 if __name__ == "__main__":
-    rules = Rules()
-    rules.add_new_rule(0, "SETUP", [
-        Instruction("DECK", ["MAKE", "deck"]),
-        Instruction("GOTO", ["START"])
-    ])
-    rules.add_new_rule(0, "START", [
-        Instruction("DECK", ["SHUFFLE", "deck"]),
-        Instruction("MOVE_CARD", ["deck", "active"]),
-        Instruction("SET_VAR", ["score", "0"]),
-        Instruction("SET_VAR", ["status", "\"Game start\""]),
-        Instruction("END_TURN", None)
-    ])
-    rules.add_new_rule(0, "SWAP_CARD", [
-        Instruction("MOVE_CARD", ["active", "discard"]),
-        Instruction("MOVE_CARD", ["deck", "active"]),
-        Instruction("RETURN", None)
-    ])
-    rules.add_new_rule(0, "HIGHER", [
-        Instruction("CALL", ["SWAP_CARD"]),
-        Instruction("GET_ATTR", ["last_moved_card", "value", "next_val"]),
-        Instruction("COMPARE", ["next_val", ">", "current_val"]),
-        Instruction("GOTO", ["WIN"]),
-        Instruction("GOTO", ["LOSE"])
-    ])
-    rules.add_new_rule(0, "LOWER", [
-        Instruction("CALL", ["SWAP_CARD"]),
-        Instruction("GET_ATTR", ["last_moved_card", "value", "next_val"]),
-        Instruction("COMPARE", ["next_val", "<", "current_val"]),
-        Instruction("GOTO", ["WIN"]),
-        Instruction("GOTO", ["LOSE"])
-    ])
-    rules.add_new_rule(0, "WIN", [
-        Instruction("MATH", ["score", "+", "1"]),
-        Instruction("SET_VAR", ["current_val", "next_val"]),
-        Instruction("SET_VAR", ["status", "\"Correct\""]),
-        Instruction("GOTO", ["START"])
-    ])
-    rules.add_new_rule(0, "LOSE", [
-        Instruction("SET_VAR", ["score", "0"]),
-        Instruction("SET_VAR", ["status", "\"Wrong\""]),
-        Instruction("GOTO", ["START"])
-    ])
     rules2 = Rules()
     rules2.add_new_rule(0, "SETUP", [
         Instruction("DECK", ["MAKE", "deck"]),
