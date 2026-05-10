@@ -10,8 +10,9 @@
 
    let showCompilationErrorPopup = $state(false);
    let compilationErrorMessage = $state("");
+   let gameDescription = $state("");
 
-  let rules = $state(`
+   let rules = $state(`
 LABEL SETUP:
     DECK MAKE deck
     DECK SHUFFLE deck
@@ -328,97 +329,97 @@ LABEL P1_ADD_NUMBER:
       </button>
    </header>
 
-<main class="flex-1 flex flex-col p-6 items-center">
-   <!-- Welcome message -->
-   <p class="text-lg text-gray-600 mb-6 text-center">
-      Welcome to Cardssembly! Join or create a lobby to start playing.
-   </p>
+   <main class="flex-1 flex flex-col p-6 items-center">
+      <!-- Welcome message -->
+      <p class="text-lg text-gray-600 mb-6 text-center">
+         Welcome to Cardssembly! Join or create a lobby to start playing.
+      </p>
 
-   <!-- Username -->
-   <div class="w-full max-w-3xl bg-white shadow rounded p-4 mb-4 mx-auto">
-      <h2 class="text-lg font-bold mb-3 text-center">Username</h2>
+      <!-- Username -->
+      <div class="w-full max-w-3xl bg-white shadow rounded p-4 mb-4 mx-auto">
+         <h2 class="text-lg font-bold mb-3 text-center">Username</h2>
 
-      <input
-         bind:value={userName}
-         placeholder="Username"
-         class="border border-gray-300 rounded px-3 py-2 w-full"
-      />
-   </div>
-
-   <!-- Join Lobby by Code -->
-   <div class="w-full max-w-3xl bg-white shadow rounded p-4 mb-6 mx-auto">
-      <h2 class="text-lg font-bold mb-3 text-center">Join Lobby by Code</h2>
-
-      <div class="flex flex-col md:flex-row gap-3">
          <input
-            bind:value={joinLobbyCode}
-            placeholder="Lobby Code"
-            class="border border-gray-300 rounded px-3 py-2 flex-1 uppercase"
+            bind:value={userName}
+            placeholder="Username"
+            class="border border-gray-300 rounded px-3 py-2 w-full"
          />
-
-         <button
-            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-800"
-            onclick={() => joinLobby(joinLobbyCode)}
-            disabled={!joinLobbyCode || !userName}
-         >
-            Join Lobby
-         </button>
       </div>
-   </div>
 
-   <!-- Section title -->
-   <h2 class="text-xl text-gray-400 text-center font-semibold mb-4">
-      Available Lobbies
-   </h2>
+      <!-- Join Lobby by Code -->
+      <div class="w-full max-w-3xl bg-white shadow rounded p-4 mb-6 mx-auto">
+         <h2 class="text-lg font-bold mb-3 text-center">Join Lobby by Code</h2>
 
-   <!-- Lobby Table -->
-   <div class="flex justify-center w-full">
-      <div
-         class="w-full max-w-3xl bg-white shadow rounded overflow-hidden flex flex-col"
-      >
-         <div class="divide-y">
-            <!-- Table Headers -->
-            <div
-               class="grid grid-cols-[3fr_1fr] divide-x divide-black bg-gray-200 p-3 text-base font-semibold text-center"
+         <div class="flex flex-col md:flex-row gap-3">
+            <input
+               bind:value={joinLobbyCode}
+               placeholder="Lobby Code"
+               class="border border-gray-300 rounded px-3 py-2 flex-1 uppercase"
+            />
+
+            <button
+               class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-800"
+               onclick={() => joinLobby(joinLobbyCode)}
+               disabled={!joinLobbyCode || !userName}
             >
-               <div>Lobby Name</div>
-               <div class="text-right text-center">Players</div>
-            </div>
+               Join Lobby
+            </button>
+         </div>
+      </div>
 
-            <!-- ROWS -->
-            <div class="flex-1">
-               {#each lobbies as lobby, i}
-                  <!-- svelte-ignore a11y_click_events_have_key_events -->
-                  <!-- svelte-ignore a11y_no_static_element_interactions -->
-                  <div
-                     class="grid grid-cols-[3fr_1fr] divide-x divide-black items-stretch border-t p-3 hover:bg-gray-50 cursor-pointer
+      <!-- Section title -->
+      <h2 class="text-xl text-gray-400 text-center font-semibold mb-4">
+         Available Lobbies
+      </h2>
+
+      <!-- Lobby Table -->
+      <div class="flex justify-center w-full">
+         <div
+            class="w-full max-w-3xl bg-white shadow rounded overflow-hidden flex flex-col"
+         >
+            <div class="divide-y">
+               <!-- Table Headers -->
+               <div
+                  class="grid grid-cols-[3fr_1fr] divide-x divide-black bg-gray-200 p-3 text-base font-semibold text-center"
+               >
+                  <div>Lobby Name</div>
+                  <div class="text-right text-center">Players</div>
+               </div>
+
+               <!-- ROWS -->
+               <div class="flex-1">
+                  {#each lobbies as lobby, i}
+                     <!-- svelte-ignore a11y_click_events_have_key_events -->
+                     <!-- svelte-ignore a11y_no_static_element_interactions -->
+                     <div
+                        class="grid grid-cols-[3fr_1fr] divide-x divide-black items-stretch border-t p-3 hover:bg-gray-50 cursor-pointer
                      {i === lobbies.length - 1
-                        ? 'border-b-2 border-black'
-                        : ''}"
-                     onclick={() => joinLobby(lobby.id)}
-                  >
-                     <div
-                        class="pr-4 font-bold text-gray-900 text-center text-sm"
+                           ? 'border-b-2 border-black'
+                           : ''}"
+                        onclick={() => joinLobby(lobby.id)}
                      >
-                        {lobby.name}
-                     </div>
+                        <div
+                           class="pr-4 font-bold text-gray-900 text-center text-sm"
+                        >
+                           {lobby.name}
+                        </div>
 
-                     <div
-                        class="text-right flex items-center justify-end pr-2"
-                     >
-                        {lobby.playerCount}
+                        <div
+                           class="text-right flex items-center justify-end pr-2"
+                        >
+                           {lobby.playerCount}
+                        </div>
                      </div>
-                  </div>
-               {:else}
-                  <div class="p-4 text-center text-gray-500 italic">
-                     No active lobbies
-                  </div>
-               {/each}
+                  {:else}
+                     <div class="p-4 text-center text-gray-500 italic">
+                        No active lobbies
+                     </div>
+                  {/each}
+               </div>
             </div>
          </div>
       </div>
-   </div>
-</main>
+   </main>
    {#if showCreateLobbyModal}
       <!-- BACKDROP -->
       <div
@@ -430,9 +431,32 @@ LABEL P1_ADD_NUMBER:
          >
             <!-- TITLE -->
             <h2 class="text-xl font-bold mb-4 text-center">Create Lobby</h2>
-            <div class="flex-1 flex flex-col min-h-0">
-               <!-- INPUT -->
-               <RuleEditor bind:value={rules} editable={true} />
+
+            <!-- CONTENT -->
+            <div class="flex flex-1 gap-4 min-h-0">
+               <!-- LEFT: RULE EDITOR-->
+               <div class="flex-1 flex flex-col min-h-0 min-w-0">
+                  <!-- INPUT -->
+                  <RuleEditor bind:value={rules} editable={true} />
+               </div>
+
+               <!-- RIGHT: GAME DESCRIPTION -->
+               <div class="w-[300px] flex flex-col gap-2">
+                  <label
+                     for="gameDescription"
+                     class="font-semibold text-sm text-gray-700"
+                  >
+                     Game Description
+                  </label>
+
+                  <textarea
+                     id="gameDescription"
+                     bind:value={gameDescription}
+                     placeholder="Describe the game rules..."
+                     class="flex-1 resize-none border rounded p-2 text-sm"
+                  >
+                  </textarea>
+               </div>
             </div>
 
             <!-- BUTTONS -->
@@ -455,7 +479,9 @@ LABEL P1_ADD_NUMBER:
       </div>
    {/if}
    {#if showCompilationErrorPopup}
-      <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
+      <div
+         class="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]"
+      >
          <div class="bg-white rounded-lg shadow-lg max-w-lg w-[90vw] p-6">
             <h2 class="text-xl font-bold mb-3 text-red-600">
                Compilation Error
