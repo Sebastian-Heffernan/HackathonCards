@@ -17,10 +17,17 @@
 
     // Sets words from docsData as keywords to be autocompleted in the editor
     const keywords = Object.keys(docsData.instructions.items);
-    const completions = keywords.map((k) => ({
-        label: k,
-        type: "keyword",
-    }));
+    const registries = [
+        "$turnPlayer",
+        "$selectedCardId",
+        "$playerCount",
+        "$turnCount",
+        "$winner",
+    ];
+    const completions = [
+        ...registries.map((r) => ({ label: r, type: "registry" })),
+        ...keywords.map((k) => ({ label: k, type: "keyword" })),
+    ];
     let { value = $bindable(""), editable = true } = $props();
 
     let container!: HTMLDivElement;
@@ -31,6 +38,13 @@
             if (stream.peek() === "#") {
                 stream.skipToEnd();
                 return "comment";
+            }
+            if (
+                stream.match(
+                    /\$(turnPlayer|selectedCardId|playerCount|turnCount|winner)\b/,
+                )
+            ) {
+                return "variableName";
             }
             if (stream.match(/\bLABEL\b/)) {
                 return "atom";
@@ -46,11 +60,13 @@
         { tag: tags.keyword, color: "#2563eb", fontWeight: "bold" },
         { tag: tags.atom, color: "#f97316", fontWeight: "bold" },
         { tag: tags.comment, color: "#6b7280", fontStyle: "italic" },
+        { tag: tags.variableName, color: "#16a34a", fontWeight: "bold" },
     ]);
     const darkHighlight = HighlightStyle.define([
         { tag: tags.keyword, color: "#ff8800" },
         { tag: tags.atom, color: "#6699ff" },
         { tag: tags.comment, color: "#64784b", fontStyle: "italic" },
+        { tag: tags.variableName, color: "#22c55e", fontWeight: "bold" },
     ]);
     const lightTheme = EditorView.theme({
         "&": {
@@ -60,7 +76,41 @@
         ".cm-cursor": {
             borderLeftColor: "#111827",
         },
-    });
+        ".cm-tooltip": {
+            backgroundColor: "#ffffff",
+            color: "#111827",
+            border: "1px solid #e5e7eb",
+        },
+
+        ".cm-tooltip-autocomplete": {
+            backgroundColor: "#ffffff",
+            color: "#111827",
+        },
+
+        ".cm-completionLabel": {
+            color: "#111827",
+        },
+
+        ".cm-completionMatchedText": {
+            color: "#2563eb",
+            fontWeight: "bold",
+        },  
+        ".cm-tooltip-autocomplete > ul": {
+                fontFamily: "monospace",
+                margin: 0,
+                padding: 0,
+            },
+
+            ".cm-tooltip-autocomplete > ul > li": {
+                padding: "4px 8px",
+            },
+
+            ".cm-tooltip-autocomplete > ul > li[aria-selected]": {
+                backgroundColor: "#2563eb",
+                color: "#ffffff",
+            },
+        },
+    );
     const darkTheme = EditorView.theme({
         "&": {
             backgroundColor: "#0f172a",
@@ -68,6 +118,42 @@
         },
         ".cm-cursor": {
             borderLeftColor: "#e2e8f0",
+        },
+        ".cm-tooltip": {
+            backgroundColor: "#0f172a",
+            color: "#e2e8f0",
+            border: "1px solid #334155",
+        },
+
+        ".cm-tooltip-autocomplete": {
+            backgroundColor: "#0f172a",
+            color: "#e2e8f0",
+        },
+
+        ".cm-completionLabel": {
+            color: "#e2e8f0",
+        },
+
+        ".cm-completionMatchedText": {
+            color: "#38bdf8",
+            fontWeight: "bold",
+        },
+        ".cm-tooltip-autocomplete > ul": {
+            fontFamily: "monospace",
+            margin: 0,
+            padding: 0,
+            backgroundColor: "#0f172a",
+        },
+
+        ".cm-tooltip-autocomplete > ul > li": {
+            padding: "4px 8px",
+            backgroundColor: "#0f172a",
+            color: "#e2e8f0",
+        },
+
+        ".cm-tooltip-autocomplete > ul > li[aria-selected]": {
+            backgroundColor: "#1d4ed8",
+            color: "#ffffff",
         },
     });
     const highLightStyle = $derived(
