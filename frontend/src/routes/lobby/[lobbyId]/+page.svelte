@@ -20,7 +20,7 @@
 
   let showErrorPopup = $state(false);
   let errorMessage = $state("");
-  
+
   let gameId = $state("");
   let playerId = $state("");
   let players = $state<Player[]>([]);
@@ -132,24 +132,29 @@
   }
 </script>
 
-<main
-  class="flex items-center justify-center min-h-screen w-screen bg-gray-200"
->
-  <div class="flex flex-row gap-8 items-start">
-    <h1 class="text-4xl font-extrabold mb-6 py-8">Lobby</h1>
+<main class="flex flex-col min-h-screen w-screen bg-gray-200">
 
-    <!-- Left Side -->
-    <div class="flex flex-col items-center">
-      <!-- Details Card: Now dynamic -->
-      <div class="p-10 bg-white shadow-xl rounded-lg border border-gray-200">
-        <p class="font-extrabold text-lg mb-2 text-center">Details</p>
-        <p>
-          Lobby Code: <span class="font-mono text-blue-600">{lobbyCode}</span>
-        </p>
-        <p>Player Count: <span class="font-bold">{players.length}</span></p>
-      </div>
+  <!-- TITLE -->
+  <h1 class="text-4xl font-extrabold py-8 text-center">
+    Lobby
+  </h1>
 
-      <div class="py-3">
+  <!-- TOP SECTION (LEFT + RIGHT) -->
+  <div class="flex w-full max-w-6xl mx-auto flex-1 items-stretch">
+
+    <!-- LEFT HALF -->
+    <div class="w-1/2 flex justify-center">
+      <div class="flex flex-col items-center gap-4">
+
+        <div class="p-10 bg-white shadow-xl rounded-lg border border-gray-400">
+          <p class="font-extrabold text-lg mb-2 text-center">Details</p>
+          <p>
+            Lobby Code:
+            <span class="font-mono text-blue-600">{lobbyCode}</span>
+          </p>
+          <p>Player Count: <span class="font-bold">{players.length}</span></p>
+        </div>
+
         <button
           type="button"
           class="nes-btn is-primary"
@@ -158,62 +163,53 @@
         >
           Start Game
         </button>
-      </div>
 
-      <div class="py-3">
-        <h1 class="text-2xl font-extrabold py-3 text-center">Players:</h1>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {#each players as player, index}
-            <p
-              class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm text-center font-semibold hover:border-blue-500 transition-colors"
-            >
-              {#if index === 0}
-                <i class="nes-icon coin is-small"></i>
-                HOST:
-              {/if}
-              {player.name}
-              {#if !player.connected}
-                <span class="text-red-500 text-xs">(Disconnected)</span>
-              {/if}
-            </p>
-          {:else}
-            <p class="col-span-full text-gray-500 italic">
-              Waiting for players to join...
-            </p>
-          {/each}
-        </div>
       </div>
     </div>
-    <!-- RIGHT SIDE -->
-    <div class="w-[320px] bg-white shadow-lg rounded-lg p-4">
-      <h2 class="text-xl font-bold mb-3">Instructions</h2>
-      <textarea
-        class="w-full h-[400px] border rounded p-2 text-sm resize-none"
-        readonly
-        value={gameDescription}
-      ></textarea>
-    </div>
-    {#if showErrorPopup}
-      <div
-        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-      >
-        <div class="bg-white rounded-lg shadow-lg max-w-lg w-[90vw] p-6">
-          <h2 class="text-xl font-bold mb-3 text-red-600">Setup Error</h2>
 
-          <p class="mb-6 whitespace-pre-wrap">
-            {errorMessage}
-          </p>
+    <!-- RIGHT HALF -->
+    <div class="w-1/2 flex justify-center">
 
-          <div class="flex justify-center">
-            <button
-              class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-800"
-              onclick={() => (showErrorPopup = false)}
-            >
-              OK
-            </button>
-          </div>
-        </div>
+      <div class="w-[420px] h-full bg-white shadow-lg rounded-lg p-4 border border-gray-400">
+
+        <h2 class="text-xl font-bold text-center">
+          Instructions
+        </h2>
+
+        <textarea
+          class="w-full h-[180px] border rounded p-2 text-sm resize-none"
+          readonly
+          bind:value={gameDescription}
+        ></textarea>
+
       </div>
-    {/if}
+
+    </div>
+
   </div>
+
+  <!-- PLAYERS (BELOW BOTH HALVES) -->
+  <div class="py-6 w-full max-w-6xl mx-auto">
+
+    <h2 class="text-2xl font-extrabold py-3 text-center">
+      Players
+    </h2>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      {#each players as player, index}
+        <p class="bg-white border rounded p-4 text-center font-semibold">
+          {#if index === 0}
+            HOST:
+          {/if}
+          {player.name}
+        </p>
+      {:else}
+        <p class="col-span-full text-gray-500 italic text-center">
+          Waiting for players to join...
+        </p>
+      {/each}
+    </div>
+
+  </div>
+
 </main>
