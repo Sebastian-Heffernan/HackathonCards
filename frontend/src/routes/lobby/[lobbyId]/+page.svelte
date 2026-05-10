@@ -190,6 +190,7 @@
       <textarea
         class="w-full h-[400px] border rounded p-2 text-sm resize-none"
         readonly
+        value={gameDescription}
       ></textarea>
     </div>
     {#if showErrorPopup}
