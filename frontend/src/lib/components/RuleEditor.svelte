@@ -8,6 +8,8 @@
     import { syntaxHighlighting, HighlightStyle } from "@codemirror/language";
     import { tags } from "@lezer/highlight";
     import { Compartment } from "@codemirror/state";
+    import { linter } from "@codemirror/lint";
+    import type { Diagnostic } from "@codemirror/lint";
     let theme = $state<"light" | "dark">("dark");
     const themeCompartment = new Compartment();
     const highLightCompartment = new Compartment();
@@ -26,6 +28,10 @@
 
     const dslHighlight = StreamLanguage.define({
         token(stream) {
+            if (stream.peek() === "#") {
+                stream.skipToEnd();
+                return "comment";
+            }
             if (stream.match(/\bLABEL\b/)) {
                 return "atom";
             }
@@ -39,10 +45,12 @@
     const lightHighlight = HighlightStyle.define([
         { tag: tags.keyword, color: "#2563eb", fontWeight: "bold" },
         { tag: tags.atom, color: "#f97316", fontWeight: "bold" },
+        { tag: tags.comment, color: "#6b7280", fontStyle: "italic" },
     ]);
     const darkHighlight = HighlightStyle.define([
         { tag: tags.keyword, color: "#ff8800" },
         { tag: tags.atom, color: "#6699ff" },
+        { tag: tags.comment, color: "#64784b", fontStyle: "italic" },
     ]);
     const lightTheme = EditorView.theme({
         "&": {
@@ -66,6 +74,26 @@
         theme === "dark" ? darkHighlight : lightHighlight,
     );
 
+    const commentLinter = linter((view) => {
+        const diagnostics: Diagnostic[] = [];
+        const lines = view.state.doc.toString().split("\n");
+        lines.forEach((line, i) => {
+            const trimmed = line.trim();
+            if (trimmed.startsWith("#")) return;
+            const commentIndex = line.indexOf("#");
+            if (commentIndex !== -1) {
+                diagnostics.push({
+                    from: view.state.doc.line(i + 1).from + commentIndex,
+                    to: view.state.doc.line(i + 1).to,
+                    severity: "warning",
+                    message:
+                        "Inline comments are not supported. Put comments on their own line.",
+                });
+            }
+        });
+        return diagnostics;
+    });
+
     // Initialize the CodeMirror editor when the component mounts
     onMount(() => {
         view = new EditorView({
@@ -74,6 +102,7 @@
                 extensions: [
                     basicSetup,
                     dslHighlight,
+                    commentLinter,
                     editableCompartment.of(EditorView.editable.of(editable)),
                     themeCompartment.of(darkTheme),
                     highLightCompartment.of(syntaxHighlighting(darkHighlight)),
@@ -99,19 +128,19 @@
 
         view.dispatch({
             effects: editableCompartment.reconfigure(
-                EditorView.editable.of(editable)
-            )
+                EditorView.editable.of(editable),
+            ),
         });
     });
 
     $effect(() => {
-    if (!view) return;
-    const current = view.state.doc.toString();
-    if (current !== value) {
-        view.dispatch({
-            changes: { from: 0, to: current.length, insert: value },
-        });
-    }
+        if (!view) return;
+        const current = view.state.doc.toString();
+        if (current !== value) {
+            view.dispatch({
+                changes: { from: 0, to: current.length, insert: value },
+            });
+        }
     });
 
     export function focus() {
@@ -141,7 +170,7 @@
     }
 </script>
 
-<div class="relative flex flex-col h-full min-h-0">
+<div class="relative flex flex-col h-full min-h-0" data-theme={theme}>
     <!-- TOP RIGHT TOGGLE -->
     <div class="absolute right-6 top-2 z-10">
         <button
@@ -184,4 +213,21 @@
         overflow: auto;
     }
 
+    :global(.cm-tooltip.cm-tooltip-lint) {
+        font-family: monospace;
+    }
+
+    :global([data-theme="dark"] .cm-tooltip-lint) {
+        font-family: monospace;
+        background: #0f172a;
+        color: #e2e8f0;
+        border: 1px solid #334155;
+    }
+
+    :global([data-theme="light"] .cm-tooltip-lint) {
+        font-family: monospace;
+        background: #ffffff;
+        color: #111827;
+        border: 1px solid #e5e7eb;
+    }
 </style>
