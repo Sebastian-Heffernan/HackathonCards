@@ -19,6 +19,9 @@ def execute(instruction: Instruction, engine: GameEngine):
     engine.stack.append(return_address)
 
     # normal GOTO
+    new_label = instruction.args[0]
+    if new_label not in engine.rules.labels:
+          raise BuildError("GOTO: Invalid label")
     engine.label = instruction.args[0]
     engine.pointer = 0
     return "jump"

@@ -1,4 +1,4 @@
-from backend import BuildError
+from backend.BuildError import BuildError
 from backend.engine.classes.instruction import Instruction
 from backend.engine.classes.states import *
 from backend.engine.engine import GameEngine
@@ -27,10 +27,10 @@ def execute(instruction: Instruction, engine: GameEngine):
                          f"Got: {instruction.args[1]}, {instruction.args[2]}")
 
     if not (0 <= player_id < len(engine.playerStates)):
-        raise BuildError(f"SUIT: Player index {player_id} out of range.")
+        raise BuildError(f"VALUE: Player index {player_id} out of range.")
     target_player = engine.playerStates[player_id]
     if not (0 <= card_id < len(target_player.hand)):
-        raise BuildError(f"SUIT: Card index {card_id} out of range for Player {player_id}.")
+        raise BuildError(f"VALUE: Card index {card_id} out of range for Player {player_id}.")
     
     card_obj = target_player.hand[card_id]
     var_value = card_obj["value"]
