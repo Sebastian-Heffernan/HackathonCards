@@ -10,15 +10,14 @@ async def get_lobbies():
     summary = []
 
     for lobby_id, game_id in lobby_codes.items():
-        # Get the game object using the game_id
+        # Get the game object
         game_data = games.get(game_id)
         print(lobby_id)
 
-        if game_data:
+        if game_data and not game_data.get("started", False):
             # Count the players in that specific game
             player_count = len(game_data.get("players", {}))
 
-            # Create the formatted string
             summary.append(
                 {
                     "lobby_id": lobby_id,

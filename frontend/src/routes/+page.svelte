@@ -2,6 +2,7 @@
    import RuleEditor from "$lib/components/RuleEditor.svelte";
    import { goto } from "$app/navigation";
    import { tick } from "svelte";
+   import { onMount } from "svelte";
    let editorRef: any;
 
    // svelte-ignore non_reactive_update
@@ -208,11 +209,7 @@ LABEL P1_ADD_NUMBER:
       playerCount: number;
    };
 
-   let lobbies: Lobby[] = [
-      { id: "1", name: "ABC123", playerCount: 2 },
-      { id: "2", name: "XYZ789", playerCount: 3 },
-      { id: "3", name: "LMN456", playerCount: 1 },
-   ];
+   let lobbies = $state<Lobby[]>([]);
 
    async function openModal() {
       showCreateLobbyModal = true;
@@ -287,6 +284,22 @@ LABEL P1_ADD_NUMBER:
 
       goto(`/lobby/${data.lobbyCode}`);
    }
+
+   onMount(() => {
+      loadLobbies();
+
+      const interval = setInterval(loadLobbies, 1000);
+      return () => clearInterval(interval);
+   });
+
+   async function loadLobbies() {
+      const response = await fetch("/api/lobbies");
+      const data = await response.json();
+
+      if (data.ok) {
+         lobbies = data.lobbies;
+      }
+   }
 </script>
 
 <!-- Page Wrapped -->
@@ -348,7 +361,7 @@ LABEL P1_ADD_NUMBER:
                         {i === lobbies.length - 1
                            ? 'border-b-2 border-black'
                            : ''}"
-                        onclick={() => joinLobby(lobby.name)}
+                        onclick={() => joinLobby(lobby.id)}
                      >
                         <div
                            class="pr-4 font-bold text-gray-900 text-center text-sm"

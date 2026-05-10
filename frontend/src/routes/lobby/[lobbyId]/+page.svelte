@@ -89,6 +89,12 @@
           };
         });
       }
+      
+      if (message.type === "GO_HOME") {
+        sessionStorage.clear();
+        goto("/");
+        return;
+      }
 
       if (message.type === "START_GAME") {
         sessionStorage.setItem("initialPlayerState", JSON.stringify(message.playerState));
