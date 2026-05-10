@@ -22,7 +22,10 @@
     playerNames = [],
     sendAction,
     restartGame,
-    goHomeAll
+    goHomeAll,
+    showGameErrorPopup = false,
+    gameErrorMessage = "",
+    closeGameErrorPopup = () => {}
   } = $props<{
     playerState: PlayerState;
     gameVars?: Record<string, unknown>;
@@ -30,6 +33,9 @@
     sendAction: (action: string, selectedCardId: number | null) => void;
     restartGame: () => void;
     goHomeAll: () => void;
+    showGameErrorPopup?: boolean;
+    gameErrorMessage?: string;
+    closeGameErrorPopup?: () => void;
   }>();
 
   let winnerIndex = $derived(Number(gameVars["$winner"] ?? -1));
@@ -80,6 +86,27 @@
       <Deck />
     </div>
 -->
+    {#if showGameErrorPopup}
+      <div class="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
+        <div class="nes-container is-dark with-title w-[520px] text-center">
+          <p class="title">Game Error</p>
+
+          <p class="mb-6 whitespace-pre-wrap text-left">
+            {gameErrorMessage}
+          </p>
+
+          <div class="flex justify-center gap-4">
+            <button
+              type="button"
+              class="nes-btn is-error"
+              onclick={goHomeAll}
+            >
+              Home
+            </button>
+          </div>
+        </div>
+      </div>
+    {/if}
     {#if winnerIndex >= 0}
       <div class="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
         <div class="nes-container is-dark with-title w-[420px] text-center">

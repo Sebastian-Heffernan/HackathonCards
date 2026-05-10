@@ -201,6 +201,19 @@ async def close_game_for_everyone(game_id: str):
     remove_lobby_code_for_game(game_id)
     games.pop(game_id, None)
 
+async def broadcast_game_error(game_id: str, message: str):
+    if game_id not in games:
+        return
+
+    for player_socket in list(games[game_id]["connections"].values()):
+        try:
+            await player_socket.send_json({
+                "type": "GAME_ERROR",
+                "message": message
+            })
+        except Exception:
+            pass
+
 # socket for game
 @app.websocket("/ws/{game_id}/{player_id}")
 async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str):
@@ -284,7 +297,12 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                     )
                     for connected_player_id in games[game_id]["connections"].keys():
                         games[game_id]["engine"].add_player(connected_player_id)
-                    games[game_id]["engine"].run_script("SETUP")
+                    try:
+                        games[game_id]["engine"].run_script("SETUP")
+                    except BuildError as error:
+                        message = str(error) or "Restart failed. Check your setup script."
+                        await broadcast_game_error(game_id, message)
+                        continue
                     for connected_player_id, player_socket in games[game_id]["connections"].items():
                         await player_socket.send_json({
                             "type": "START_GAME",
@@ -305,7 +323,12 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                     games[game_id]["engine"].gameState.variables["$selectedCardId"] = (
                         action["selectedCardId"]
                     )
-                    games[game_id]["engine"].run_script(action["type"])
+                    try:
+                        games[game_id]["engine"].run_script(action["type"])
+                    except BuildError as error:
+                        message = str(error) or "Action failed."
+                        await broadcast_game_error(game_id, message)
+                        continue
                     # send state to each player
 
                     for connected_player_id, player_socket in games[game_id][

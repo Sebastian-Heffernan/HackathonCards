@@ -25,6 +25,9 @@
   let socket = $state<WebSocket | null>(null);
   let playerNames = $state<string[]>([]);
 
+  let showGameErrorPopup = $state(false);
+  let gameErrorMessage = $state("");
+
   let playerState = $state<PlayerState>({
     uuid: "",
     variables: [],
@@ -58,6 +61,11 @@
         if (message.type === "GO_HOME") {
           sessionStorage.clear();
           goto("/");
+          return;
+        }
+        if (message.type === "GAME_ERROR") {
+          gameErrorMessage = message.message;
+          showGameErrorPopup = true;
           return;
         }
         if (message.type === "GAME_STATE" || message.type === "START_GAME") {
@@ -100,4 +108,6 @@
   {sendAction}
   {restartGame}
   {goHomeAll}
+  {showGameErrorPopup}
+  {gameErrorMessage}
 />
