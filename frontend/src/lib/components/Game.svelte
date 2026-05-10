@@ -40,6 +40,7 @@
   );
 
   let selected = $state<boolean[]>([]);
+  let showGameVars = $state(true);
 
   $effect(() => {
     selected = playerState?.hand?.length
@@ -59,13 +60,21 @@
   };
 </script>
 <div class="w-screen h-screen flex">
-  <aside class="nes-container with-title is-dark w-72 h-full p-4 shadow-lg overflow-auto shrink-0">
-    <p class="title">Game Vars</p>
-    <pre class="text-xs whitespace-pre-wrap">{JSON.stringify(gameVars, null, 2)}</pre>
-  </aside>
-
+  {#if showGameVars}
+    <aside class="nes-container with-title is-dark w-72 h-full p-4 shadow-lg overflow-auto shrink-0">
+      <p class="title">Game Vars</p>
+      <pre class="text-xs whitespace-pre-wrap">{JSON.stringify(gameVars, null, 2)}</pre>
+    </aside>
+  {/if}
 
   <div class="relative flex-1 h-full p-4 bg-green-500">
+    <button
+      type="button"
+      class="nes-btn is-warning absolute top-4 left-4 z-40"
+      onclick={() => (showGameVars = !showGameVars)}
+    >
+      {showGameVars ? "Hide Vars" : "Show Vars"}
+    </button>
   <!--  <div class="nes-container with-title absolute top-0 left-0 w-40 h-full is-dark">
       <p class="title">Decks</p>
       <Deck />
