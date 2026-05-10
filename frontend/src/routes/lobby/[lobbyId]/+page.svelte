@@ -209,7 +209,29 @@
         </p>
       {/each}
     </div>
-
   </div>
 
+  {#if showErrorPopup}
+    <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg shadow-lg max-w-lg w-[90vw] p-6 border border-gray-400">
+        <h2 class="text-xl font-bold mb-3 text-red-600 text-center">
+          Setup Error
+        </h2>
+
+        <p class="mb-6 whitespace-pre-wrap text-gray-800">
+          {errorMessage}
+        </p>
+
+        <div class="flex justify-center">
+          <button
+            type="button"
+            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-800"
+            onclick={() => (showErrorPopup = false)}
+          >
+            OK
+          </button>
+        </div>
+      </div>
+    </div>
+  {/if}
 </main>

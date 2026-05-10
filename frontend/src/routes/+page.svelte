@@ -44,7 +44,6 @@ LABEL SETUP:
     END_TURN 0
     
 LABEL HIT:
-   MATH 1 / 0
     COMPARE $turnPlayer == 0
     GOTO HIT_P0
     GOTO HIT_P1
