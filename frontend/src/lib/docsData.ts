@@ -88,6 +88,12 @@ export const docsData = {
         usage: "END_TURN [] | [next_index: int] | [VAR1][+ | -][VAR2 | i: int]",
         example: "LABEL SETUP:\n    DECK MAKE deck\n    DECK SHUFFLE deck\n    DECK MAKE discard\n    ASSERT DRAW_CARD\n    ASSERT REMOVE_CARD\n    ASSERT TURN_FINISH\n    END_TURN\nLABEL DRAW_CARD:\n    DRAW deck $turnPlayer 1\n    REVEAL 0\n    # Call END_TURN here once card is drawn.\n    END_TURN\nLABEL REMOVE_CARD:\n    COMPARE -1 < $selectedCardId\n    GOTO REMOVE_CARD_ACTION\n    END_TURN\nLABEL REMOVE_CARD_ACTION\n    MOVE discard 0 $selectedCardId\n    # Only End Turn here if no card is found.\n    END_TURN\nLABEL TURN_FINISH:\n    # End Turn of the current player, go to the next player\n    END_TURN $turnPlayer + 1\n"
       },
+      "PASS": {
+        name: "PASS",
+        description: "Skips to n + 1 line, where n is the current line pointer.",
+        usage: "PASS []",
+        example: "COMPARE a > b \nPASS \nGOTO LABEL \n# Equivalent to if a > b, do nothing, else go to the label",
+      },
       "GOTO": {
         name: "GOTO",
         description: "Jumps process to a given label, and begins processing its data.\n Does not retain its previous location during execution.\nSee CALL for more deatils.",

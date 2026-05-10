@@ -14,12 +14,12 @@
         <p class="text-slate-700 text-lg">{instruction.description}</p>
     </section>
 
-    <div class="grid grid-cols-2 gap-4">
+    
       <div class="flex flex-col h-96">
         <h3 class="text-xs uppercase font-bold text-slate-400 mb-2">Example</h3>
         <RuleEditor bind:value={instruction.example} editable={false} />
       </div>
-    </div>
+    
 
   {#if instruction.warning}
     <section>
