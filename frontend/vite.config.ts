@@ -3,8 +3,8 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig, loadEnv } from 'vite';
 
 export default defineConfig(({ mode }) => {
-  // Load variables from .env
   const env = loadEnv(mode, process.cwd(), '');
+  const apiUrl = env.VITE_API_URL || 'http://localhost:3000';
 
   return {
     plugins: [tailwindcss(), sveltekit()],
@@ -13,15 +13,17 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       proxy: {
+        // Standard API Proxy
         '/api': {
-          // CHANGE: Use the env variable instead of the hardcoded string
-          target: env.VITE_API_URL, 
-          changeOrigin: true, // Usually safer to set to true for cross-origin proxies
-          rewrite: (path) => path.replace(/^\/api/, '/api'),
+          target: apiUrl,
+          changeOrigin: true,
+          secure: true,
         },
+        // WebSocket Proxy
         '/ws': {
-          target: env.VITE_API_URL.replace('http', 'ws'),
-          ws: true
+          target: apiUrl.replace(/^http/, 'ws'),
+          ws: true,
+          changeOrigin: true,
         }
       }
     }
