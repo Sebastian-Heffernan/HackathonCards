@@ -20,17 +20,18 @@
 
   let showErrorPopup = $state(false);
   let errorMessage = $state("");
-
+  
   let gameId = $state("");
   let playerId = $state("");
   let players = $state<Player[]>([]);
+  let gameDescription = $state("");
   let output = $state("");
   let socket = $state<WebSocket | null>(null);
 
   onMount(() => {
     gameId = sessionStorage.getItem("gameId") || "";
     playerId = sessionStorage.getItem("playerId") || "";
-
+    gameDescription = sessionStorage.getItem("gameDescription") || "";
     if (gameId && playerId) {
       createWebsocket();
     }
@@ -71,6 +72,11 @@
     socket.onmessage = (ev) => {
       const message = JSON.parse(ev.data);
       output = JSON.stringify(message, null, 2);
+
+      if (message.description !== undefined) {
+        gameDescription = message.description;
+        sessionStorage.setItem("gameDescription", gameDescription);
+      }
 
       if (message.type === "LOBBY_ERROR") {
         errorMessage = message.message;

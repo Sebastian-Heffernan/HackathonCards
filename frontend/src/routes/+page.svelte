@@ -255,6 +255,7 @@ LABEL P1_ADD_NUMBER:
          body: JSON.stringify({
             rule_id: ruleId,
             host_name: userName,
+            game_description: gameDescription,
          }),
       });
 
@@ -283,6 +284,7 @@ LABEL P1_ADD_NUMBER:
       sessionStorage.setItem("gameId", data.gameId);
       sessionStorage.setItem("playerId", data.playerId);
       sessionStorage.setItem("lobbyCode", data.lobbyCode);
+      sessionStorage.setItem("gameDescription", data.description);
 
       goto(`/lobby/${data.lobbyCode}`);
    }

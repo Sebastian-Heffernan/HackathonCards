@@ -23,6 +23,7 @@ command_list = GameEngine.load_commands()
 class CreateLobby(BaseModel):
     rule_id: str
     host_name: str
+    game_description: str
 
 
 class JoinLobby(BaseModel):
@@ -100,12 +101,13 @@ def start_game(request: CreateLobby):
         "connections": {},
         "players": {host_id: {"name": request.host_name}},
         "engine": GameEngine(rules_store[request.rule_id], command_list),
+        "description": request.game_description,
     }
 
     code = create_code()
     lobby_codes[code] = game_id
 
-    return {"ok": True, "gameId": game_id, "lobbyCode": code, "playerId": host_id}
+    return {"ok": True, "gameId": game_id, "lobbyCode": code, "playerId": host_id, "description": request.game_description}
 
 
 # player joins lobby
@@ -122,6 +124,7 @@ def join_lobby(lobby_code: str, request: JoinLobby):
         "gameId": game_id,
         "lobbyCode": lobby_code,
         "playerId": player_id,
+        "description": games[game_id].get("description", ""),
     }
 
 
@@ -272,7 +275,7 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                 elif action["type"] == "JOIN_GAME":
                     for player_socket in games[game_id]["connections"].values():
                         await player_socket.send_json(
-                            {"type": "UPDATE_PLAYERS", "players": games[game_id]["players"]}
+                            {"type": "UPDATE_PLAYERS", "players": games[game_id]["players"], "description": games[game_id].get("description", "")}
                         )
             else:
                 if action["type"] == "START_GAME":
