@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => {
         },
         // WebSocket Proxy
         '/ws': {
-          target: apiUrl.replace(/^http/, 'ws'),
+          target: apiUrl.replace(/^https/, 'ws'),
           ws: true,
           changeOrigin: true,
         }
