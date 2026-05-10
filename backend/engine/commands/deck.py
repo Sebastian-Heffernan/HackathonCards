@@ -1,6 +1,6 @@
 import random
 
-from backend.BuildError import BuildError
+from backend.errors.BuildError import BuildError
 from backend.engine.classes.deck import *
 from backend.engine.classes.instruction import Instruction
 from backend.engine.classes.states import *

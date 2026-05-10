@@ -3,7 +3,7 @@ import json
 import os
 import re
 
-from backend.BuildError import BuildError
+from backend.errors.BuildError import BuildError
 from backend.compiler.rules import Rules
 from backend.engine.classes.deck import *
 from backend.engine.classes.instruction import Instruction

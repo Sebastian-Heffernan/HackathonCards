@@ -2,7 +2,7 @@ from backend.engine.classes.instruction import Instruction
 from backend.engine.engine import GameEngine
 from backend.engine.classes.states import *
 from backend.engine.classes.deck import *
-from backend.BuildError import BuildError
+from backend.errors.BuildError import BuildError
 
 # RETURN
 def execute(instruction : Instruction, engine: GameEngine):
