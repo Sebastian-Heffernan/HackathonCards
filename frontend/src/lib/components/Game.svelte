@@ -73,16 +73,7 @@
     </aside>
   {/if}
 
-  <div class="w-12 h-full bg-gray-800 shrink-0 flex justify-center pt-4">
-    <button
-      type="button"
-      class="w-8 h-8 bg-gray-700 text-white rounded shadow flex items-center justify-center hover:bg-gray-600 font-bold"
-      onclick={() => (showGameVars = !showGameVars)}
-      title={showGameVars ? "Hide vars" : "Show vars"}
-    >
-      {showGameVars ? "<" : ">"}
-    </button>
-  </div>
+  
 
   <div class="relative flex-1 h-full p-4 bg-green-500">
   <!--  <div class="nes-container with-title absolute top-0 left-0 w-40 h-full is-dark">
@@ -90,6 +81,16 @@
       <Deck />
     </div>
 -->
+    <div class="w-12 h-full bg-gray-800 shrink-0 flex justify-center pt-4 absolute">
+      <button
+        type="button"
+        class="w-8 h-8 bg-gray-700 text-white rounded shadow flex items-center justify-center hover:bg-gray-600 font-bold"
+        onclick={() => (showGameVars = !showGameVars)}
+        title={showGameVars ? "Hide vars" : "Show vars"}
+      >
+        {showGameVars ? "<" : ">"}
+      </button>
+    </div>
     {#if showGameErrorPopup}
       <div class="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
         <div class="nes-container is-dark with-title w-[520px] text-center">
