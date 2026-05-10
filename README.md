@@ -26,6 +26,7 @@ If theres enough players, the game will start with the players and host
 Create and activate a virtual environment:
 
 ```bash
+cd backend
 python3 -m venv .venv
 source .venv/bin/activate
 ```
@@ -33,12 +34,14 @@ source .venv/bin/activate
 Install Python dependencies:
 
 ```bash
+cd backend
 python -m pip install -r requirements.txt
 ```
 
 Run the backend:
 
 ```bash
+cd backend
 uvicorn backend.main:app --reload
 ```
 
