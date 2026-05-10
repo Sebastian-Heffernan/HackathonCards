@@ -11,11 +11,11 @@ export default defineConfig({
     server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        target: 'http://cardssembly-xylv-git-main-sebastian-heffernans-projects.vercel.app',
         changeOrigin: true
       },
       '/ws': {
-        target: 'ws://localhost:8000',
+        target: 'ws://cardssembly-xylv-git-main-sebastian-heffernans-projects.vercel.app',
         ws: true
       }
     }
