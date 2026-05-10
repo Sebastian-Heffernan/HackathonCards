@@ -328,14 +328,14 @@ LABEL P1_ADD_NUMBER:
       </button>
    </header>
 
-<main class="flex-1 flex flex-col items-center p-6">
+<main class="flex-1 flex flex-col p-6 items-center">
    <!-- Welcome message -->
    <p class="text-lg text-gray-600 mb-6 text-center">
       Welcome to Cardssembly! Join or create a lobby to start playing.
    </p>
 
    <!-- Username -->
-   <div class="w-full max-w-3xl bg-white shadow rounded p-4 mb-4">
+   <div class="w-full max-w-3xl bg-white shadow rounded p-4 mb-4 mx-auto">
       <h2 class="text-lg font-bold mb-3 text-center">Username</h2>
 
       <input
@@ -346,7 +346,7 @@ LABEL P1_ADD_NUMBER:
    </div>
 
    <!-- Join Lobby by Code -->
-   <div class="w-full max-w-3xl bg-white shadow rounded p-4 mb-6">
+   <div class="w-full max-w-3xl bg-white shadow rounded p-4 mb-6 mx-auto">
       <h2 class="text-lg font-bold mb-3 text-center">Join Lobby by Code</h2>
 
       <div class="flex flex-col md:flex-row gap-3">
