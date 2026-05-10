@@ -65,10 +65,10 @@
     sendAction(action, selectedCardId);
   };
 </script>
-<div class="w-full h-screen flex ">
+<div class="w-full h-screen flex relative">
   {#if showGameVars}
-    <aside class="nes-container with-title is-dark w-72 h-full p-4 shadow-lg overflow-y-auto shrink-0 z-50">
-      <p class="title">Game Vars</p>
+    <aside class="bg-[#212529] w-72 h-full p-4 shadow-lg overflow-y-auto shrink-0 z-50 overflow-hidden absolute pt-16">
+      <h1 class="text-white">Game Variables</h1>
       <div class="flex flex-col gap-2">
         {#each Object.entries(gameVars) as [key, value]}
           <div class="flex flex-col border-b border-gray-700 pb-2 mb-2 last:border-0">
