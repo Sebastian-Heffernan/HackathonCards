@@ -67,7 +67,7 @@
 </script>
 <div class="w-screen h-screen flex">
   {#if showGameVars}
-    <aside class="nes-container with-title is-dark w-72 h-full p-4 shadow-lg overflow-auto shrink-0">
+    <aside class="nes-container with-title is-dark w-72 h-full p-4 shadow-lg overflow-auto shrink-0 z-50">
       <p class="title">Game Vars</p>
       <pre class="text-xs whitespace-pre-wrap">{JSON.stringify(gameVars, null, 2)}</pre>
     </aside>
@@ -81,10 +81,10 @@
       <Deck />
     </div>
 -->
-    <div class="w-12 h-full bg-gray-800 shrink-0 flex justify-center absolute">
+    <div class="w-12 h-full shrink-0 flex justify-center absolute">
       <button
         type="button"
-        class="w-8 h-8 bg-gray-700 text-white rounded shadow flex items-center justify-center hover:bg-gray-600 font-bold"
+        class="w-8 h-8 bg-gray-700 text-white rounded shadow flex items-center justify-center hover:bg-gray-600 font-bold z-100"
         onclick={() => (showGameVars = !showGameVars)}
         title={showGameVars ? "Hide vars" : "Show vars"}
       >
