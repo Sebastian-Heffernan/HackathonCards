@@ -11,7 +11,7 @@ export default defineConfig({
     server: {
     proxy: {
       '/api': {
-        target: 'http://cardssembly-xylv-git-main-sebastian-heffernans-projects.vercel.app',
+        target: 'http://localhost:8000',
         changeOrigin: true
       },
       '/ws': {
