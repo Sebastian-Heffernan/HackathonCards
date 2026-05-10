@@ -140,10 +140,10 @@
   </h1>
 
   <!-- TOP SECTION (LEFT + RIGHT) -->
-  <div class="flex w-full max-w-6xl mx-auto flex-1 items-stretch">
+  <div class="flex w-full max-w-6xl mx-auto flex-1 items-stretch flex-col md:flex-row gap-4 md:gap-0 justify-center">
 
     <!-- LEFT HALF -->
-    <div class="w-1/2 flex justify-center">
+    <div class="w-full md:w-1/2 flex justify-center">
       <div class="flex flex-col items-center gap-4">
 
         <div class="p-10 bg-white shadow-xl rounded-lg border border-gray-400">
@@ -168,7 +168,7 @@
     </div>
 
     <!-- RIGHT HALF -->
-    <div class="w-1/2 flex justify-center">
+    <div class="w-4/5 md:w-1/2 flex justify-center mx-auto">
 
       <div class="w-[420px] h-full bg-white shadow-lg rounded-lg p-4 border border-gray-400">
 
@@ -195,7 +195,7 @@
       Players
     </h2>
 
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div class="flex flex-wrap justify-center gap-4">
       {#each players as player, index}
         <p class="bg-white border rounded p-4 text-center font-semibold">
           {#if index === 0}

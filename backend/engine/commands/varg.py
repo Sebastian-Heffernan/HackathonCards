@@ -18,6 +18,14 @@ def execute(instruction : Instruction, engine : GameEngine):
         var_value = engine.gameState.resolve_variable(instruction.args[2])
 
         engine.gameState.variables[var_name] = var_value #set the value
+    elif command == "PLAYER":
+        #load value from current player into global variable
+        #VARG PLAYER P[PLAYER ID][VAR NAME]
+        var_name = instruction.args[2]
+        var_player_index = engine.gameState.resolve_variable(instruction.args[1])
+        var_value = engine.playerStates[var_player_index].resolve_variable(var_name)
+
+        engine.gameState.variables[var_name] = var_value
     else:
         raise BuildError(f"Unknown VARG command: {command}")
     
