@@ -73,14 +73,18 @@
     </aside>
   {/if}
 
-  <div class="relative flex-1 h-full p-4 bg-green-500">
+  <div class="w-12 h-full bg-gray-800 shrink-0 flex justify-center pt-4">
     <button
       type="button"
-      class="nes-btn is-warning absolute top-4 left-4 z-40"
+      class="w-8 h-8 bg-gray-700 text-white rounded shadow flex items-center justify-center hover:bg-gray-600 font-bold"
       onclick={() => (showGameVars = !showGameVars)}
+      title={showGameVars ? "Hide vars" : "Show vars"}
     >
-      {showGameVars ? "Hide Vars" : "Show Vars"}
+      {showGameVars ? "<" : ">"}
     </button>
+  </div>
+
+  <div class="relative flex-1 h-full p-4 bg-green-500">
   <!--  <div class="nes-container with-title absolute top-0 left-0 w-40 h-full is-dark">
       <p class="title">Decks</p>
       <Deck />
