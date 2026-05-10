@@ -328,85 +328,96 @@ LABEL P1_ADD_NUMBER:
    </header>
 
 <main class="flex-1 flex flex-col items-center p-6">
-      <!-- Welcome message -->
-      <p class="text-lg text-gray-600 mb-6 text-center">
-         Welcome to Cardssembly! Join or create a lobby to start playing.
-      </p>
+   <!-- Welcome message -->
+   <p class="text-lg text-gray-600 mb-6 text-center">
+      Welcome to Cardssembly! Join or create a lobby to start playing.
+   </p>
 
-      <!-- Section title -->
-      <h2 class="text-xl text-gray-400 text-center font-semibold mb-4">
-         Available Lobbies
-      </h2>
+   <!-- Username -->
+   <div class="w-full max-w-3xl bg-white shadow rounded p-4 mb-4">
+      <h2 class="text-lg font-bold mb-3 text-center">Username</h2>
 
-      <!-- Lobby Table -->
-      <div class="flex justify-center w-full">
-         <div
-            class="w-full max-w-3xl bg-white shadow rounded overflow-hidden flex flex-col"
+      <input
+         bind:value={userName}
+         placeholder="Username"
+         class="border border-gray-300 rounded px-3 py-2 w-full"
+      />
+   </div>
+
+   <!-- Join Lobby by Code -->
+   <div class="w-full max-w-3xl bg-white shadow rounded p-4 mb-6">
+      <h2 class="text-lg font-bold mb-3 text-center">Join Lobby by Code</h2>
+
+      <div class="flex flex-col md:flex-row gap-3">
+         <input
+            bind:value={joinLobbyCode}
+            placeholder="Lobby Code"
+            class="border border-gray-300 rounded px-3 py-2 flex-1 uppercase"
+         />
+
+         <button
+            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-800"
+            onclick={() => joinLobby(joinLobbyCode)}
+            disabled={!joinLobbyCode || !userName}
          >
-            <div class="divide-y">
-               <!-- Table Headers -->
-               <div
-                  class="grid grid-cols-[3fr_1fr] divide-x divide-black bg-gray-200 p-3 text-base font-semibold text-center"
-               >
-                  <div>Lobby Name</div>
-                  <div class="text-right text-center">Players</div>
-               </div>
-               <!-- ROWS -->
-               <div class="flex-1">
-                  {#each lobbies as lobby, i}
-                     <!-- svelte-ignore a11y_click_events_have_key_events -->
-                     <!-- svelte-ignore a11y_no_static_element_interactions -->
-                     <div
-                        class="grid grid-cols-[3fr_1fr] divide-x divide-black items-stretch border-t p-3 hover:bg-gray-50 cursor-pointer
-                        {i === lobbies.length - 1
-                           ? 'border-b-2 border-black'
-                           : ''}"
-                        onclick={() => joinLobby(lobby.id)}
-                     >
-                        <div
-                           class="pr-4 font-bold text-gray-900 text-center text-sm"
-                        >
-                           {lobby.name}
-                        </div>
+            Join Lobby
+         </button>
+      </div>
+   </div>
 
-                        <div
-                           class="text-right flex items-center justify-end pr-2"
-                        >
-                           {lobby.playerCount}
-                        </div>
+   <!-- Section title -->
+   <h2 class="text-xl text-gray-400 text-center font-semibold mb-4">
+      Available Lobbies
+   </h2>
+
+   <!-- Lobby Table -->
+   <div class="flex justify-center w-full">
+      <div
+         class="w-full max-w-3xl bg-white shadow rounded overflow-hidden flex flex-col"
+      >
+         <div class="divide-y">
+            <!-- Table Headers -->
+            <div
+               class="grid grid-cols-[3fr_1fr] divide-x divide-black bg-gray-200 p-3 text-base font-semibold text-center"
+            >
+               <div>Lobby Name</div>
+               <div class="text-right text-center">Players</div>
+            </div>
+
+            <!-- ROWS -->
+            <div class="flex-1">
+               {#each lobbies as lobby, i}
+                  <!-- svelte-ignore a11y_click_events_have_key_events -->
+                  <!-- svelte-ignore a11y_no_static_element_interactions -->
+                  <div
+                     class="grid grid-cols-[3fr_1fr] divide-x divide-black items-stretch border-t p-3 hover:bg-gray-50 cursor-pointer
+                     {i === lobbies.length - 1
+                        ? 'border-b-2 border-black'
+                        : ''}"
+                     onclick={() => joinLobby(lobby.id)}
+                  >
+                     <div
+                        class="pr-4 font-bold text-gray-900 text-center text-sm"
+                     >
+                        {lobby.name}
                      </div>
-                  {/each}
-               </div>
+
+                     <div
+                        class="text-right flex items-center justify-end pr-2"
+                     >
+                        {lobby.playerCount}
+                     </div>
+                  </div>
+               {:else}
+                  <div class="p-4 text-center text-gray-500 italic">
+                     No active lobbies
+                  </div>
+               {/each}
             </div>
          </div>
       </div>
-
-      <div class="mt-6 w-full max-w-3xl bg-white shadow rounded p-4 mx-auto">
-         <h2 class="text-lg font-bold mb-3 text-center">Join Lobby by Code</h2>
-
-         <div class="flex flex-col gap-3">
-            <input
-               bind:value={userName}
-               placeholder="Username"
-               class="border border-gray-300 rounded px-3 py-2 flex-1"
-            />
-
-            <input
-               bind:value={joinLobbyCode}
-               placeholder="Lobby Code"
-               class="border border-gray-300 rounded px-3 py-2 flex-1 uppercase"
-            />
-
-            <button
-               class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-800"
-               onclick={() => joinLobby(joinLobbyCode)}
-               disabled={!joinLobbyCode || !userName}
-            >
-               Join Lobby
-            </button>
-         </div>
-      </div>
-   </main>
+   </div>
+</main>
    {#if showCreateLobbyModal}
       <!-- BACKDROP -->
       <div

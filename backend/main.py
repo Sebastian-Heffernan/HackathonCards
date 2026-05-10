@@ -278,10 +278,8 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
 
                 # remake game storage logic
                 if action["type"] == "RESTART_GAME":
-                    #old_engine = games[game_id]["engine"]
                     games[game_id]["engine"] = GameEngine(
                         games[game_id]["rules"],
-                        #old_engine.commandList
                         command_list
                     )
                     for connected_player_id in games[game_id]["connections"].keys():
