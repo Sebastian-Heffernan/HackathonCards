@@ -1,4 +1,4 @@
-from backend import BuildError
+from backend.BuildError import BuildError
 from backend.engine.classes.instruction import Instruction
 from backend.engine.engine import GameEngine
 from backend.engine.classes.states import *
