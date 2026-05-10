@@ -65,31 +65,39 @@
     sendAction(action, selectedCardId);
   };
 </script>
-<div class="w-screen h-screen flex">
+<div class="w-full h-screen flex relative">
   {#if showGameVars}
-    <aside class="nes-container with-title is-dark w-72 h-full p-4 shadow-lg overflow-auto shrink-0">
-      <p class="title">Game Vars</p>
-      <pre class="text-xs whitespace-pre-wrap">{JSON.stringify(gameVars, null, 2)}</pre>
+    <aside class="bg-[#212529] w-72 h-full p-4 shadow-lg overflow-y-auto shrink-0 z-50 overflow-hidden absolute pt-16">
+      <h1 class="text-white">Game Variables</h1>
+      <div class="flex flex-col gap-2">
+        {#each Object.entries(gameVars) as [key, value]}
+          <div class="flex flex-col border-b border-gray-700 pb-2 mb-2 last:border-0">
+            <span class="text-blue-400 font-bold text-xs uppercase tracking-wider">{key}</span>
+            <span class="text-white text-sm break-words">
+              {typeof value === 'boolean' ? (value ? "True" : "False") : value}
+            </span>
+          </div>
+        {/each}
+      </div>
     </aside>
   {/if}
 
-  <div class="w-12 h-full bg-gray-800 shrink-0 flex justify-center pt-4">
-    <button
-      type="button"
-      class="w-8 h-8 bg-gray-700 text-white rounded shadow flex items-center justify-center hover:bg-gray-600 font-bold"
-      onclick={() => (showGameVars = !showGameVars)}
-      title={showGameVars ? "Hide vars" : "Show vars"}
-    >
-      {showGameVars ? "<" : ">"}
-    </button>
-  </div>
-
-  <div class="relative flex-1 h-full p-4 bg-green-500">
+  <div class="relative flex-1 h-full p-4 bg-green-500 overflow-hidden">
   <!--  <div class="nes-container with-title absolute top-0 left-0 w-40 h-full is-dark">
       <p class="title">Decks</p>
       <Deck />
     </div>
 -->
+    <div class="w-12 h-full shrink-0 flex justify-center absolute">
+      <button
+        type="button"
+        class="w-8 h-8 bg-gray-700 text-white rounded shadow flex items-center justify-center hover:bg-gray-600 font-bold z-100"
+        onclick={() => (showGameVars = !showGameVars)}
+        title={showGameVars ? "Hide vars" : "Show vars"}
+      >
+        {showGameVars ? "<" : ">"}
+      </button>
+    </div>
     {#if showGameErrorPopup}
       <div class="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
         <div class="nes-container is-dark with-title w-[520px] text-center">
