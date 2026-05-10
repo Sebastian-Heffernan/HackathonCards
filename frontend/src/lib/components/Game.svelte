@@ -81,7 +81,7 @@
       <Deck />
     </div>
 -->
-    <div class="w-12 h-full bg-gray-800 shrink-0 flex justify-center pt-4 absolute">
+    <div class="w-12 h-full bg-gray-800 shrink-0 flex justify-center absolute">
       <button
         type="button"
         class="w-8 h-8 bg-gray-700 text-white rounded shadow flex items-center justify-center hover:bg-gray-600 font-bold"
