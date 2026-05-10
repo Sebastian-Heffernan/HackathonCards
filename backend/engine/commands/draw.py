@@ -46,4 +46,3 @@ def execute(instruction: Instruction, engine: GameEngine):
         else:
             print(f"DEBUG: Deck '{deck_name}' ran out of cards.")
             break
-    print(f"DEBUG: Player {player_i} drew {cards_drawn} cards from {deck_name}.")

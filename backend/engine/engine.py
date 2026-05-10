@@ -24,11 +24,11 @@ class GameEngine:
         self.stack = []  # for CALL pointer
         self.pointer = 0
 
-        self.label = "SETUP"
+        # self.label = "SETUP"
         self.playerStates = []
 
         self.gameState = GameState()
-        self.commandList = {}
+        # self.commandList = {}
         self.commandList = commandList
 
     def run_script(self, label):
@@ -36,17 +36,12 @@ class GameEngine:
         self.pointer = 0
 
         self.gameState.variables["$turnCount"] += 1
+        print(f"[TURN {self.gameState.variables["$turnCount"]}]")
+        # Perform instruction cycle
         while True:
-            # check if label exits
-            if self.label not in self.rules.labels:
-                raise BuildError(
-                    f"Runtime Error: Label '{self.label}' not found in script rules."
-                )
-            labelObj = self.rules.labels[self.label]
-            # check pointer is in limit
-            if not len(labelObj) > self.pointer:
-                break
-            instruction = labelObj[self.pointer]
+            # Perform checks
+            instruction = self.get_current_instruction()
+
             # print(instruction.name)
             result = instruction.run(self)
 
@@ -55,6 +50,19 @@ class GameEngine:
             elif result == "jump":
                 continue
             self.pointer += 1
+        
+    def get_current_instruction(self):
+        if self.label not in self.rules.labels:
+                raise BuildError(
+                    f"Label '{self.label}' not found in script rules."
+                )
+        labelObj = self.rules.labels[self.label]
+         # check pointer is in limit
+        if not len(labelObj) > self.pointer:
+            raise BuildError(
+                f"Pointer at {self.pointer}, while label length was {len(labelObj)}"
+                )
+        return labelObj[self.pointer]
 
     # Loads availabe commands into array
     @staticmethod
@@ -75,7 +83,7 @@ class GameEngine:
         commandList["LABEL"] = ""
         return commandList
 
-    # Getters/setters
+    ############################# Getters/setters #############################
     def add_player(self, uuid):
         player = PlayerState(uuid)
         self.playerStates.append(player)
