@@ -23,6 +23,7 @@ command_list = GameEngine.load_commands()
 class CreateLobby(BaseModel):
     rule_id: str
     host_name: str
+    game_description: str
 
 
 class JoinLobby(BaseModel):
@@ -100,12 +101,13 @@ def start_game(request: CreateLobby):
         "connections": {},
         "players": {host_id: {"name": request.host_name}},
         "engine": GameEngine(rules_store[request.rule_id], command_list),
+        "description": request.game_description,
     }
 
     code = create_code()
     lobby_codes[code] = game_id
 
-    return {"ok": True, "gameId": game_id, "lobbyCode": code, "playerId": host_id}
+    return {"ok": True, "gameId": game_id, "lobbyCode": code, "playerId": host_id, "description": request.game_description}
 
 
 # player joins lobby
@@ -122,6 +124,7 @@ def join_lobby(lobby_code: str, request: JoinLobby):
         "gameId": game_id,
         "lobbyCode": lobby_code,
         "playerId": player_id,
+        "description": games[game_id].get("description", ""),
     }
 
 
@@ -201,6 +204,19 @@ async def close_game_for_everyone(game_id: str):
     remove_lobby_code_for_game(game_id)
     games.pop(game_id, None)
 
+async def broadcast_game_error(game_id: str, message: str):
+    if game_id not in games:
+        return
+
+    for player_socket in list(games[game_id]["connections"].values()):
+        try:
+            await player_socket.send_json({
+                "type": "GAME_ERROR",
+                "message": message
+            })
+        except Exception:
+            pass
+
 # socket for game
 @app.websocket("/ws/{game_id}/{player_id}")
 async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str):
@@ -259,7 +275,7 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                 elif action["type"] == "JOIN_GAME":
                     for player_socket in games[game_id]["connections"].values():
                         await player_socket.send_json(
-                            {"type": "UPDATE_PLAYERS", "players": games[game_id]["players"]}
+                            {"type": "UPDATE_PLAYERS", "players": games[game_id]["players"], "description": games[game_id].get("description", "")}
                         )
             else:
                 if action["type"] == "START_GAME":
@@ -284,7 +300,12 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                     )
                     for connected_player_id in games[game_id]["connections"].keys():
                         games[game_id]["engine"].add_player(connected_player_id)
-                    games[game_id]["engine"].run_script("SETUP")
+                    try:
+                        games[game_id]["engine"].run_script("SETUP")
+                    except BuildError as error:
+                        message = str(error) or "Restart failed. Check your setup script."
+                        await broadcast_game_error(game_id, message)
+                        continue
                     for connected_player_id, player_socket in games[game_id]["connections"].items():
                         await player_socket.send_json({
                             "type": "START_GAME",
@@ -305,7 +326,12 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
                     games[game_id]["engine"].gameState.variables["$selectedCardId"] = (
                         action["selectedCardId"]
                     )
-                    games[game_id]["engine"].run_script(action["type"])
+                    try:
+                        games[game_id]["engine"].run_script(action["type"])
+                    except BuildError as error:
+                        message = str(error) or "Action failed."
+                        await broadcast_game_error(game_id, message)
+                        continue
                     # send state to each player
 
                     for connected_player_id, player_socket in games[game_id][

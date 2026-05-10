@@ -22,7 +22,10 @@
     playerNames = [],
     sendAction,
     restartGame,
-    goHomeAll
+    goHomeAll,
+    showGameErrorPopup = false,
+    gameErrorMessage = "",
+    closeGameErrorPopup = () => {}
   } = $props<{
     playerState: PlayerState;
     gameVars?: Record<string, unknown>;
@@ -30,6 +33,9 @@
     sendAction: (action: string, selectedCardId: number | null) => void;
     restartGame: () => void;
     goHomeAll: () => void;
+    showGameErrorPopup?: boolean;
+    gameErrorMessage?: string;
+    closeGameErrorPopup?: () => void;
   }>();
 
   let winnerIndex = $derived(Number(gameVars["$winner"] ?? -1));
@@ -61,25 +67,51 @@
 </script>
 <div class="w-screen h-screen flex">
   {#if showGameVars}
-    <aside class="nes-container with-title is-dark w-72 h-full p-4 shadow-lg overflow-auto shrink-0">
+    <aside class="nes-container with-title is-dark w-72 h-full p-4 shadow-lg overflow-auto shrink-0 z-50">
       <p class="title">Game Vars</p>
       <pre class="text-xs whitespace-pre-wrap">{JSON.stringify(gameVars, null, 2)}</pre>
     </aside>
   {/if}
 
+  
+
   <div class="relative flex-1 h-full p-4 bg-green-500">
-    <button
-      type="button"
-      class="nes-btn is-warning absolute top-4 left-4 z-40"
-      onclick={() => (showGameVars = !showGameVars)}
-    >
-      {showGameVars ? "Hide Vars" : "Show Vars"}
-    </button>
   <!--  <div class="nes-container with-title absolute top-0 left-0 w-40 h-full is-dark">
       <p class="title">Decks</p>
       <Deck />
     </div>
 -->
+    <div class="w-12 h-full shrink-0 flex justify-center absolute">
+      <button
+        type="button"
+        class="w-8 h-8 bg-gray-700 text-white rounded shadow flex items-center justify-center hover:bg-gray-600 font-bold z-100"
+        onclick={() => (showGameVars = !showGameVars)}
+        title={showGameVars ? "Hide vars" : "Show vars"}
+      >
+        {showGameVars ? "<" : ">"}
+      </button>
+    </div>
+    {#if showGameErrorPopup}
+      <div class="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
+        <div class="nes-container is-dark with-title w-[520px] text-center">
+          <p class="title">Game Error</p>
+
+          <p class="mb-6 whitespace-pre-wrap text-left">
+            {gameErrorMessage}
+          </p>
+
+          <div class="flex justify-center gap-4">
+            <button
+              type="button"
+              class="nes-btn is-error"
+              onclick={goHomeAll}
+            >
+              Home
+            </button>
+          </div>
+        </div>
+      </div>
+    {/if}
     {#if winnerIndex >= 0}
       <div class="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
         <div class="nes-container is-dark with-title w-[420px] text-center">

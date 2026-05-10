@@ -198,7 +198,7 @@
     </div>
 
     <!-- EDITOR -->
-    <div class="flex-1 min-h-0 overflow-hidden">
+    <div class="flex-1 min-w-0 min-h-0 overflow-hidden">
         <div bind:this={container} class="h-full w-full"></div>
     </div>
 </div>
@@ -210,7 +210,8 @@
 
     :global(.cm-scroller) {
         height: 100%;
-        overflow: auto;
+        overflow-x: auto;
+        overflow-y: auto;
     }
 
     :global(.cm-tooltip.cm-tooltip-lint) {
