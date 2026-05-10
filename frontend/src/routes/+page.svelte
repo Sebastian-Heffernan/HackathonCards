@@ -220,7 +220,7 @@ LABEL CARD_NUMBER:
    onMount(() => {
       loadLobbies();
 
-      const interval = setInterval(loadLobbies, 1000);
+      const interval = setInterval(loadLobbies, 10000);
       return () => clearInterval(interval);
    });
 
