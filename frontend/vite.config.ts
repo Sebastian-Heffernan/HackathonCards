@@ -14,9 +14,10 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/api': {
-          target: env.VITE_API_URL,
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, '/api'), // Adjust if FastAPI has a prefix
+          // CHANGE: Use the env variable instead of the hardcoded string
+          target: env.VITE_API_URL, 
+          changeOrigin: true, // Usually safer to set to true for cross-origin proxies
+          rewrite: (path) => path.replace(/^\/api/, '/api'),
         },
         '/ws': {
           target: env.VITE_API_URL.replace('http', 'ws'),
