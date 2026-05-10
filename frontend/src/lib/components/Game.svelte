@@ -65,17 +65,24 @@
     sendAction(action, selectedCardId);
   };
 </script>
-<div class="w-screen h-screen flex">
+<div class="w-full h-screen flex ">
   {#if showGameVars}
-    <aside class="nes-container with-title is-dark w-72 h-full p-4 shadow-lg overflow-auto shrink-0 z-50">
+    <aside class="nes-container with-title is-dark w-72 h-full p-4 shadow-lg overflow-y-auto shrink-0 z-50">
       <p class="title">Game Vars</p>
-      <pre class="text-xs whitespace-pre-wrap">{JSON.stringify(gameVars, null, 2)}</pre>
+      <div class="flex flex-col gap-2">
+        {#each Object.entries(gameVars) as [key, value]}
+          <div class="flex flex-col border-b border-gray-700 pb-2 mb-2 last:border-0">
+            <span class="text-blue-400 font-bold text-xs uppercase tracking-wider">{key}</span>
+            <span class="text-white text-sm break-words">
+              {typeof value === 'boolean' ? (value ? "True" : "False") : value}
+            </span>
+          </div>
+        {/each}
+      </div>
     </aside>
   {/if}
 
-  
-
-  <div class="relative flex-1 h-full p-4 bg-green-500">
+  <div class="relative flex-1 h-full p-4 bg-green-500 overflow-hidden">
   <!--  <div class="nes-container with-title absolute top-0 left-0 w-40 h-full is-dark">
       <p class="title">Decks</p>
       <Deck />
