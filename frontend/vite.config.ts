@@ -4,7 +4,7 @@ import { defineConfig, loadEnv } from 'vite';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
-  const apiUrl = env.VITE_API_URL || 'http://localhost:3000';
+  const apiUrl = (env.PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
 
   return {
     plugins: [tailwindcss(), sveltekit()],
