@@ -5,9 +5,21 @@
 	let { children } = $props();
 
 	const docKeys = Object.keys(docsData);
+
+  let showSidebar = $state(true);
 </script>
 
 <div class="flex min-h-screen relative">
+  <div class="w-12 h-full shrink-0 flex justify-center absolute top-2 {showSidebar ? "left-66" : "left-2"}">
+    <button
+      type="button"
+      class="w-8 h-8 bg-gray-700 text-white rounded shadow flex items-center justify-center hover:bg-gray-600 font-bold z-100"
+      onclick={() => (showSidebar = !showSidebar)}
+      title={showSidebar ? "Hide vars" : "Show vars"}
+    >
+      {showSidebar ? "<" : ">"}
+    </button>
+  </div>
 	<!-- Button -->
 	<a
 		href="/"
@@ -17,7 +29,7 @@
 	</a>
 	<!-- Sidebar -->
 	<aside
-		class="w-64 bg-slate-50 border-r border-slate-200 sticky top-0 h-screen overflow-y-auto"
+		class="min-w-64 max-w-64 bg-slate-50 border-r border-slate-200 top-0 h-screen overflow-y-auto {showSidebar ? "sticky" : "!hidden"}"
 	>
 		<div class="p-6">
 			<h2

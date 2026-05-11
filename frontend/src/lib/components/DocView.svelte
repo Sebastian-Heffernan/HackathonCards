@@ -3,7 +3,7 @@
 let { data } = $props();
 </script>
 
-<article class="max-w-3xl">
+<article class="">
     <header class="mb-10">
         <span class="text-xs font-bold tracking-widest text-blue-600 uppercase">
             {data.difficulty || 'Documentation'}
