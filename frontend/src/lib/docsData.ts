@@ -15,6 +15,9 @@ export const docsData = {
       {
         title: "To Get Started as a Host:",
         paragraph: "A host can press the + icon on base url, and see a modal. On the modal, the user will copy and paste their code and the server will parse it. From there, the host will wait for the players to join. If theres enough players, the game will start with the players and host"
+      }, {
+        title: "Good Practice / Code Philosophy",
+        paragraph: "We kept Cardssembly simple which means that we have no standard library or simpler form for abstraction for now. As a result, please ensure that your code will run based off of your logic in Cardassembly instead of assuming our guardrails."
       }
     ]
   },
