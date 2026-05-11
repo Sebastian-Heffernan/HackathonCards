@@ -1,5 +1,5 @@
 from backend.engine.classes.instruction import Instruction
-from backend import BuildError
+from backend.errors import BuildError
 from backend.engine.engine import GameEngine
 from backend.engine.classes.states import *
 

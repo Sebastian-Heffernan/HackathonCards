@@ -1,4 +1,4 @@
-from backend.BuildError import BuildError
+from backend.errors.BuildError import BuildError
 from backend.engine.classes.deck import Deck
 from backend.engine.classes.instruction import Instruction
 from backend.engine.classes.states import PlayerState
@@ -46,4 +46,3 @@ def execute(instruction: Instruction, engine: GameEngine):
         else:
             print(f"DEBUG: Deck '{deck_name}' ran out of cards.")
             break
-    print(f"DEBUG: Player {player_i} drew {cards_drawn} cards from {deck_name}.")

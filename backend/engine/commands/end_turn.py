@@ -1,14 +1,9 @@
 from backend.engine.classes.instruction import Instruction
 from backend.engine.classes.states import *
 from backend.engine.engine import GameEngine
+from backend.errors.BuildError import BuildError
 
-"""
-END_TURN:
-    Finishes the label execution initiated by action
-"""
-
-
-# END_TURN [next player index / None]
+# END_TURN [NEXT PLAYER INDEX | None]
 def execute(instruction: Instruction, engine: GameEngine):
     if engine.debug:
         print("[ENDING TURN]")

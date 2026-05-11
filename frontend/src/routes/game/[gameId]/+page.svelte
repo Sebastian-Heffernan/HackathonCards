@@ -3,7 +3,7 @@
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
   import Game from "$lib/components/Game.svelte";
-
+  import { env } from "$env/dynamic/public";
   type Card = {
     suit: string;
     value: string;
@@ -38,6 +38,8 @@
   });
 
   onMount(() => {
+    const apiUrl = (env.PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
+    const wsUrl = apiUrl.replace(/^http/, 'ws');
     playerId = sessionStorage.getItem("playerId") || "";
 
     const initialPlayerState = sessionStorage.getItem("initialPlayerState");
@@ -54,7 +56,7 @@
     }
 
     if (gameId && playerId) {
-      socket = new WebSocket(`ws://localhost:8000/ws/${gameId}/${playerId}`);
+      socket = new WebSocket(`${wsUrl}ws/${gameId}/${playerId}`);
 
       socket.onmessage = (ev) => {
         const message = JSON.parse(ev.data);

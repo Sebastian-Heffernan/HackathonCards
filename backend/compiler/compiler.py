@@ -75,24 +75,3 @@ class Compiler:
             rules.add_new_rule(clean_new_label, nodes)
 
         return rules
-
-
-if __name__ == "__main__":
-    raw_text = """
-    LABEL SETUP:
-        DECK MAKE deck0
-        DRAW deck0 0 5
-        VARG SET VARDEF 0
-        VARG SET VARDEF2 0
-        VALUE VAR VARDEF VARDEF2 
-        GOTO TEST
-    LABEL TEST:
-        END_TURN
-"""
-
-    command_list: dict = GameEngine.load_commands()
-
-    rules: Rules = Compiler.compile(raw_text, command_list)
-    gameEngine: GameEngine = GameEngine(rules, command_list)
-    gameEngine.add_player(0)
-    gameEngine.run_script("SETUP")
