@@ -8,7 +8,10 @@ export function load({ params }) {
         throw error(404, 'Documentation page not found');
     }
 
+    let category = params.category;
+
     return {
-        entry
+        entry,
+        category
     };
 }

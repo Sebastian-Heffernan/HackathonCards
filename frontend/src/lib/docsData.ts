@@ -2,13 +2,33 @@
 export const docsData = {
   "overview": {
     title: "Overview",
-    content: "An introduction to the language syntax. How to read the notation",
+    subheading: "An introduction to the language syntax. How to read the notation",
+    content: [
+      {
+        title: "",
+        content: "Cardssembly is a multiplayer platform, which connects players to new card games through custom byte-code (*Cardssembly*)"
+      },
+      {
+        title: "To Get Started as a Player:",
+        paragraph: "You can go to the base url, and join a lobby. The player will read the *Cardssembly* byte-code of the lobby. All of the players will play following the new byte-code"
+      },
+      {
+        title: "To Get Started as a Host:",
+        paragraph: "A host can press the + icon on base url, and see a modal. On the modal, the user will copy and paste their code and the server will parse it. From there, the host will wait for the players to join. If theres enough players, the game will start with the players and host"
+      }
+    ]
   },
   "commenting": {
     title: "Commenting",
-    content: "An introduction to commmenting.",
+    subheading: "An introduction to commmenting.",
+    content: [
+      {
+        title: "Commenting is how developers communicate logic",
+        paragraph: ""
+      }
+    ],
     items: {
-      "Getting Started": {
+      "Commenting": {
         name: "Getting Started",
         description: "To do comments, use '#' to comment out.\nIt should be noted that commenting in cardssembly should be done on a separate line.\n",
         example: "# Commenting line\nASSERT label\n\nEND_TURN # This is a bad comment because it leaks into the END_TURN args"
@@ -17,7 +37,7 @@ export const docsData = {
   },
   "examples" : {
     title: "Working examples",
-    content: "These are working examples made by the team that can be inserted into a lobby",
+    subheading: "These are working examples made by the team that can be inserted into a lobby",
     items: {
       "Loops": {
         name: "Fun with Loops",
@@ -45,8 +65,13 @@ export const docsData = {
   },
   "instructions": {
     title: "Instruction Set",
-    content: "A complete list of available opcodes.",
-    // Nested dictionary for specific instructions
+    subheading: "A complete list of available opcodes.",
+    content: [
+      {
+        title: "",
+        paragraph: "These are the commands to control the state and flow of the game"
+      }
+    ],
     items: {
       "ASSERT": {
         name: "ASSERT",
@@ -166,7 +191,13 @@ export const docsData = {
   },
   "registry": {
     title: "Registeries",
-    content: "The regisiters in the game engine",
+    subheading: "The regisiters in the game engine",
+    content: [
+      {
+        title: "",
+        paragraph: "These are used to communicate and store information that will forever exist and define game state"
+      }
+    ],
     items: {
       "$turnPlayer": {
         name: "Turn Player Register",
