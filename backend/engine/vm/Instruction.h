@@ -6,7 +6,7 @@
 #include <vector>
 #include "GameValue.h"
 
-namespace GCB::Engine {
+namespace GCB::GameEngine {
     struct Instruction {
         std::string opcode;
         std::vector<Core::GameValue> operands;
