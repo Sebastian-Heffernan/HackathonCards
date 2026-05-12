@@ -1,4 +1,4 @@
-from errors import BuildError
+from backend.engine.TESTING.errors import BuildError
 
 class Instruction:
     def __init__(self, name, args: list[str]):

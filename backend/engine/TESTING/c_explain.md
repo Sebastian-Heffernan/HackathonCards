@@ -38,3 +38,6 @@ auto - auto detect var type
 ```c++
 auto it = properties.find(name);
 ```
+
+#### generation
+https://cplusplus.com/reference/random/

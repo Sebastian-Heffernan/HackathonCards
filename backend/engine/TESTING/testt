@@ -1,0 +1,192 @@
+LABEL SETUP:
+    DECK MAKE deck
+    DECK SHUFFLE deck
+    DECK MAKE discard
+    DECK CLEAR discard
+    ASSERT HIGHER
+    ASSERT LOWER
+    VARG SET i 0
+
+    #TEST
+    VARG SET cardLimit 2
+
+    VARG SET highestScore 0
+    SHOW_VAR highestScore
+    VARG SET highestScoreInt 0
+    SHOW_VAR highestScoreInt
+
+    CALL SETUP_PLAYERS
+
+    DRAW deck 0 1
+    REVEAL 0
+
+    END_TURN
+
+LABEL SETUP_PLAYERS:
+    VARP SET i score 0
+    VARP SET i isHigher 0
+
+    MATH i + 1
+    COMPARE i < $playerCount
+    GOTO SETUP_PLAYERS
+    RETURN
+    
+LABEL HIGHER:
+    VARP SET $turnPlayer isHigher 1
+    GOTO EXIT
+
+LABEL LOWER:
+    VARP SET $turnPlayer isHigher 0
+    GOTO EXIT
+
+LABEL EXIT:
+    VARG SET temp $playerCount
+    MATH temp - 1
+    COMPARE $turnPlayer == temp
+    GOTO TRIGGER_CALCULATION
+    END_TURN $turnPlayer + 1
+
+LABEL TRIGGER_CALCULATION:
+    CALL CALCULATE_START
+    PRINT playerStates[0].variables
+    PRINT playerStates[1].variables
+    END_TURN 0
+
+LABEL DRAW_CARD:
+    HANDLEN drawnInt 0
+    DRAW deck 0 1
+    REVEAL 0
+    RETURN
+
+LABEL CALCULATE_START:
+    CALL DRAW_CARD
+
+    VARG SET i 0
+    CALL CALCULATE
+
+    HANDLEN totalCards 0
+    COMPARE totalCards == cardLimit
+    # TEST
+    # COMPARE totalCards == 3
+    GOTO FINISH_GAME
+    
+    VARG SET i 0
+    CALL RESET_GUESSES
+    RETURN
+
+LABEL RESET_GUESSES:
+    VARP SET i isHigher -1
+    MATH i + 1
+    COMPARE i < $playerCount
+    GOTO RESET_GUESSES
+    RETURN
+
+LABEL CALCULATE:
+    # --- FIX 1: Must use 'cardValue' so CARD_TO_VALUE can see it ---
+    VALUE cardValue 0 drawnInt
+    CALL CARD_TO_VALUE
+    VARG SET drawnVal cardScore
+
+    VARG SET prevInt drawnInt
+    MATH prevInt - 1
+
+    # --- FIX 2: Again, use 'cardValue' here ---
+    VALUE cardValue 0 prevInt
+    CALL CARD_TO_VALUE
+    VARG SET prevVal cardScore
+
+    # --- TIE CHECK ---
+    COMPARE drawnVal == prevVal
+    GOTO CALCULATE_RETURN
+
+    # --- Start player scoring loop ---
+    VARG SET i 0
+    GOTO PLAYER_SCORING
+
+LABEL PLAYER_SCORING:
+    COMPARE drawnVal < prevVal
+    GOTO LOWER_CALL_CALC
+    GOTO HIGHER_CALL_CAL
+
+LABEL CALCULATE2:
+    MATH i + 1
+    COMPARE i < $playerCount
+    # --- FIX 3: GOTO PLAYER_SCORING, not CALCULATE (prevents infinite loop) ---
+    GOTO PLAYER_SCORING
+    RETURN
+
+LABEL CALCULATE_RETURN:
+    RETURN
+
+LABEL LOWER_CALL_CALC:
+    VARG PLAYER i isHigher
+    VARG PLAYER i score
+    COMPARE isHigher != 0
+    GOTO CALCULATE2
+    MATH score + 1
+    VARP SET i score score
+    GOTO CALCULATE2
+
+LABEL HIGHER_CALL_CAL:
+    VARG PLAYER i isHigher
+    VARG PLAYER i score
+    COMPARE isHigher != 1
+    GOTO CALCULATE2
+    MATH score + 1
+    VARP SET i score score
+    GOTO CALCULATE2
+
+LABEL FINISH_GAME:
+    VARG SET highestScore 0
+    VARG SET highestScoreInt 0
+    VARG SET i 0
+    CALL FINISH_GAME_LOOP
+    PRINT playerStates[0].variables
+    PRINT playerStates[1].variables
+    VARG SET $winner highestScoreInt
+    END_TURN
+
+LABEL FINISH_GAME_LOOP:
+    VARG PLAYER i score
+    COMPARE score > highestScore
+    GOTO FINISH_GAME_LOOP_HIGHER
+
+    MATH i + 1
+    COMPARE i < $playerCount
+    GOTO FINISH_GAME_LOOP
+    RETURN
+
+LABEL FINISH_GAME_LOOP_HIGHER:
+    VARG SET highestScore score
+    VARG SET highestScoreInt i
+    MATH i + 1
+    COMPARE i < $playerCount
+    GOTO FINISH_GAME_LOOP
+    RETURN
+
+LABEL CARD_TO_VALUE:
+    COMPARE cardValue == "A"
+    GOTO CARD_A
+    COMPARE cardValue == "K"
+    GOTO CARD_K
+    COMPARE cardValue == "Q"
+    GOTO CARD_Q
+    COMPARE cardValue == "J"
+    GOTO CARD_J
+    GOTO CARD_NUMBER
+
+LABEL CARD_A:
+    VARG SET cardScore 14
+    RETURN
+LABEL CARD_K:
+    VARG SET cardScore 13
+    RETURN
+LABEL CARD_Q:
+    VARG SET cardScore 12
+    RETURN
+LABEL CARD_J:
+    VARG SET cardScore 11
+    RETURN
+LABEL CARD_NUMBER:
+    VARG SET cardScore cardValue
+    RETURN

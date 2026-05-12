@@ -9,8 +9,8 @@ from pydantic import BaseModel
 from compiler.compiler import Compiler
 from compiler.compiler import CompilationError
 from db.cache import games, lobby_codes, rules_store
-from engine.engine import *
-from engine.engine import GameEngine
+from backend.engine.TESTING.engine import *
+from backend.engine.TESTING.engine import GameEngine
 from routers import lobby
 from routers.processors.client_side import ClientSideGenerator
 

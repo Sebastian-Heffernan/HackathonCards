@@ -5,12 +5,13 @@
 2. [Prompt 2](#prompt-2)
 3. [Prompt 3](#prompt-3)
    1. [Individual instruction review](#1-individual-instruction-review)
+4. [Prompt 4](#prompt-4)
 
 ## Prompt 1
 the overall idea I had was to make a website where users could make their own card games and host their own lobbies. This was our task for a 2 day hackathon, and it was completed. the product allows for simple byte code esc programs like this
 (example of script was here) to be inputted into a game and executed as the "ruleset" before every turn in said game. As you can understand, things like python injection (allowing the user to just write in python) are security issues for a running server, so we made our own language but don't know if thats the correct approach. Games we made with this program include blackjack, higher or lower. However the functionaltiy is very limited, and the code itself is way too simplistic to realistically make any large games. Help me write up some things that could be generalised and improved to make this card engine more generic, and be able to support things like "here to slay" and "7 wonders" which are more advanced. Ideality the current limited functionality of each player having one hand, being able t oonly create decks and having no centralised playing space need to be changed. What would be the best approach to stuff like this so it can be more genral, as well as accessible with the user written code? 
 
-## Responce:
+## Response:
 This is a classic "Engine Architecture" problem. You’ve hit the ceiling of a **Procedural Engine** (do this, then that) and need to move toward a **Data-Driven, Event-Based Engine**.
 
 To support games like *7 Wonders* or *Here to Slay*, you have to stop thinking about "Players" and "Hands" as hardcoded things and start thinking about **Zones** and **Entities**.
@@ -115,7 +116,7 @@ Don't make users write the bytecode directly. It’s a nightmare to debug.
 
 these are the current commands we have, feel free to remove some, add some, modifiy them. Please do not restrict yourself to critisism: (docks went here)
 
-## Responce:
+## Response:
 To transition from a "Blackjack-only" engine to a "Generic Game Engine" (like *7 Wonders* or *Here to Slay*), you need to move away from hardcoded concepts like "Hands" and "Suits" toward **Generalized Zones** and **Key-Value Properties**.
 
 Here is a proposed Bytecode Standard (let’s call it **GCB - Generic Card Bytecode**). It is designed to be easily generated from "Blockly" logic while remaining strictly safe.
@@ -252,7 +253,7 @@ Does this **Zone/Property** approach look like it could handle the more complex 
 2. I asked you to review the current bytecode commands we have and while you did suggest some changes, I wanted an individual review of each one with either suggested improvements, replacement or additional commands.
 3. Comparing this to something like python's bytecode, is it good enough or should changes be made
 
-## Responce:
+## Response:
 Moving from a "hackathon" mindset to "best practice" requires a shift from **hardcoded verbs** (like "Draw") to **atomic operations** (like "Move from Zone A to Zone B").
 
 Here is the individual review of your current instruction set, followed by a comparison to Python’s bytecode architecture.
@@ -341,3 +342,11 @@ LABEL SUCCESS_SLAY:
 2. **The VM:** In C++, create a `switch` statement that iterates through your instructions. Since you are already using `std::variant` for `GameValue`, your VM will be very "type-safe" and won't crash when a user tries to add a string to an integer—the `std::variant` will simply handle the error or you can catch it in the `MATH` instruction.
 
 Do you want to see how the C++ `switch` loop for this Virtual Machine would look using the `GameValue` class we built earlier?
+
+## Prompt 4
+Namespace,Category,Classes Included,Purpose
+GCB::Core,Foundations,"GameValue, Variable, Card","The lowest-level data units. These don't know about ""rules""—they only know how to hold data."
+GCB::State,The World,"Zone, GameState, Player","Holds the ""Snapshot"" of the game. It knows where cards are and what the current scores are."
+GCB::VM,The Brain,"Instruction, VirtualMachine, Interpreter",The logic layer. It reads bytecode and modifies the State using Core types.
+
+what is default_random_engine and how is it different from srand, and is it really better

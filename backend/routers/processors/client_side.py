@@ -1,7 +1,7 @@
 import json
 
 from backend.engine.TESTING.classesOld.states import PlayerState
-from engine.engine import GameEngine
+from backend.engine.TESTING.engine import GameEngine
 from routers.models.ClientSide import ClientSide, ClientSideBuilder
 
 FACE_DOWN_CARD = {"suit": "", "value": "UNKNOWN"}
