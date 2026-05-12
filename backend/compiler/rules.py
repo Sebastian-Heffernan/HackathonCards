@@ -1,4 +1,4 @@
-from backend.engine.classesOld.instruction import Instruction
+from backend.engine.TESTING.classesOld.instruction import Instruction
 
 
 class Rules:

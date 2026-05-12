@@ -5,9 +5,9 @@ import re
 
 from errors.BuildError import BuildError
 from compiler.rules import Rules
-from backend.engine.classesOld.deck import *
-from backend.engine.classesOld.instruction import Instruction
-from backend.engine.classesOld.states import *
+from backend.engine.TESTING.classesOld.deck import *
+from backend.engine.TESTING.classesOld.instruction import Instruction
+from backend.engine.TESTING.classesOld.states import *
 from engine.commands import *
 
 
