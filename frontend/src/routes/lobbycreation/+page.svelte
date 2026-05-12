@@ -1,4 +1,5 @@
 <script lang="ts">
+import { PUBLIC_API_URL } from '$env/static/public';
 import { goto } from '$app/navigation'; // Add this import
   type Player = {
     id: string;
@@ -59,9 +60,8 @@ LABEL LOSE:
   let output = $state("");
 
   let socket = $state<WebSocket | null>(null);
-
   async function sendRules() {
-    const response = await fetch("/api/rules", {
+    const response = await fetch(`${PUBLIC_API_URL}/api/rules`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -78,7 +78,7 @@ LABEL LOSE:
   }
 
 async function createLobby() {
-    const response = await fetch("/api/lobbies", {
+    const response = await fetch(`${PUBLIC_API_URL}/api/lobbies`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -102,7 +102,7 @@ async function createLobby() {
 
   // host doesn't join own lobby since already joined when created
   async function joinLobby() {
-    const response = await fetch(`/api/lobbies/${lobbyCode}/join`, {
+    const response = await fetch(`${PUBLIC_API_URL}/api/lobbies/${lobbyCode}/join`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

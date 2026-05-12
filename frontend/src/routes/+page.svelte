@@ -1,5 +1,6 @@
 <script lang="ts">
    import RuleEditor from "$lib/components/RuleEditor.svelte";
+   import { PUBLIC_API_URL } from '$env/static/public';
    import { goto } from "$app/navigation";
    import { tick } from "svelte";
    import { onMount } from "svelte";
@@ -147,7 +148,7 @@ LABEL CARD_NUMBER:
    }
 
    async function sendRules() {
-      const response = await fetch("/api/rules", {
+      const response = await fetch(`${PUBLIC_API_URL}/api/rules`, {
          method: "POST",
          headers: {
             "Content-Type": "application/json",
@@ -175,7 +176,7 @@ LABEL CARD_NUMBER:
          return;
       }
 
-      const response = await fetch("/api/lobbies", {
+      const response = await fetch(`${PUBLIC_API_URL}/api/lobbies`, {
          method: "POST",
          headers: {
             "Content-Type": "application/json",
@@ -197,7 +198,7 @@ LABEL CARD_NUMBER:
    }
 
    async function joinLobby(lobbyCode: string) {
-      const response = await fetch(`/api/lobbies/${lobbyCode}/join`, {
+      const response = await fetch(`${PUBLIC_API_URL}/api/lobbies/${lobbyCode}/join`, {
          method: "POST",
          headers: {
             "Content-Type": "application/json",
@@ -225,7 +226,7 @@ LABEL CARD_NUMBER:
    });
 
    async function loadLobbies() {
-      const response = await fetch("/api/lobbies");
+      const response = await fetch(`${PUBLIC_API_URL}/api/lobbies`);
       const data = await response.json();
 
       if (data.ok) {

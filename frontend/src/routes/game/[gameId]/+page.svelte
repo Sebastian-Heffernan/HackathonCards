@@ -34,12 +34,18 @@
     hand: [],
     actions: [],
     opponent_hand: [],
-    opponent_names: []
+    opponent_names: [],
   });
 
   onMount(() => {
-    const apiUrl = (env.PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
-    const wsUrl = apiUrl.replace(/^http/, 'ws');
+    const baseURL = (env.PUBLIC_API_URL || "http://localhost:8000").replace(
+      /\/$/,
+      "",
+    );
+
+    const url = new URL(baseURL);
+    url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
+    const wsUrl = url.href.replace(/\/$/, "");
     playerId = sessionStorage.getItem("playerId") || "";
 
     const initialPlayerState = sessionStorage.getItem("initialPlayerState");
@@ -56,7 +62,7 @@
     }
 
     if (gameId && playerId) {
-      socket = new WebSocket(`${wsUrl}ws/${gameId}/${playerId}`);
+      socket = new WebSocket(`${wsUrl}/ws/${gameId}/${playerId}`);
 
       socket.onmessage = (ev) => {
         const message = JSON.parse(ev.data);
@@ -76,7 +82,10 @@
           playerNames = message.playerNames ?? playerNames;
 
           if (message.type === "START_GAME") {
-            sessionStorage.setItem("initialPlayerState", JSON.stringify(message.playerState));
+            sessionStorage.setItem(
+              "initialPlayerState",
+              JSON.stringify(message.playerState),
+            );
           }
         }
       };
@@ -84,22 +93,28 @@
   });
 
   function restartGame() {
-    socket?.send(JSON.stringify({
-      type: "RESTART_GAME"
-    }));
+    socket?.send(
+      JSON.stringify({
+        type: "RESTART_GAME",
+      }),
+    );
   }
 
   function goHomeAll() {
-    socket?.send(JSON.stringify({
-      type: "GO_HOME"
-    }));
+    socket?.send(
+      JSON.stringify({
+        type: "GO_HOME",
+      }),
+    );
   }
 
   function sendAction(action: string, selectedCardId: number | null) {
-    socket?.send(JSON.stringify({
-      type: action,
-      selectedCardId: selectedCardId
-    }));
+    socket?.send(
+      JSON.stringify({
+        type: action,
+        selectedCardId: selectedCardId,
+      }),
+    );
   }
 </script>
 

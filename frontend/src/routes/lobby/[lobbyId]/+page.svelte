@@ -28,9 +28,12 @@
   let gameDescription = $state("");
   let output = $state("");
   let socket = $state<WebSocket | null>(null);
-  const apiUrl = (env.PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
-  const wsUrl = apiUrl.replace(/^http/, "ws");
+const baseURL = (env.PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
 
+const url = new URL(baseURL);
+url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+
+const wsUrl = url.href.replace(/\/$/, "");
   onMount(() => {
     gameId = sessionStorage.getItem("gameId") || "";
     playerId = sessionStorage.getItem("playerId") || "";
