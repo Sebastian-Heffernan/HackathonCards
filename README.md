@@ -5,13 +5,13 @@ Cardssembly is a card game engine where you can program your own card games and 
 Hosts are able to program their own card games, and then host said game for players to join! All the players will play whatever the host has created.
 
 ## Screenshots
-![Lobby Screen](thumbnails\AlphaLobbyScreen.png)
-![Documentation](thumbnails\DocumentationV1.png)
-![In-Game](thumbnails\GameV1.png)
+![Lobby Screen](thumbnails/AlphaLobbyScreen.png)
+![Documentation](thumbnails/DocumentationV1.png)
+![In-Game](thumbnails/GameV1.png)
 
 ## To Get Started as a Host:
 - Open Up [this link](https://cardssembly-alpha-production.up.railway.app/) and either create or join a lobby.
-![LobbyCreation](thumbnails\LobbyCreation.png)
+![LobbyCreation](thumbnails/LobbyCreation.png)
 - The lobby host can then create their game using our text and game description editor and create a lobby.
 - On default, "Showdown" is the default game. Create your own game, or check out our [Documentation Page](https://cardssembly-alpha-production.up.railway.app/docs/overview) for game exemplars.
 
