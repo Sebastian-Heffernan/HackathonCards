@@ -1,8 +1,8 @@
 import json
 
-from backend.engine.classes.states import PlayerState
-from backend.engine.engine import GameEngine
-from backend.routers.models.ClientSide import ClientSide, ClientSideBuilder
+from engine.classes.states import PlayerState
+from engine.engine import GameEngine
+from routers.models.ClientSide import ClientSide, ClientSideBuilder
 
 FACE_DOWN_CARD = {"suit": "", "value": "UNKNOWN"}
 

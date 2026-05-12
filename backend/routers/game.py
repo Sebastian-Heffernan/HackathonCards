@@ -1,4 +1,4 @@
-from backend.db.cache import games, lobby_codes, rules_store
+from db.cache import games, lobby_codes, rules_store
 
 
 def get_game(lobby_id: str):

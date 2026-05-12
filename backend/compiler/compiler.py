@@ -1,6 +1,6 @@
-from backend.compiler.rules import Rules
-from backend.engine.classes.instruction import Instruction
-from backend.engine.engine import GameEngine
+from compiler.rules import Rules
+from engine.classes.instruction import Instruction
+from engine.engine import GameEngine
 
 
 class CompilationError(Exception):

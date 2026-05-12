@@ -1,6 +1,8 @@
-from backend.errors.BuildError import BuildError
-from backend.engine.classes.instruction import Instruction
-from backend.engine.engine import GameEngine
+from errors.BuildError import BuildError
+from engine.classes.deck import Deck
+from engine.classes.instruction import Instruction
+from engine.classes.states import *
+from engine.engine import GameEngine
 
 VAR_NAME = 0
 PLAYER_IDX = 1

@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from backend.db.cache import games, lobby_codes, rules_store
+from db.cache import games, lobby_codes, rules_store
 
 router = APIRouter()
 

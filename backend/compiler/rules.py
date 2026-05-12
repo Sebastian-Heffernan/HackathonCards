@@ -1,4 +1,4 @@
-from backend.engine.classes.instruction import Instruction
+from engine.classes.instruction import Instruction
 
 
 class Rules:

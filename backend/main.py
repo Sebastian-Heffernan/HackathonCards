@@ -3,19 +3,33 @@ import string
 from uuid import uuid4
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from backend.compiler.compiler import Compiler
-from backend.compiler.compiler import CompilationError
-from backend.db.cache import games, lobby_codes, rules_store
-from backend.engine.engine import *
-from backend.engine.engine import GameEngine
-from backend.routers import lobby
-from backend.routers.processors.client_side import ClientSideGenerator
+from compiler.compiler import Compiler
+from compiler.compiler import CompilationError
+from db.cache import games, lobby_codes, rules_store
+from engine.engine import *
+from engine.engine import GameEngine
+from routers import lobby
+from routers.processors.client_side import ClientSideGenerator
 
 app = FastAPI()
 command_list = GameEngine.load_commands()
 
+
+origins = [
+    "https://lucky-heart-production-934d.up.railway.app",
+    "http://localhost:5173", # Standard Svelte dev port
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"], # Allows GET, POST, OPTIONS, etc.
+    allow_headers=["*"], # Allows all headers
+)
 
 # app.include_router(lobby.router)
 

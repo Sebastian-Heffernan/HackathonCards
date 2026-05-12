@@ -1,7 +1,8 @@
-from backend.engine.classes.instruction import Instruction
-from backend.engine.classes.states import *
-from backend.engine.engine import GameEngine
-from backend.errors.BuildError import BuildError
+from errors.BuildError import BuildError
+from engine.classes.deck import Deck
+from engine.classes.instruction import Instruction
+from engine.classes.states import *
+from engine.engine import GameEngine
 
 # END_TURN [NEXT PLAYER INDEX | None]
 def execute(instruction: Instruction, engine: GameEngine):

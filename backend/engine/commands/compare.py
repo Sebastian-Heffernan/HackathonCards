@@ -1,6 +1,6 @@
-from backend.errors.BuildError import BuildError
-from backend.engine.classes.instruction import Instruction
-from backend.engine.engine import GameEngine
+from errors.BuildError import BuildError
+from engine.classes.instruction import Instruction
+from engine.engine import GameEngine
 
 """
 COMPARE: 

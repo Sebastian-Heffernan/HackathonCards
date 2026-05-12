@@ -3,12 +3,12 @@ import json
 import os
 import re
 
-from backend.errors.BuildError import BuildError
-from backend.compiler.rules import Rules
-from backend.engine.classes.deck import *
-from backend.engine.classes.instruction import Instruction
-from backend.engine.classes.states import *
-from backend.engine.commands import *
+from errors.BuildError import BuildError
+from compiler.rules import Rules
+from engine.classes.deck import *
+from engine.classes.instruction import Instruction
+from engine.classes.states import *
+from engine.commands import *
 
 
 class BaseCommand:
@@ -72,7 +72,7 @@ class GameEngine:
         for filename in os.listdir(path):
             if filename.endswith(".py"):
                 module_name = (
-                    f"backend.engine.commands.{filename[:-3]}"  # remove extension
+                    f"engine.commands.{filename[:-3]}"  # remove extension
                 )
                 module = importlib.import_module(module_name)
                 # execute function in each file
