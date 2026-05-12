@@ -19,7 +19,7 @@ command_list = GameEngine.load_commands()
 
 
 origins = [
-    "https://lucky-heart-production-934d.up.railway.app",
+    "https://cardssembly-alpha-production.up.railway.app",
     "http://localhost:5173", # Standard Svelte dev port
 ]
 
