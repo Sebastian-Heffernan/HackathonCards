@@ -1,6 +1,6 @@
 from compiler.compiler import Compiler
 from compiler.rules import Rules
-from engine.classes.instruction import Instruction
+from backend.engine.classesOld.instruction import Instruction
 from engine.engine import GameEngine
 
 raw_text = """

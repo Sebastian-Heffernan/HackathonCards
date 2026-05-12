@@ -1,7 +1,7 @@
 from errors.BuildError import BuildError
-from engine.classes.deck import Deck
-from engine.classes.instruction import Instruction
-from engine.classes.states import *
+from backend.engine.classesOld.deck import Deck
+from backend.engine.classesOld.instruction import Instruction
+from backend.engine.classesOld.states import *
 from engine.engine import GameEngine
 
 X_INDEX = 0

@@ -1,5 +1,5 @@
 from errors.BuildError import BuildError
-from engine.classes.instruction import Instruction
+from backend.engine.classesOld.instruction import Instruction
 from engine.engine import GameEngine
 
 """

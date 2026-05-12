@@ -1,6 +1,6 @@
 from errors.BuildError import BuildError
-from engine.classes.instruction import Instruction
-from engine.classes.states import PlayerState
+from backend.engine.classesOld.instruction import Instruction
+from backend.engine.classesOld.states import PlayerState
 from engine.engine import GameEngine
 
 LABEL = 0
