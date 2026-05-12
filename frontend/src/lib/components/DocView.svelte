@@ -1,8 +1,6 @@
 <!-- src/lib/components/DocViewer.svelte -->
 <script>
   let { data, category } = $props();
-  console.log(data)
-  
 </script>
 
 <article class="">
