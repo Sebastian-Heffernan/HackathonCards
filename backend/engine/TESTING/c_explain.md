@@ -41,3 +41,9 @@ auto it = properties.find(name);
 
 #### generation
 https://cplusplus.com/reference/random/
+
+#### enum classes
+https://stackoverflow.com/questions/18335861/why-is-enum-class-considered-safer-to-use-than-plain-enum
+
+#### push back vs emplace back
+https://www.geeksforgeeks.org/cpp/push_back-vs-emplace_back-in-cpp-stl-vectors/

@@ -1,9 +1,6 @@
-
-
 namespace GCB::Engine {
-    class GameEngine;
-
     class Command {
-        
+        public:
+            
     }
 }

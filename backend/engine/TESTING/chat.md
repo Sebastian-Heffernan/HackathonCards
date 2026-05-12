@@ -1,4 +1,5 @@
 # List of AI prompts used
+Main points are all prompts. Subpoints are considered valuable.
 1. [Prompt 1](#prompt-1)
    1. [The "Zone" Architecture](#1-the-zone-architecture-generalizing-space)
    2. [Centralized Play Space](#5-centralized-play-space-the-board)
@@ -349,4 +350,14 @@ GCB::Core,Foundations,"GameValue, Variable, Card","The lowest-level data units. 
 GCB::State,The World,"Zone, GameState, Player","Holds the ""Snapshot"" of the game. It knows where cards are and what the current scores are."
 GCB::VM,The Brain,"Instruction, VirtualMachine, Interpreter",The logic layer. It reads bytecode and modifies the State using Core types.
 
-what is default_random_engine and how is it different from srand, and is it really better
+How Player interacts with GameState
+
+The Player shouldn't actually "hold" the Zone objects. Instead, the GameState holds all the Zones, and the Player just has an ID that matches them.
+
+Example:
+
+    GameState has a zone named "P1_Hand".
+
+    Player 1 has an ID of 1.
+
+    The VM knows that if a script says MOVE TO PLAYER_HAND, it should look for the zone "P" + player.id + "_Hand".
