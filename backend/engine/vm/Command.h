@@ -1,18 +1,21 @@
 /**
  * @file Command.h
- * @brief Command interface
+ * @brief Command interface.
  */
 
 #ifndef COMMAND_H
 #define COMMAND_H
 
+#include "GameState.h"
+#include "GameValue.h"
+
 namespace GCB::GameEngine {
     class Command {
-        //Virtual destructo - can delete derived class instances through base
-        //class pointer.
-        virtual ~Command() = default;
-        
         public:
+            //Virtual destruct - can delete derived class instances through base
+            //class pointer.
+            virtual ~Command() = default;
+            
             //=0 must be implemented
             //virtual - overridden in dervied classes
             virtual void execute(State::GameState& state, 

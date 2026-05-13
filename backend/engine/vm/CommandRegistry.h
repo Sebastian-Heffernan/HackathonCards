@@ -1,3 +1,8 @@
+/**
+ * @file CommandRegistry.h
+ * @brief Stores map of Commands accessible by engine & their keys (OpCodes).
+ */
+
 #ifndef COMMANDREGISTRY_H
 #define COMMANDREGISTRY_H
 
@@ -15,7 +20,7 @@ namespace GCB::GameEngine {
             CommandRegistry() = default;
 
         public:
-            CommandRegistry& get();
+            static CommandRegistry& get();
             
             /**
              * @brief Hash opcode * add it to the commandRegistry
