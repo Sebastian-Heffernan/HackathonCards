@@ -1,6 +1,6 @@
 /**
  * @file Zone.h
- * @brief Generic container for cards
+ * @brief Generic container for entities
  */
 
 #ifndef ZONE_H
@@ -8,10 +8,10 @@
 
 #include <string>
 #include <vector>
-#include <Card.h>
+#include "Entity.h"
+#include <optional>
 
 namespace GCB::State {
-    using State::Card;
 
     enum class ZoneVisibility {
         HIDDEN, ///< Visible to no one
@@ -22,7 +22,7 @@ namespace GCB::State {
     class Zone {
         private:
             std::string name;
-            std::vector<Card> cards;
+            std::vector<Core::EntityId> entities;
             ZoneVisibility visibility;
 
         public:
@@ -33,16 +33,18 @@ namespace GCB::State {
             Zone(const std::string& name, ZoneVisibility vis);
 
             /**
-             * @brief Adds card to zone.
-             * @param card Ref to added card
+             * @brief Adds entity id to zone.
+             * @param id Id of added entity
              */
-            void addCard(const Card& card);
+            void add(const Core::EntityId id);
 
             /**
-             * @brief Removes & returns card from zone by index.
+             * @brief Removes & returns entity id from zone by index.
              * @param index Index of card to remove.
              */
-            Card removeCard(size_t index);
+            std::optional<Core::EntityId> remove(size_t index);
+
+            std::optional<Core::EntityId> at(size_t index) const;
 
             void shuffle();
             void clear();
@@ -50,13 +52,6 @@ namespace GCB::State {
             //Getters & setters
             const std::string& getName() const;
             size_t getCount() const;
-            const std::vector<Card>& getCards() const;
-
-            /**
-             * @brief Return pointer to card at index if exists, else nullptr.
-             * @param index Index of card.
-             */
-            const Card* getCardAt(size_t index) const;
 
             ZoneVisibility getVisibility() const;
             void setVisibility(ZoneVisibility vis);

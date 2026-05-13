@@ -1,8 +1,12 @@
 /**
- * @file engine.cpp
- * @brief main engine class
+ * @file engine.h
+ * @brief VM manager
  */
+#ifndef ENGINE_H
+#define ENGINE_H
+
 #include "GameState.h"
+#include "VirtualMachine.h"
 #include "Command.h"
 #include <stack>
 #include <memory>
@@ -13,30 +17,18 @@ namespace GCB::GameEngine {
     class GameEngine {
         private:
             State::GameState state;
-
-            //navigation
-            std::string currentLabel;
-            size_t pointer = 0;
-            std::stack<std::pair<std::string, size_t>> callStack;
+            VirtualMachine vm;
 
         public:
-            GameEngine();
+            GameEngine() : vm(state) {};
 
-            void loadScript();
+            void initLobby(int playerCount);
 
-            /// @brief Run single instruction.
-            void step();
-            /// @brief Run until BREAK or end of label.
-            void run();
+            State::GameState& getState();
+            VirtualMachine& getVM();
 
-            /// Pointer controll in Engine
-            /// @brief Jump to label
-            void jumpTo(const std::string& label, size_t newPointer = 0);
-            /// @brief call 
-            void call(const std::string& label);
-            void returnFromCall();
-
-            //getters & setters
-            State::GameState getState();
+            void processTurn();
     };
 }
+
+#endif //ENGINE_H

@@ -8,6 +8,8 @@ Main points are all prompts. Subpoints are considered valuable.
    1. [Individual instruction review](#1-individual-instruction-review)
 4. [Prompt 4](#prompt-4)
 5. [Prompt 5](#prompt-5)
+6. [Prompt 6](#prompt-6)
+7. [Prompt 7](#prompt-7)
 
 ## Prompt 1
 the overall idea I had was to make a website where users could make their own card games and host their own lobbies. This was our task for a 2 day hackathon, and it was completed. the product allows for simple byte code esc programs like this
@@ -368,3 +370,1374 @@ One final suggestion: Consider adding a Logger or History class. In card games, 
 
 Would you like to see how to implement the ScriptLoader to finally turn your text files into these Instructions?
 eg linkIf ond: https://www.geeksforgeeks.org/cpp/logging-system-in-cpp/
+
+## Prompt 6
+This is with GPT
+
+This is not “too generic.”
+It’s actually in the interesting middle ground now:
+
+* generic enough to support many games
+* still concrete enough to reason about
+
+Your *real* risk now is not over-genericity.
+
+Your real risks are:
+
+1. identity/lifetime problems
+2. VM evolution problems
+3. data ownership problems
+4. script/runtime coupling
+5. eventually fighting your own abstractions
+
+And you are VERY close to some of those already.
+
+---
+
+# BIG PICTURE
+
+You currently have:
+
+```text
+Frontend
+    ↓
+Custom language
+    ↓
+Compiler
+    ↓
+Instruction vector
+    ↓
+VirtualMachine
+    ↓
+GameState
+```
+
+That’s good architecture.
+
+The biggest thing you need now is:
+
+# CONSISTENT OBJECT IDENTITY
+
+Right now your runtime is copy-heavy and pointer-unstable.
+
+That WILL explode later.
+
+---
+
+# 1. THE BIGGEST PROBLEM:
+
+# CARDS ARE STORED BY VALUE EVERYWHERE
+
+Right now:
+
+```cpp
+std::vector<Card> cards;
+```
+
+and:
+
+```cpp
+Card removeCard(...)
+```
+
+and:
+
+```cpp
+void addCard(const Card&)
+```
+
+This means cards are copied constantly.
+
+That causes future disasters:
+
+* references become invalid
+* effects lose targets
+* triggers lose identity
+* mutations don't propagate
+* attachments break
+* counters break
+* "same card" becomes ambiguous
+
+---
+
+## Example catastrophe
+
+Suppose:
+
+```text
+Card A gets +2 attack permanently
+```
+
+Then:
+
+* move card between zones
+* copy happens
+* old references exist
+* scripts still reference old version
+
+Now you have ghost state.
+
+---
+
+# FIX:
+
+## CARDS SHOULD EXIST EXACTLY ONCE
+
+Store cards globally:
+
+```cpp
+std::unordered_map<EntityId, Card>
+```
+
+Zones only store IDs:
+
+```cpp
+std::vector<EntityId>
+```
+
+This is probably the MOST important architectural change you can make.
+
+---
+
+# 2. YOU DON'T REALLY HAVE A VM STACK YET
+
+Right now:
+
+```cpp
+Instruction.args
+```
+
+means operands are pre-bound into instructions.
+
+That works for:
+
+```text
+DRAW 1
+```
+
+but NOT:
+
+```text
+x = health + attack * 2
+```
+
+because you need temporary evaluation state.
+
+You eventually need:
+
+```cpp
+std::vector<GameValue> valueStack;
+```
+
+Then bytecode becomes:
+
+```text
+PUSH_VAR health
+PUSH_VAR attack
+PUSH_INT 2
+MUL
+ADD
+STORE_VAR x
+```
+
+Without a stack, your language will become extremely awkward.
+
+---
+
+# 3. YOUR VM CURRENTLY CANNOT SUSPEND SAFELY
+
+This is VERY important for multiplayer/input.
+
+You have:
+
+```cpp
+choiceQueue
+waiting
+jumpAddress
+```
+
+but the VM still fundamentally assumes:
+
+```cpp
+run() loops continuously
+```
+
+Real card games need:
+
+```text
+VM runs
+→ pauses for player input
+→ serialized to network maybe
+→ resumes later
+```
+
+So eventually you need:
+
+```cpp
+enum class VMState {
+    RUNNING,
+    WAITING,
+    STOPPED,
+    ERROR
+};
+```
+
+and:
+
+```cpp
+step()
+```
+
+becomes the primary execution API.
+
+NOT `run()`.
+
+---
+
+# 4. YOUR COMMAND SYSTEM IS GOOD
+
+but...
+
+```cpp
+std::shared_ptr<Command>
+```
+
+is probably unnecessary overhead.
+
+Commands are basically stateless function objects.
+
+You could just do:
+
+```cpp
+using CommandFn = std::function<void(GameState&, VM&, const Args&)>;
+```
+
+or even:
+
+```cpp
+using CommandFn = void(*)(...);
+```
+
+Right now every instruction execution:
+
+* dereferences shared_ptr
+* virtual dispatch
+
+Not catastrophic, but unnecessary.
+
+---
+
+# 5. YOUR OPCODE HASHING IS DANGEROUS
+
+This:
+
+```cpp
+hash_opcode("DRAW")
+```
+
+is elegant...
+
+BUT:
+
+# hash collisions WILL eventually happen.
+
+For small hobby projects maybe okay.
+
+But for a real scripting language:
+use actual opcode enums internally.
+
+Compiler phase:
+
+```text
+"DRAW" -> Opcode::DRAW
+```
+
+VM phase:
+
+```cpp
+switch(opcode)
+```
+
+MUCH faster.
+MUCH safer.
+MUCH easier to debug.
+
+Hashing is nice for:
+
+* registration
+* lookup
+* reflection
+
+but not ideal for runtime execution.
+
+---
+
+# 6. YOU CURRENTLY HAVE NO TYPE SAFETY
+
+This:
+
+```cpp
+instr.args[0].asInt()
+```
+
+can explode at runtime.
+
+Eventually you want:
+
+```cpp
+bool isInt()
+bool isString()
+ValueType type()
+```
+
+otherwise scripting errors become impossible to debug nicely.
+
+---
+
+# 7. `GameValue` NEEDS TO BECOME A REAL RUNTIME TYPE
+
+Right now it's:
+
+```cpp
+variant<int,string,bool,null>
+```
+
+Eventually you'll need:
+
+```cpp
+enum class ValueType {
+    INT,
+    FLOAT,
+    BOOL,
+    STRING,
+    ENTITY,
+    LIST,
+    NULLTYPE
+};
+```
+
+because:
+
+* VM debugging
+* serialization
+* networking
+* script errors
+* save/load
+* inspection
+
+all need explicit typing.
+
+---
+
+# 8. YOUR EVENT SYSTEM DOESN'T EXIST YET
+
+and it MUST become central.
+
+Right now commands directly mutate state.
+
+But real card engines become:
+
+```text
+Command
+→ emits event
+→ listeners trigger
+→ stack resolves
+→ replacement effects happen
+→ more events emitted
+```
+
+Without this you'll hardcode rules forever.
+
+You need something like:
+
+```cpp
+struct Event {
+    EventType type;
+    EntityId source;
+    std::vector<GameValue> args;
+};
+```
+
+Then:
+
+```text
+MOVE_CARD
+```
+
+emits:
+
+```text
+EVENT_CARD_MOVED
+```
+
+Scripts react to events.
+
+---
+
+# 9. YOU CURRENTLY HAVE NO OWNERSHIP MODEL
+
+Who owns:
+
+* cards?
+* zones?
+* effects?
+* spawned tokens?
+
+GameState currently owns:
+
+```cpp
+zones
+players
+globals
+```
+
+But cards are buried inside zones.
+
+That becomes a nightmare later.
+
+You likely want:
+
+```cpp
+GameState
+    entities
+    zones
+    players
+    systems
+```
+
+---
+
+# 10. YOUR LANGUAGE WILL NEED SCOPES
+
+Right now you only have:
+
+```cpp
+globals
+```
+
+Eventually you'll need:
+
+* local variables
+* function scope
+* temporary scope
+* event scope
+* trigger context
+
+Otherwise scripting becomes awful.
+
+---
+
+# 11. `Choice` IS ONE OF YOUR BEST IDEAS
+
+Seriously.
+
+This:
+
+```cpp
+jumpAddress
+```
+
+is the beginning of continuation-based scripting.
+
+That's powerful.
+
+You can eventually support:
+
+* interrupts
+* async multiplayer
+* nested prompts
+* hidden information
+* simultaneous selection
+
+This is exactly how sophisticated digital card engines work.
+
+---
+
+# 12. YOUR CURRENT DESIGN IS STILL TOO OBJECT-ORIENTED
+
+Card games are weird because:
+
+* effects are data
+* rules are data
+* behavior is dynamic
+
+Traditional OOP:
+
+```cpp
+class FireballCard : public Card
+```
+
+becomes HORRIBLE.
+
+You are correctly avoiding that.
+
+Continue avoiding that.
+
+The behavior should live in:
+
+* scripts
+* bytecode
+* events
+
+NOT subclasses.
+
+---
+
+# 13. YOUR BIGGEST MISSING PIECE:
+
+# DETERMINISM
+
+If multiplayer/replay matters:
+
+DO NOT use:
+
+```cpp
+std::chrono random seed
+```
+
+Use:
+
+```cpp
+GameState RNG
+```
+
+with fixed seeds.
+
+Otherwise:
+
+* replays desync
+* multiplayer desyncs
+* debugging impossible
+
+This is MASSIVE for card engines.
+
+---
+
+# 14. YOUR VM SHOULD EVENTUALLY LOOK MORE LIKE THIS
+
+```text
+VirtualMachine
+    instruction pointer
+    call stack
+    value stack
+    scopes
+    suspended state
+    event queue
+```
+
+Current VM is closer to:
+
+```text
+script dispatcher
+```
+
+than a true VM.
+
+That's okay for now.
+
+---
+
+# 15. YOUR MOST IMPORTANT NEXT STEP
+
+NOT:
+
+* combat
+* decks
+* UI
+* networking
+
+Instead:
+
+# ENTITY IDS + CENTRAL ENTITY STORAGE
+
+Then:
+
+# EVENT SYSTEM
+
+Then:
+
+# VALUE STACK
+
+Those 3 decisions will determine whether this becomes:
+
+* extensible
+  or
+* painful spaghetti.
+
+And honestly? You're already much closer to a real engine architecture than most people get on first attempt.
+
+
+## Prompt 7
+
+# 1. FIX CARD IDENTITY
+
+This is the most important fix.
+
+Right now cards are copied everywhere.
+
+You want:
+
+* cards exist once
+* zones only reference them
+
+---
+
+# CURRENT
+
+```cpp id="1x3o62"
+std::vector<Card> cards;
+```
+
+---
+
+# REPLACE WITH
+
+## Add entity/card ID type
+
+```cpp id="m0ptdl"
+using EntityId = uint32_t;
+```
+
+---
+
+# GameState owns ALL cards
+
+## GameState.h
+
+```cpp id="sbgjlwm"
+std::unordered_map<EntityId, Card> cards;
+EntityId nextEntityId = 1;
+```
+
+---
+
+# Add creation method
+
+```cpp id="ybjlwm"
+EntityId createCard() {
+    EntityId id = nextEntityId++;
+    cards.emplace(id, Card(id));
+    return id;
+}
+```
+
+---
+
+# Add getter
+
+```cpp id="3tjlwm"
+Card* getCard(EntityId id) {
+    auto it = cards.find(id);
+    if (it == cards.end()) return nullptr;
+    return &it->second;
+}
+```
+
+---
+
+# Change Zone
+
+## OLD
+
+```cpp id="ygjlwm"
+std::vector<Card> cards;
+```
+
+## NEW
+
+```cpp id="fjlwm"
+std::vector<EntityId> cards;
+```
+
+---
+
+# Zone methods
+
+## OLD
+
+```cpp id="egjlwm"
+void addCard(const Card& card)
+```
+
+## NEW
+
+```cpp id="8jlwm"
+void addCard(EntityId id)
+```
+
+---
+
+# Remove
+
+## OLD
+
+```cpp id="jjlwm"
+Card removeCard(size_t index)
+```
+
+## NEW
+
+```cpp id="rjlwm"
+EntityId removeCard(size_t index)
+```
+
+---
+
+# Why this matters
+
+Now:
+
+* effects stay attached
+* references stay valid
+* no copying
+* networking easier
+* save/load easier
+
+This is foundational.
+
+---
+
+# 2. FIX GAMEVALUE
+
+Your runtime value system is too weak.
+
+---
+
+# REPLACE WITH
+
+## GameValue.h
+
+```cpp id="s6qbrl"
+using EntityId = uint32_t;
+
+class GameValue;
+
+using ValueList = std::vector<GameValue>;
+
+using ValueVariant = std::variant<
+    int64_t,
+    double,
+    bool,
+    std::string,
+    EntityId,
+    ValueList,
+    std::nullptr_t
+>;
+```
+
+---
+
+# Add explicit type enum
+
+```cpp id="2fh67m"
+enum class ValueType {
+    INT,
+    FLOAT,
+    BOOL,
+    STRING,
+    ENTITY,
+    LIST,
+    NULLTYPE
+};
+```
+
+---
+
+# Add inspection
+
+```cpp id="0njf4x"
+ValueType type() const;
+bool isInt() const;
+bool isEntity() const;
+```
+
+---
+
+# Why
+
+You NEED:
+
+* entity references
+* lists
+* runtime type checking
+* debugging
+
+---
+
+# 3. ADD A VALUE STACK
+
+Your VM is not really a VM yet.
+
+---
+
+# ADD TO VM
+
+```cpp id="oj4j3t"
+std::vector<GameValue> valueStack;
+```
+
+---
+
+# Add helpers
+
+```cpp id="rlxehm"
+void push(const GameValue& val);
+GameValue pop();
+```
+
+---
+
+# Why
+
+Without this:
+
+* expressions impossible
+* arithmetic awkward
+* conditions awkward
+* function calls awkward
+
+---
+
+# Your bytecode should become:
+
+Instead of:
+
+```text id="zmjlwm"
+ADD x y z
+```
+
+Use:
+
+```text id="ltjlwm"
+PUSH_VAR x
+PUSH_VAR y
+ADD
+STORE_VAR z
+```
+
+This is how nearly every VM works.
+
+---
+
+# 4. REPLACE HASH OPCODES
+
+Hashing is cute but dangerous.
+
+---
+
+# DO THIS
+
+## Opcode.h
+
+```cpp id="7kdy0v"
+enum class Opcode : uint16_t {
+    PUSH_INT,
+    PUSH_STRING,
+    LOAD_GLOBAL,
+    STORE_GLOBAL,
+    ADD,
+    SUB,
+    MUL,
+    DIV,
+    JUMP,
+    CALL,
+    RET,
+    EMIT_EVENT,
+    CREATE_CHOICE
+};
+```
+
+---
+
+# Instruction
+
+## OLD
+
+```cpp id="4jlwm"
+uint32_t opCode;
+```
+
+## NEW
+
+```cpp id="pjlwm"
+Opcode opcode;
+```
+
+---
+
+# Compiler phase converts:
+
+```text id="jlwm"
+"ADD"
+```
+
+to:
+
+```text id="6jlwm"
+Opcode::ADD
+```
+
+---
+
+# VM becomes MUCH cleaner
+
+```cpp id="jlwm1"
+switch(instr.opcode) {
+    case Opcode::ADD:
+        ...
+}
+```
+
+---
+
+# 5. REMOVE COMMAND CLASSES
+
+You don't need OOP command polymorphism.
+
+---
+
+# REPLACE
+
+## OLD
+
+```cpp id="jlwm2"
+class Command {
+    virtual void execute(...)
+}
+```
+
+---
+
+# WITH
+
+```cpp id="jlwm3"
+using CommandFn =
+    std::function<void(VirtualMachine&, GameState&)>;
+```
+
+---
+
+# Registry
+
+```cpp id="jlwm4"
+std::unordered_map<Opcode, CommandFn>
+```
+
+---
+
+# Why
+
+Your commands are:
+
+* stateless
+* simple
+* runtime behavior
+
+Classes add:
+
+* heap allocations
+* virtual dispatch
+* complexity
+
+---
+
+# 6. ADD VM STATES
+
+You NEED suspension.
+
+---
+
+# ADD
+
+```cpp id="jlwm5"
+enum class VMState {
+    RUNNING,
+    WAITING,
+    STOPPED,
+    ERROR
+};
+```
+
+---
+
+# Replace
+
+## OLD
+
+```cpp id="jlwm6"
+bool running
+```
+
+## NEW
+
+```cpp id="jlwm7"
+VMState state
+```
+
+---
+
+# Why
+
+You need:
+
+* multiplayer
+* async input
+* pausing
+* resuming
+* nested choices
+
+---
+
+# 7. MAKE CHOICE SYSTEM REAL
+
+Current `Choice` is underdeveloped.
+
+---
+
+# Replace with:
+
+```cpp id="jlwm8"
+struct ChoiceOption {
+    std::string text;
+    std::vector<EntityId> targets;
+};
+
+struct PendingChoice {
+    int playerId;
+
+    std::vector<ChoiceOption> options;
+
+    size_t resumePointer;
+
+    bool resolved = false;
+    int selectedIndex = -1;
+};
+```
+
+---
+
+# VM flow
+
+```text id="jlwm9"
+VM executes
+→ creates PendingChoice
+→ VMState = WAITING
+→ frontend asks player
+→ response arrives
+→ VM resumes
+```
+
+---
+
+# 8. ADD EVENT SYSTEM
+
+THIS is the heart of generic card games.
+
+---
+
+# Add event structure
+
+```cpp id="jlwm10"
+enum class EventType {
+    CARD_MOVED,
+    CARD_PLAYED,
+    TURN_STARTED,
+    DAMAGE_DEALT,
+    CHOICE_SELECTED
+};
+
+struct Event {
+    EventType type;
+
+    EntityId source;
+
+    std::vector<GameValue> args;
+};
+```
+
+---
+
+# GameState
+
+```cpp id="jlwm11"
+std::queue<Event> eventQueue;
+```
+
+---
+
+# Commands emit events
+
+```cpp id="jlwm12"
+emitEvent(...)
+```
+
+---
+
+# Scripts subscribe to events
+
+Example:
+
+```text id="jlwm13"
+on CARD_PLAYED:
+    draw(1)
+```
+
+---
+
+# Why
+
+Without this:
+you will hardcode rules forever.
+
+---
+
+# 9. ADD SCOPES
+
+Globals alone are not enough.
+
+---
+
+# Add stack frame
+
+```cpp id="jlwm14"
+struct StackFrame {
+    size_t returnAddress;
+
+    std::unordered_map<std::string, GameValue> locals;
+};
+```
+
+---
+
+# VM
+
+```cpp id="jlwm15"
+std::vector<StackFrame> frames;
+```
+
+---
+
+# Why
+
+Needed for:
+
+* functions
+* recursion
+* triggers
+* local vars
+* event contexts
+
+---
+
+# 10. FIX RNG
+
+This matters A LOT.
+
+---
+
+# REMOVE
+
+```cpp id="jlwm16"
+std::chrono seed
+```
+
+---
+
+# ADD TO GAMESTATE
+
+```cpp id="jlwm17"
+std::mt19937 rng;
+```
+
+---
+
+# Seed once
+
+```cpp id="jlwm18"
+rng(seedValue);
+```
+
+---
+
+# Use everywhere
+
+```cpp id="jlwm19"
+std::shuffle(cards.begin(), cards.end(), rng);
+```
+
+---
+
+# Why
+
+Determinism:
+
+* multiplayer sync
+* replay systems
+* debugging
+
+---
+
+# 11. FIX PROPERTY DUPLICATION
+
+You duplicated property logic.
+
+---
+
+# Add reusable mixin
+
+```cpp id="jlwm20"
+class PropertyContainer {
+protected:
+    std::unordered_map<std::string, GameValue> props;
+
+public:
+    void setProperty(...);
+    const GameValue* getProperty(...);
+};
+```
+
+---
+
+# Then
+
+```cpp id="jlwm21"
+class Card : public PropertyContainer
+class Player : public PropertyContainer
+```
+
+---
+
+# 12. FIX RETURNING NULL CARDS
+
+This:
+
+```cpp id="jlwm22"
+return Card(0);
+```
+
+is dangerous.
+
+---
+
+# Replace with
+
+```cpp id="jlwm23"
+std::optional<EntityId>
+```
+
+or:
+
+```cpp id="jlwm24"
+bool removeCard(..., EntityId& out)
+```
+
+---
+
+# Why
+
+Fake sentinel objects become bugs later.
+
+---
+
+# 13. RESTRUCTURE VM
+
+Your VM should evolve into this:
+
+```text id="jlwm25"
+VirtualMachine
+    instruction pointer
+    value stack
+    call stack
+    stack frames
+    VM state
+    current event
+    waiting choice
+```
+
+---
+
+# 14. YOUR LANGUAGE SHOULD LOOK LIKE THIS
+
+Eventually:
+
+```text id="jlwm26"
+on CARD_PLAYED(card):
+    if card.type == "spell":
+        draw(current_player, 1)
+```
+
+Compiler →
+
+```text id="jlwm27"
+LOAD_EVENT_ARG 0
+GET_PROPERTY "type"
+PUSH_STRING "spell"
+EQ
+JUMP_IF_FALSE 10
+
+LOAD_GLOBAL "current_player"
+PUSH_INT 1
+CALL draw
+```
+
+---
+
+# 15. MOST IMPORTANT:
+
+STOP ADDING GAME FEATURES
+
+Do NOT add:
+
+* combat
+* mana
+* deck systems
+* phases
+
+until:
+
+* entity IDs
+* events
+* stack VM
+* suspend/resume
+
+exist first.
+
+Those are the actual engine.
+## Engine
+Your VM shouldn’t “pause and resume” when a choice is needed — instead, it should keep running a continuously evaluated **action stack** where each GameAction is a node with a phase. When an action hits something that requires player input, it becomes “blocked” (waiting for a Choice), but it stays on the stack and does not stop the system. Meanwhile, other GameActions can still be inserted and executed, including interrupts like “nope” effects, which are just higher-priority actions pushed above or alongside the blocked one. The VM always keeps processing available actions in priority order, and blocked actions simply resume once their required input or interruption window is resolved.
+
+Yes — that’s basically the correct model now, with one important wording tweak:
+
+> the engine itself does **not pause**, only individual actions do.
+
+So the flow becomes:
+
+1. An action is added to the action stack.
+2. The engine runs that action step-by-step.
+3. If the action reaches a blocking state:
+
+   * waiting for user input
+   * waiting for response window
+   * waiting for another action to resolve
+     then that specific action is marked blocked/open and execution of *that action* stops temporarily.
+4. The engine then looks at the stack again and picks the next runnable action, usually by:
+
+   * priority
+   * timestamp/order
+   * stack rules
+5. New actions (interrupts/reactions/etc.) can be inserted into the stack at any time.
+6. Once the blocked action’s condition is satisfied, it becomes runnable again and continues from where it stopped.
+
+So your VM stops being:
+
+```text
+single linear script
+```
+
+and becomes:
+
+```text
+scheduler over partially-resolved actions
+```
+
+That is the core architectural shift.

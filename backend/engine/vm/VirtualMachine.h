@@ -1,6 +1,6 @@
 /**
  * @file VirtualMachine.h
- * @brief Main engine logic.
+ * @brief Main logic of a running game.
  */
 
 #ifndef VIRTUALMACHINE_H
@@ -18,10 +18,6 @@ namespace GCB::GameEngine {
     class VirtualMachine {
         private:
             std::vector<Instruction> program;
-            /// @brief Store pointers from CALL.
-            std::stack<size_t> callStack;
-
-            size_t pointer = 0;
             bool running = false;
 
             State::GameState& gameState; //reference to it in Engine
@@ -50,6 +46,11 @@ namespace GCB::GameEngine {
 
             /// @brief Stops the VM.
             void stop();
+
+            void processAction(State::GameAction& action);
+
+            void setPointer(size_t ptr);
+            size_t getPointer() const;
     };
 }
 

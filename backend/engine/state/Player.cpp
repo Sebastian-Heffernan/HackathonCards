@@ -6,12 +6,13 @@
 #include <cassert>
 
 namespace GCB::State {
-    Player::Player(int uuid, const std::string& username) : uuid(uuid), username(username), status(PlayerStatus::IN_PLAY) {}
+    Player::Player(Core::EntityId id,
+        const std::string& username) : id(id), username(username), 
+        status(PlayerStatus::IN_PLAY) {}
 
-    int Player::getId() const {
-        return uuid;
+    Core::EntityId Player::getId() const {
+        return id;
     }
-
     const std::string& Player::getName() const {
         return username;
     }
@@ -19,7 +20,6 @@ namespace GCB::State {
     void Player::setStatus(PlayerStatus newStatus) {
         status = newStatus;
     }
-
     PlayerStatus Player::getStatus() const {
         return status;
     }

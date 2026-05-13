@@ -8,6 +8,7 @@
 #include <string>
 #include <unordered_map>
 #include "GameValue.h"
+#include "Entity.h"
 
 namespace GCB::State {
     using Core::GameValue;
@@ -22,7 +23,7 @@ namespace GCB::State {
 
     class Player {
         private:
-            int uuid;
+            Core::EntityId id;
             std::string username;
             PlayerStatus status = PlayerStatus::IN_PLAY; //set as def
 
@@ -30,10 +31,11 @@ namespace GCB::State {
             std::unordered_map<std::string, GameValue> properties;
         
         public:
-            Player(int uuid, const std::string& username);
+            Player(Core::EntityId id, const std::string& username);
 
             //Getters & setters
-            int getId() const;
+            Core::EntityId getId() const;
+
             const std::string& getName() const;
 
             void setStatus(PlayerStatus status);

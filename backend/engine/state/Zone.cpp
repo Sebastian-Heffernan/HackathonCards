@@ -1,6 +1,6 @@
 /**
  * @file Zone.cpp
- * @brief Implementation of generic container for cards
+ * @brief Implementation of generic container for entities
  */
 
 #include "Zone.h"
@@ -9,31 +9,33 @@
 #include <random>
 
 namespace GCB::State {
-    Zone::Zone(const std::string& zoneName, ZoneVisibility vis) : name(zoneName), visibility(vis) {}
+    Zone::Zone(const std::string& zoneName, ZoneVisibility vis) 
+        : name(zoneName), visibility(vis) {}
 
-    void Zone::addCard(const Card& card) {
-        cards.push_back(card);
+    void Zone::add(const Core::EntityId id) {
+        entities.push_back(id);
     }
 
-    Card Zone::removeCard(size_t index) {
-        if (index >= cards.size()) {
-            //return Null card
-            return Card(0);
+    std::optional<Core::EntityId> Zone::remove(size_t index) {
+        if (index >= entities.size()) {
+            std::optional<Core::EntityId>;
         }
-        Card removedCard = cards[index]; //copy
-        cards.erase(cards.begin() + index);
-        return removedCard;
+        Core::EntityId id = entities[index]; //copy
+        entities.erase(entities.begin() + index);
+        return id;
     }
 
     void Zone::shuffle() {
         //(using time)
-        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+        unsigned seed = std::chrono::system_clock::now()
+            .time_since_epoch()
+            .count();
         std::default_random_engine engine(seed);
-        std::shuffle(cards.begin(), cards.end(), engine);
+        std::shuffle(entities.begin(), entities.end(), engine);
     }
 
     void Zone::clear() {
-        cards.clear();
+        entities.clear();
     }
 
     const std::string& Zone::getName() const {
@@ -41,18 +43,14 @@ namespace GCB::State {
     }
 
     size_t Zone::getCount() const {
-        return cards.size();
+        return entities.size();
     }
 
-    const std::vector<Card>& Zone::getCards() const {
-        return cards;
-    }
-
-    const Card* Zone::getCardAt(size_t index) const {
-        if (index >= cards.size()) {
-            return nullptr;
+    std::optional<Core::EntityId> Zone::at(size_t index) const {
+        if (index >= entities.size()) {
+            std::optional<Core::EntityId>;
         }
-        return &cards[index];
+        return entities[index];
     }
 
     ZoneVisibility Zone::getVisibility() const {
