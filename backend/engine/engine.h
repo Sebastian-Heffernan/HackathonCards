@@ -9,11 +9,10 @@
 #include <map>
 
 namespace GCB::GameEngine {
+
     class GameEngine {
         private:
             State::GameState state;
-            //command registry
-            std::map<std::string, std::shared_ptr<Command>> commandRegistry; 
 
             //navigation
             std::string currentLabel;
@@ -24,7 +23,6 @@ namespace GCB::GameEngine {
             GameEngine();
 
             void loadScript();
-            void registerCommand(const std::string& name, std::shared_ptr<Command> cmd);
 
             /// @brief Run single instruction.
             void step();

@@ -10,7 +10,7 @@
 #include <expected>
 #include <unordered_map>
 #include "GameValue.h"
-namespace GCB::Core {
+namespace GCB::State {
     class Card {
         private:
             uint16_t cardId;

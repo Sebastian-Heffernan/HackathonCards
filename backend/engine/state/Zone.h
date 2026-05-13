@@ -11,7 +11,7 @@
 #include <Card.h>
 
 namespace GCB::State {
-    using Core::Card;
+    using State::Card;
 
     enum class ZoneVisibility {
         HIDDEN, ///< Visible to no one

@@ -45,5 +45,11 @@ https://cplusplus.com/reference/random/
 #### enum classes
 https://stackoverflow.com/questions/18335861/why-is-enum-class-considered-safer-to-use-than-plain-enum
 
-#### push back vs emplace back
+#### push back vs emplace 
 https://www.geeksforgeeks.org/cpp/push_back-vs-emplace_back-in-cpp-stl-vectors/
+
+#### shared vs unique pointe
+https://stackoverflow.com/questions/6876751/differences-between-unique-ptr-and-shared-ptr
+
+#### =default
+https://stackoverflow.com/questions/20828907/the-new-syntax-default-in-c11

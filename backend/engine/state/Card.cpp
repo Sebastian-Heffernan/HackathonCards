@@ -1,7 +1,7 @@
 #include "Card.h"
 #include <cassert>
 
-namespace GCB::Core {
+namespace GCB::State {
     Card::Card(uint16_t id) : cardId(id) {}
 
     void Card::setPropety(const std::string& name, const GameValue& value) {
